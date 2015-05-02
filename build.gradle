@@ -1,0 +1,88 @@
+// Apply Gradle plugins
+plugins {
+    id 'java'
+    id 'maven'
+    id 'eclipse'
+    id 'idea'
+    id 'checkstyle'
+
+    id 'com.github.hierynomus.license' version '0.11.0'
+}
+
+defaultTasks 'clean', 'licenseFormat', 'build'
+
+// Project information
+group = 'net.caseif.steel'
+version = '1.0.0-SNAPSHOT'
+
+// Extended project information
+ext.projectName = 'steel'
+ext.description = 'The implementation of Flint minigame framework for the Bukkit Minecraft server mod.'
+ext.inceptionYear = '2015'
+ext.packaging = 'jar'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+// Project repositories
+repositories {
+    mavenCentral()
+    maven { url 'http://repo.caseif.net/content/groups/public/' }
+    maven { url 'http://hub.spigotmc.org/nexus/content/groups/public/' }
+}
+
+// Project dependencies
+dependencies {
+    compile 'com.google.guava:guava:17.0'
+	compile 'org.bukkit:bukkit:1.8.3-R0.1-SNAPSHOT'
+	compile 'net.caseif.flint:flint:1.0-SNAPSHOT'
+}
+
+// Read source files using UTF-8
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+processResources {
+    from 'LICENSE'
+}
+
+// License header formatting
+license {
+    header file('LICENSE')
+    excludes([
+            '**/*.properties',
+            '**/*.yml'
+    ])
+    sourceSets = project.sourceSets
+    ignoreFailures false
+    strictCheck true
+    mapping {
+        java = 'SLASHSTAR_STYLE'
+    }
+}
+
+// check code style
+checkstyle {
+    configProperties = [
+            'name'		: project.name,
+            'year'		: project.inceptionYear
+    ]
+    configFile = file('etc/checkstyle.xml')
+}
+
+tasks.withType(Checkstyle){
+    exclude '**/*.properties'
+    exclude '**/*.yml'
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.java
+    from sourceSets.main.resources
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+    archives sourceJar
+}
