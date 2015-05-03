@@ -109,6 +109,6 @@ task sourceJar(type: Jar) {
 }
 
 artifacts {
-    archives jar
+    archives shadowJar
     archives sourceJar
 }
