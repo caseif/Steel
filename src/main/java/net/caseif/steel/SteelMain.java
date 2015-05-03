@@ -28,7 +28,11 @@
  */
 package net.caseif.steel;
 
+import net.gravitydevelopment.updater.Updater;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.mcstats.Metrics;
+
+import java.io.IOException;
 
 /**
  * The main plugin class.
@@ -40,10 +44,28 @@ public class SteelMain extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		initMetrics();
+		//initUpdater(); //TODO
 	}
 
 	@Override
 	public void onDisable() {
+	}
+
+	public void initMetrics() {
+		//TODO: config check
+		try {
+			Metrics metrics = new Metrics(this);
+			metrics.start();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			getLogger().severe("Failed to enable Plugin Metrics!");
+		}
+	}
+
+	public void initUpdater() {
+		//TODO: config check
+		new Updater(this, -1, this.getFile(), Updater.UpdateType.DEFAULT, true);
 	}
 
 

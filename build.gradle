@@ -7,9 +7,10 @@ plugins {
     id 'checkstyle'
 
     id 'com.github.hierynomus.license' version '0.11.0'
+    id 'com.github.johnrengelman.shadow' version '1.2.0'
 }
 
-defaultTasks 'clean', 'licenseFormat', 'build'
+defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
 
 // Project information
 group = 'net.caseif.steel'
@@ -29,18 +30,34 @@ repositories {
     mavenCentral()
     maven { url 'http://repo.caseif.net/content/groups/public/' }
     maven { url 'http://hub.spigotmc.org/nexus/content/groups/public/' }
+    maven { url 'http://repo.gravitydevelopment.net' }
+    maven { url 'http://repo.mcstats.org/content/repositories/public' }
+}
+
+ext {
+	guava = 'com.google.guava:guava:17.0'
+	bukkit = 'org.bukkit:bukkit:1.8.3-R0.1-SNAPSHOT'
+	flint = 'net.caseif.flint:flint:1.0-SNAPSHOT'
+    metrics = 'org.mcstats.bukkit:metrics:R7'
+    updater = 'net.gravitydevelopment.updater:updater:2.3'
 }
 
 // Project dependencies
 dependencies {
-    compile 'com.google.guava:guava:17.0'
-	compile 'org.bukkit:bukkit:1.8.3-R0.1-SNAPSHOT'
-	compile 'net.caseif.flint:flint:1.0-SNAPSHOT'
+    compile guava
+	compile bukkit
+	compile flint
+	compile metrics
+	compile updater
 }
 
 // Read source files using UTF-8
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+}
+
+jar {
+    classifier = 'base'
 }
 
 processResources {
@@ -74,6 +91,14 @@ checkstyle {
 tasks.withType(Checkstyle){
     exclude '**/*.properties'
     exclude '**/*.yml'
+}
+
+shadowJar {
+    dependencies {
+        include dependency(flint)
+        include dependency(metrics)
+        include dependency(updater)
+    }
 }
 
 task sourceJar(type: Jar) {
