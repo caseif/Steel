@@ -99,6 +99,7 @@ shadowJar {
         include dependency(metrics)
         include dependency(updater)
     }
+	classifier = ''
 }
 
 task sourceJar(type: Jar) {
