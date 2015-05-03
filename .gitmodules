@@ -1,0 +1,3 @@
+[submodule "Flint"]
+	path = Flint
+	url = ./Flint

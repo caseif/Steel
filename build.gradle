@@ -1,14 +1,24 @@
-// Apply Gradle plugins
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
+    }
+}
+
+// apply Gradle plugins
 plugins {
     id 'java'
     id 'maven'
     id 'eclipse'
     id 'idea'
     id 'checkstyle'
-
-    id 'com.github.hierynomus.license' version '0.11.0'
     id 'com.github.johnrengelman.shadow' version '1.2.0'
 }
+
+apply plugin: 'license'
 
 defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
 
@@ -25,10 +35,18 @@ ext.packaging = 'jar'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
+configurations {
+    shadow
+    compile {
+        extendsFrom shadow
+    }
+}
+
 // Project repositories
 repositories {
     mavenCentral()
     maven { url 'http://repo.caseif.net/content/groups/public/' }
+    maven { url 'http://repo.bukkit.org/content/groups/public/' }
     maven { url 'http://hub.spigotmc.org/nexus/content/groups/public/' }
     maven { url 'http://repo.gravitydevelopment.net' }
     maven { url 'http://repo.mcstats.org/content/repositories/public' }
@@ -37,7 +55,7 @@ repositories {
 ext {
 	guava = 'com.google.guava:guava:17.0'
 	bukkit = 'org.bukkit:bukkit:1.8.3-R0.1-SNAPSHOT'
-	flint = 'net.caseif.flint:flint:1.0-SNAPSHOT'
+	flint = project('Flint')
     metrics = 'org.mcstats.bukkit:metrics:R7'
     updater = 'net.gravitydevelopment.updater:updater:2.3'
 }
@@ -46,9 +64,9 @@ ext {
 dependencies {
     compile guava
 	compile bukkit
-	compile flint
-	compile metrics
-	compile updater
+	shadow flint
+	shadow metrics
+	shadow updater
 }
 
 // Read source files using UTF-8
@@ -94,10 +112,10 @@ tasks.withType(Checkstyle){
 }
 
 shadowJar {
+    configurations = [project.configurations.shadow]
     dependencies {
-        include dependency(flint)
-        include dependency(metrics)
-        include dependency(updater)
+        exclude dependency('com.google.guava:guava')
+        exclude dependency('org.bukkit:bukkit')
     }
 	classifier = ''
 }
@@ -111,4 +129,22 @@ task sourceJar(type: Jar) {
 artifacts {
     archives shadowJar
     archives sourceJar
+}
+
+project('Flint') {
+    afterEvaluate {
+        configure([assemble, build, compileTestJava, javadoc, javadocJar, sourceJar, licenseFormat]) {
+            enabled = false
+        }
+        tasks.withType(VerificationTask) {
+            enabled = false
+        }
+        tasks.withType(Checkstyle) {
+            enabled = false
+        }
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
 }

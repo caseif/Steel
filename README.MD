@@ -13,7 +13,7 @@ Steel requires Java 7 for compilation and use.
 
 Steel uses Gradle as its build system. To clone and build the plugin from scratch:
 
-- `git clone https://github.com/caseif/Steel.git`
+- `git clone --recursive https://github.com/caseif/Steel.git`
 - `cd Steel`
 - `cp scripts/* .git/hooks`
 - `./gradlew` (`gradlew` or `sh ./gradlew` on Windows)
