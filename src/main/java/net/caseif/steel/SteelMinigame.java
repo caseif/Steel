@@ -31,7 +31,7 @@ public class SteelMinigame implements Minigame {
 
     private Map<ConfigNode<?>, Object> configValues = new HashMap<>();
     private BiMap<String, Arena> arenas = HashBiMap.create();
-    private BiMap<Arena, Round> rounds = HashBiMap.create(); // guarantees values aren't duplicated
+    BiMap<Arena, Round> rounds = HashBiMap.create(); // guarantees values aren't duplicated
 
     public SteelMinigame(String plugin) {
         if (Bukkit.getPluginManager().isPluginEnabled(plugin)) {
@@ -98,6 +98,6 @@ public class SteelMinigame implements Minigame {
 
     @Override
     public LocaleManager getLocaleManager() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(); //TODO
     }
 }
