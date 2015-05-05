@@ -32,8 +32,8 @@ ext.description = 'The implementation of Flint minigame framework for the Bukkit
 ext.inceptionYear = '2015'
 ext.packaging = 'jar'
 
-sourceCompatibility = project('Flint').sourceCompatibility
-targetCompatibility = project('Flint').targetCompatibility
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 configurations {
     shadow
@@ -53,9 +53,25 @@ repositories {
 }
 
 ext {
+    author = 'Max Roncacé'
+	
+	versionSuffix = version.contains('SNAPSHOT') ? (
+        (
+            System.getenv('GIT_COMMIT') ? ('-git('
+            + (System.getenv('GIT_BRANCH').contains('/')
+			        ? System.getenv('GIT_BRANCH').split('/')[1]
+			        : System.getenv('GIT_BRANCH')) + '-'
+            + System.getenv('GIT_COMMIT').substring(0, 7) + ')') : ''
+        )
+        + (System.getenv('BUILD_NUMBER') ? '-jnks' + System.getenv('BUILD_NUMBER') : '')
+    ) : ''
+
+    // to update, visit http://repo.caseif.net/content/groups/public/net/caseif/flint/flint/
+    flintVersion = '1.0-20150505.210451-9'
+
 	guava = 'com.google.guava:guava:17.0'
 	bukkit = 'org.bukkit:bukkit:1.8.3-R0.1-SNAPSHOT'
-	flint = project('Flint')
+	flint = 'net.caseif.flint:flint:' + flintVersion
     metrics = 'org.mcstats.bukkit:metrics:R7'
     updater = 'net.gravitydevelopment.updater:updater:2.3'
 }
@@ -77,6 +93,16 @@ tasks.withType(JavaCompile) {
 jar {
     classifier = 'base'
 }
+
+jar.manifest.mainAttributes(
+        'Created-By': System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
+		'Specification-Title': 'Flint',
+		'Specification-Version': flintVersion,
+		'Specification-Vendor': 'Max Roncacé',
+        'Implementation-Title': name,
+        'Implementation-Version': version + versionSuffix,
+        'Implementation-Vendor': author
+)
 
 processResources {
     from 'LICENSE'
@@ -131,20 +157,6 @@ artifacts {
     archives sourceJar
 }
 
-project('Flint') {
-    afterEvaluate {
-        configure([assemble, build, compileTestJava, javadoc, javadocJar, sourceJar, licenseFormat]) {
-            enabled = false
-        }
-        tasks.withType(VerificationTask) {
-            enabled = false
-        }
-        tasks.withType(Checkstyle) {
-            enabled = false
-        }
-    }
-}
-
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.3'
+    gradleVersion = '2.4'
 }
