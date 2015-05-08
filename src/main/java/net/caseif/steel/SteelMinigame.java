@@ -33,7 +33,7 @@ import net.caseif.flint.Minigame;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.locale.LocaleManager;
 import net.caseif.flint.round.Round;
-import net.caseif.flint.round.challenger.Challenger;
+import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.util.physical.Location3D;
 
 import com.google.common.base.Optional;
@@ -49,7 +49,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Implementaion of {@link Minigame}.
+ * Implementation of {@link Minigame}.
  *
  * @author Max Roncacé
  */

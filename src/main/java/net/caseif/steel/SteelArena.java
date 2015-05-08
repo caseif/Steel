@@ -29,6 +29,7 @@
 package net.caseif.steel;
 
 import net.caseif.flint.Arena;
+import net.caseif.flint.Minigame;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
@@ -128,5 +129,15 @@ public class SteelArena extends SteelMetadatable implements Arena {
     @Override
     public Round createRound() throws UnsupportedOperationException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Minigame getMinigame() {
+        return parent;
+    }
+
+    @Override
+    public String getPlugin() {
+        return parent.getPlugin();
     }
 }
