@@ -26,34 +26,39 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel.event.challenger;
+package net.caseif.steel.util;
 
-import net.caseif.steel.event.SteelCancellable;
+import net.caseif.steel.event.SteelEvent;
 
-import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.event.challenger.ChallengerJoinRoundEvent;
+import net.caseif.flint.Minigame;
+import org.bukkit.event.EventException;
+import org.bukkit.event.HandlerList;
+import org.bukkit.plugin.RegisteredListener;
 
 /**
- * Implementation of {@link ChallengerJoinRoundEvent}.
+ * Miscellaneous utility methods for use within Steel.
  *
  * @author Max Roncacé
  */
-public class SteelChallengerJoinRoundEvent extends SteelChallengerEvent
-        implements ChallengerJoinRoundEvent, SteelCancellable {
+public class MiscUtil {
 
-    private boolean cancelled = false;
-
-    public SteelChallengerJoinRoundEvent(Challenger challenger) {
-        super(challenger);
+    /**
+     * Calls a {@link SteelEvent}, sending it only to the plugin owning its
+     * parent {@link Minigame}.
+     *
+     * @param event The {@link SteelEvent} to call
+     */
+    public static void callEvent(SteelEvent event) {
+        HandlerList hl = event.getHandlers();
+        for (RegisteredListener rl : hl.getRegisteredListeners()) {
+            if (rl.getPlugin().getName().equals(event.getPlugin()) || rl.getPlugin().getName().equals("Steel")) {
+                try {
+                    rl.callEvent(event);
+                } catch (EventException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
     }
 
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
 }

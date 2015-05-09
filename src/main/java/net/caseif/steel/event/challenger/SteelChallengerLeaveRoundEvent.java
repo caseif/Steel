@@ -43,7 +43,7 @@ public class SteelChallengerLeaveRoundEvent extends SteelChallengerEvent
 
     private boolean cancelled = false;
 
-    protected SteelChallengerLeaveRoundEvent(Challenger challenger) {
+    public SteelChallengerLeaveRoundEvent(Challenger challenger) {
         super(challenger);
     }
 

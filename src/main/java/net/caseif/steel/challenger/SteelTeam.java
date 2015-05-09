@@ -26,34 +26,78 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel.event.challenger;
+package net.caseif.steel.challenger;
 
-import net.caseif.steel.event.SteelCancellable;
+import net.caseif.steel.util.SteelMetadatable;
 
+import com.google.common.collect.ImmutableSet;
+import net.caseif.flint.Minigame;
 import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.event.challenger.ChallengerJoinRoundEvent;
+import net.caseif.flint.challenger.Team;
+import net.caseif.flint.round.Round;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * Implementation of {@link ChallengerJoinRoundEvent}.
+ * Implements {@link Team}.
  *
  * @author Max Roncacé
  */
-public class SteelChallengerJoinRoundEvent extends SteelChallengerEvent
-        implements ChallengerJoinRoundEvent, SteelCancellable {
+public class SteelTeam extends SteelMetadatable implements Team {
 
-    private boolean cancelled = false;
+    private String id;
+    private Round round;
 
-    public SteelChallengerJoinRoundEvent(Challenger challenger) {
-        super(challenger);
+    private String name;
+    private Set<Challenger> challengers = new HashSet<>();
+
+    public SteelTeam(String id, Round round) throws IllegalArgumentException {
+        if (round.getTeam(id).isPresent()) {
+            throw new IllegalArgumentException("Team \"" + id + "\" already exists");
+        }
+        this.id = id;
+        this.name = id;
+        this.round = round;
     }
 
     @Override
-    public boolean isCancelled() {
-        return cancelled;
+    public String getId() {
+        return id;
     }
 
     @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
+    public String getDisplayName() {
+        return name;
+    }
+
+    @Override
+    public void setDisplayName(String displayName) {
+        this.name = displayName;
+    }
+
+    @Override
+    public Round getRound() {
+        return round;
+    }
+
+    @Override
+    public Set<Challenger> getChallengers() {
+        return ImmutableSet.copyOf(challengers);
+    }
+
+    @Override
+    public void addChallenger(Challenger challenger) {
+        challengers.add(challenger);
+    }
+
+    @Override
+    public Minigame getMinigame() {
+        return getRound().getMinigame();
+    }
+
+    @Override
+    public String getPlugin() {
+        return getRound().getPlugin();
     }
 }
