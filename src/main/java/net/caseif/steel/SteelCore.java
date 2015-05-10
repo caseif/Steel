@@ -31,6 +31,11 @@ package net.caseif.steel;
 import net.caseif.flint.FlintCore;
 import net.caseif.flint.Minigame;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * The implementation of {@link FlintCore}.
  *
@@ -38,13 +43,24 @@ import net.caseif.flint.Minigame;
  */
 public class SteelCore extends FlintCore {
 
+    private Map<String, Minigame> minigames = new HashMap<>();
+
     static {
         INSTANCE = new SteelCore();
     }
 
     @Override
-    public Minigame registerPlugin(String pluginId) {
-        return new SteelMinigame(pluginId);
+    public Minigame registerPlugin(String pluginId) throws IllegalArgumentException {
+        if (minigames.containsKey(pluginId)) {
+            throw new IllegalArgumentException(pluginId + " attempted to register itself more than once");
+        }
+        Minigame minigame = new SteelMinigame(pluginId);
+        minigames.put(pluginId, minigame);
+        return minigame;
+    }
+
+    public Map<String, Minigame> getMinigames() {
+        return minigames;
     }
 
 }

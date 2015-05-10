@@ -40,9 +40,7 @@ import net.caseif.flint.event.challenger.ChallengerJoinRoundEvent;
 import net.caseif.flint.exception.round.RoundJoinException;
 import net.caseif.flint.round.Round;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
-import java.util.Set;
 import java.util.UUID;
 
 /**

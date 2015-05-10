@@ -28,10 +28,9 @@
  */
 package net.caseif.steel.util;
 
-import net.caseif.flint.util.Metadatable;
-
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
+import net.caseif.flint.util.Metadatable;
 
 import java.util.HashMap;
 import java.util.Map;

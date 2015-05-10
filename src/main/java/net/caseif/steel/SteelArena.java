@@ -28,16 +28,16 @@
  */
 package net.caseif.steel;
 
-import net.caseif.flint.Arena;
-import net.caseif.flint.Minigame;
-import net.caseif.flint.round.Round;
-import net.caseif.flint.util.physical.Boundary;
-import net.caseif.flint.util.physical.Location3D;
 import net.caseif.steel.util.SteelMetadatable;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableBiMap;
+import net.caseif.flint.Arena;
+import net.caseif.flint.Minigame;
+import net.caseif.flint.round.Round;
+import net.caseif.flint.util.physical.Boundary;
+import net.caseif.flint.util.physical.Location3D;
 
 import java.util.Map;
 
