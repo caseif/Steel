@@ -66,12 +66,12 @@ ext {
         + (System.getenv('BUILD_NUMBER') ? '-jnks' + System.getenv('BUILD_NUMBER') : '')
     ) : ''
 
-    // to update, visit http://repo.caseif.net/content/groups/public/net/caseif/flint/flint/
-    flintVersion = '1.0-20150510.192051-25'
+    // to update, visit http://repo.caseif.net/content/groups/public/net/caseif/flint/common/flintcommon/
+    commonVersion = '1.0.0-20150510.194733-2'
 
     guava = 'com.google.guava:guava:17.0'
     bukkit = 'org.bukkit:bukkit:1.8.3-R0.1-SNAPSHOT'
-    flint = 'net.caseif.flint:flint:' + flintVersion
+    common = 'net.caseif.flint.common:flintcommon:' + commonVersion
     metrics = 'org.mcstats.bukkit:metrics:R7'
     updater = 'net.gravitydevelopment.updater:updater:2.3'
 }
@@ -80,7 +80,7 @@ ext {
 dependencies {
     compile guava
     compile bukkit
-    shadow flint
+    shadow common
     shadow metrics
     shadow updater
 }
@@ -97,7 +97,7 @@ jar {
 jar.manifest.mainAttributes(
         'Created-By': System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
         'Specification-Title': 'Flint',
-        'Specification-Version': flintVersion,
+        'Specification-Version': '1.0',
         'Specification-Vendor': 'Max Roncacé',
         'Implementation-Title': name,
         'Implementation-Version': version + versionSuffix,

@@ -30,15 +30,11 @@ package net.caseif.steel.challenger;
 
 import net.caseif.steel.event.challenger.SteelChallengerJoinRoundEvent;
 import net.caseif.steel.round.SteelRound;
-import net.caseif.steel.util.SteelMetadatable;
 
-import com.google.common.base.Optional;
-import net.caseif.flint.Minigame;
 import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.challenger.Team;
+import net.caseif.flint.common.challenger.CommonChallenger;
 import net.caseif.flint.event.challenger.ChallengerJoinRoundEvent;
 import net.caseif.flint.exception.round.RoundJoinException;
-import net.caseif.flint.round.Round;
 import org.bukkit.Bukkit;
 
 import java.util.UUID;
@@ -48,14 +44,7 @@ import java.util.UUID;
  *
  * @author Max Roncacé
  */
-public class SteelChallenger extends SteelMetadatable implements Challenger {
-
-    private UUID uuid;
-    private String name;
-    private SteelRound round;
-
-    private Team team;
-    private boolean spectating = false;
+public class SteelChallenger extends CommonChallenger {
 
     public SteelChallenger(UUID uuid, SteelRound round) throws RoundJoinException {
         if (Bukkit.getPlayer(uuid) == null) {
@@ -66,85 +55,5 @@ public class SteelChallenger extends SteelMetadatable implements Challenger {
         this.round = round;
         ChallengerJoinRoundEvent event = new SteelChallengerJoinRoundEvent(this);
 
-    }
-
-    /**
-     * Checks the state of this {@link SteelChallenger} object.
-     *
-     * @throws IllegalStateException If this object is no longer contained by a
-     *                               {@link Round}
-     */
-    private void checkState() throws IllegalStateException {
-        if (round == null) {
-            throw new IllegalStateException("Challenger is no longer in a round");
-        }
-    }
-
-    @Override
-    public String getName() throws IllegalStateException {
-        checkState();
-        return name;
-    }
-
-    @Override
-    public UUID getUniqueId() throws IllegalStateException {
-        checkState();
-        return uuid;
-    }
-
-    @Override
-    public Round getRound() throws IllegalStateException {
-        checkState();
-        return round;
-    }
-
-    @Override
-    public void removeFromRound() throws IllegalStateException {
-        checkState();
-        round.removeChallenger(this);
-    }
-
-    public void invalidate() {
-        checkState();
-        round = null;
-    }
-
-    @Override
-    public Optional<Team> getTeam() throws IllegalStateException {
-        checkState();
-        return Optional.fromNullable(team);
-    }
-
-    @Override
-    public void setTeam(Team team) throws IllegalStateException {
-        checkState();
-        this.team = team;
-    }
-
-    @Override
-    public boolean isSpectating() throws IllegalStateException {
-        checkState();
-        return spectating;
-    }
-
-    @Override
-    public void setSpectating(boolean spectating) throws IllegalStateException {
-        checkState();
-        if (this.spectating != spectating) {
-            this.spectating = spectating;
-            round.spectators += spectating ? 1 : -1;
-        }
-    }
-
-    @Override
-    public Minigame getMinigame() throws IllegalStateException {
-        checkState();
-        return round.getMinigame();
-    }
-
-    @Override
-    public String getPlugin() throws IllegalStateException {
-        checkState();
-        return round.getPlugin();
     }
 }

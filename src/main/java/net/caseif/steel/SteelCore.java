@@ -30,20 +30,14 @@ package net.caseif.steel;
 
 import net.caseif.flint.FlintCore;
 import net.caseif.flint.Minigame;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import net.caseif.flint.common.CommonCore;
 
 /**
  * The implementation of {@link FlintCore}.
  *
  * @author Max Roncacé
  */
-public class SteelCore extends FlintCore {
-
-    private Map<String, Minigame> minigames = new HashMap<>();
+public class SteelCore extends CommonCore {
 
     static {
         INSTANCE = new SteelCore();
@@ -57,10 +51,6 @@ public class SteelCore extends FlintCore {
         Minigame minigame = new SteelMinigame(pluginId);
         minigames.put(pluginId, minigame);
         return minigame;
-    }
-
-    public Map<String, Minigame> getMinigames() {
-        return minigames;
     }
 
 }

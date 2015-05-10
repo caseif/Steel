@@ -28,27 +28,15 @@
  */
 package net.caseif.steel.round;
 
-import net.caseif.steel.SteelArena;
 import net.caseif.steel.challenger.SteelChallenger;
-import net.caseif.steel.challenger.SteelTeam;
-import net.caseif.steel.util.SteelMetadatable;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableSet;
-import net.caseif.flint.Arena;
-import net.caseif.flint.Minigame;
 import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.challenger.Team;
-import net.caseif.flint.config.RoundConfigNode;
+import net.caseif.flint.common.CommonArena;
+import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.exception.round.RoundJoinException;
-import net.caseif.flint.locale.Localizable;
-import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 
@@ -57,37 +45,10 @@ import java.util.UUID;
  *
  * @author Max Roncacé
  */
-public class SteelRound extends SteelMetadatable implements Round {
+public class SteelRound extends CommonRound {
 
-    private SteelArena arena;
-
-    private BiMap<UUID, Challenger> challengers = HashBiMap.create();
-    private BiMap<String, Team> teams = HashBiMap.create();
-    private HashMap<RoundConfigNode<?>, Object> config = new HashMap<>();
-
-    private ArrayList<LifecycleStage> stages = new ArrayList<>();
-    private int currentStage = 0;
-    private long time;
-
-    public int spectators;
-
-    public SteelRound(SteelArena arena) {
-        this.arena = arena;
-    }
-
-    @Override
-    public Arena getArena() {
-        return arena;
-    }
-
-    @Override
-    public Set<Challenger> getChallengers() {
-        return ImmutableSet.copyOf(challengers.values());
-    }
-
-    @Override
-    public Optional<Challenger> getChallenger(UUID uuid) {
-        return Optional.fromNullable(challengers.get(uuid));
+    public SteelRound(CommonArena arena) {
+        super(arena);
     }
 
     @Override
@@ -95,154 +56,4 @@ public class SteelRound extends SteelMetadatable implements Round {
         return new SteelChallenger(uuid, this);
     }
 
-    @Override
-    public void removeChallenger(UUID uuid) throws IllegalArgumentException {
-        Challenger c = challengers.get(uuid);
-        if (c == null) {
-            throw new IllegalArgumentException("Cannot get Challenger from UUID");
-        }
-        removeChallenger(c);
-    }
-
-    @Override
-    public void removeChallenger(Challenger challenger) {
-        if (challenger.getRound() == this) {
-            challengers.remove(challenger.getUniqueId(), challenger);
-            ((SteelChallenger)challenger).invalidate();
-        } else {
-            throw new IllegalArgumentException("Cannot remove Challenger: round mismatch");
-        }
-    }
-
-    @Override
-    public Set<Team> getTeams() {
-        return ImmutableSet.copyOf(teams.values());
-    }
-
-    @Override
-    public Optional<Team> getTeam(String id) {
-        return Optional.fromNullable(teams.get(id));
-    }
-
-    @Override
-    public Team createTeam(String id) throws IllegalArgumentException {
-        if (teams.containsKey(id)) {
-            throw new IllegalArgumentException("Team \"" + id + "\"already exists");
-        }
-        return new SteelTeam(id, this);
-    }
-
-    @Override
-    public Team getOrCreateTeam(String id) {
-        Optional<Team> team = getTeam(id);
-        if (team.isPresent()) {
-            return team.get();
-        } else {
-            return createTeam(id);
-        }
-    }
-
-    @Override
-    public int getSpectatorCount() {
-        return spectators;
-    }
-
-    @Override
-    public void broadcast(String message) {
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    @Override
-    public void broadcast(Localizable message) {
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    @Override
-    public ArrayList<LifecycleStage> getLifecycleStages() {
-        return stages;
-    }
-
-    @Override
-    public void setLifecycleStages(ArrayList<LifecycleStage> stages) {
-        this.stages = stages;
-    }
-
-    @Override
-    public LifecycleStage getLifecycleStage() {
-        return getLifecycleStages().get(currentStage);
-    }
-
-    @Override
-    public Optional<LifecycleStage> getNextLifecycleStage() {
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    @Override
-    public long getTime() {
-        return time;
-    }
-
-    @Override
-    public void setTime(long time) {
-        this.time = time;
-    }
-
-    @Override
-    public long getRemainingTime() {
-        return getLifecycleStage().getDuration() == -1 ? -1 : getLifecycleStage().getDuration() - time;
-    }
-
-    @Override
-    public void startTimer() {
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    @Override
-    public void stopTimer() {
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    @Override
-    public void resetTimer() {
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    @Override
-    public void rollback() {
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    @Override
-    public void end() {
-        end(true);
-    }
-
-    @Override
-    public void end(boolean rollback) {
-        if (rollback) {
-            rollback();
-        }
-        throw new UnsupportedOperationException(); //TODO
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T getConfigValue(RoundConfigNode node) {
-        return (T)config.get(node);
-    }
-
-    @Override
-    public <T> void setConfigValue(RoundConfigNode node, T value) {
-        config.put(node, value);
-    }
-
-    @Override
-    public Minigame getMinigame() {
-        return getArena().getMinigame();
-    }
-
-    @Override
-    public String getPlugin() {
-        return getArena().getPlugin();
-    }
 }
