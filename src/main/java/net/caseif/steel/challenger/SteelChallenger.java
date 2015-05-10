@@ -70,49 +70,83 @@ public class SteelChallenger extends SteelMetadatable implements Challenger {
 
     }
 
+    /**
+     * Checks the state of this {@link SteelChallenger} object.
+     *
+     * @throws IllegalStateException If this object is no longer contained by a
+     *                               {@link Round}
+     */
+    private void checkState() throws IllegalStateException {
+        if (round == null) {
+            throw new IllegalStateException("Challenger is no longer in a round");
+        }
+    }
+
     @Override
-    public String getName() {
+    public String getName() throws IllegalStateException {
+        checkState();
         return name;
     }
 
     @Override
-    public UUID getUniqueId() {
+    public UUID getUniqueId() throws IllegalStateException {
+        checkState();
         return uuid;
     }
 
     @Override
-    public Round getRound() {
+    public Round getRound() throws IllegalStateException {
+        checkState();
         return round;
     }
 
     @Override
-    public Optional<Team> getTeam() {
+    public void removeFromRound() throws IllegalStateException {
+        checkState();
+        round.removeChallenger(this);
+    }
+
+    public void invalidate() {
+        checkState();
+        round = null;
+    }
+
+    @Override
+    public Optional<Team> getTeam() throws IllegalStateException {
+        checkState();
         return Optional.fromNullable(team);
     }
 
     @Override
-    public void setTeam(Team team) {
+    public void setTeam(Team team) throws IllegalStateException {
+        checkState();
         this.team = team;
     }
 
     @Override
-    public boolean isSpectating() {
+    public boolean isSpectating() throws IllegalStateException {
+        checkState();
         return spectating;
     }
 
     @Override
-    public void setSpectating(boolean spectating) {
-        this.spectating = spectating;
-        round.spectators += spectating ? 1 : -1;
+    public void setSpectating(boolean spectating) throws IllegalStateException {
+        checkState();
+        if (this.spectating != spectating) {
+            this.spectating = spectating;
+            round.spectators += spectating ? 1 : -1;
+        }
     }
 
     @Override
-    public Minigame getMinigame() {
+    public Minigame getMinigame() throws IllegalStateException {
+        checkState();
         return round.getMinigame();
     }
 
     @Override
-    public String getPlugin() {
+    public String getPlugin() throws IllegalStateException {
+        checkState();
         return round.getPlugin();
     }
 }

@@ -91,8 +91,27 @@ public class SteelRound extends SteelMetadatable implements Round {
     }
 
     @Override
-    public Challenger addPlayer(UUID uuid) throws RoundJoinException {
+    public Challenger addChallenger(UUID uuid) throws RoundJoinException {
         return new SteelChallenger(uuid, this);
+    }
+
+    @Override
+    public void removeChallenger(UUID uuid) throws IllegalArgumentException {
+        Challenger c = challengers.get(uuid);
+        if (c == null) {
+            throw new IllegalArgumentException("Cannot get Challenger from UUID");
+        }
+        removeChallenger(c);
+    }
+
+    @Override
+    public void removeChallenger(Challenger challenger) {
+        if (challenger.getRound() == this) {
+            challengers.remove(challenger.getUniqueId(), challenger);
+            ((SteelChallenger)challenger).invalidate();
+        } else {
+            throw new IllegalArgumentException("Cannot remove Challenger: round mismatch");
+        }
     }
 
     @Override
