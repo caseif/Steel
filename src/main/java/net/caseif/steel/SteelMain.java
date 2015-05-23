@@ -44,6 +44,7 @@ public class SteelMain extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		saveDefaultConfig();
 		initMetrics();
 		//initUpdater(); //TODO
 	}
@@ -53,19 +54,21 @@ public class SteelMain extends JavaPlugin {
 	}
 
 	public void initMetrics() {
-		//TODO: config check
-		try {
-			Metrics metrics = new Metrics(this);
-			metrics.start();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-			getLogger().severe("Failed to enable Plugin Metrics!");
+		if (getConfig().getBoolean("enable-metrics")) {
+			try {
+				Metrics metrics = new Metrics(this);
+				metrics.start();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+				getLogger().severe("Failed to enable Plugin Metrics!");
+			}
 		}
 	}
 
 	public void initUpdater() {
-		//TODO: config check
-		new Updater(this, -1, this.getFile(), Updater.UpdateType.DEFAULT, true);
+		if (getConfig().getBoolean("enable-updater")) {
+			new Updater(this, -1, this.getFile(), Updater.UpdateType.DEFAULT, true);
+		}
 	}
 
 

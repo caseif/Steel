@@ -1,0 +1,9 @@
+# ####################### #
+# # Steel Configuration # #
+# ####################### #
+
+# Allow the plugin to submit anonymous usage statistics to MCStats (pretty please)?
+enable-metrics: true
+
+# Allow the plugin to automatically update itself? (recommended so you can receive the newest API features)
+enable-updater: true
