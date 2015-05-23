@@ -34,7 +34,7 @@ import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.event.challenger.ChallengerJoinRoundEvent;
 
 /**
- * Implementation of {@link ChallengerJoinRoundEvent}.
+ * Implements {@link ChallengerJoinRoundEvent}.
  *
  * @author Max Roncacé
  */

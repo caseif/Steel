@@ -33,7 +33,7 @@ import net.caseif.flint.Minigame;
 import net.caseif.flint.common.CommonCore;
 
 /**
- * The implementation of {@link FlintCore}.
+ * Implements {@link FlintCore}.
  *
  * @author Max Roncacé
  */

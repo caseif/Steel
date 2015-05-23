@@ -34,7 +34,7 @@ import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.event.challenger.ChallengerLeaveRoundEvent;
 
 /**
- * Implementation of {@link ChallengerLeaveRoundEvent}.
+ * Implements {@link ChallengerLeaveRoundEvent}.
  *
  * @author Max Roncacé
  */

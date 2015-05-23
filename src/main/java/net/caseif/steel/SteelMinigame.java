@@ -28,13 +28,16 @@
  */
 package net.caseif.steel;
 
+import net.caseif.flint.Arena;
 import net.caseif.flint.Minigame;
 import net.caseif.flint.common.CommonMinigame;
+import net.caseif.flint.util.physical.Location3D;
+
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 /**
- * Implementation of {@link Minigame}.
+ * Implements {@link Minigame}.
  *
  * @author Max Roncacé
  */
@@ -53,5 +56,18 @@ public class SteelMinigame extends CommonMinigame {
     @Override
     public String getPlugin() {
         return plugin.getName();
+    }
+
+    @Override
+    public Arena createArena(String id, String name, Location3D spawnPoint) throws IllegalArgumentException {
+        if (arenas.containsKey(id)) {
+            throw new IllegalArgumentException("Arena with ID \"" + id + "\" already exists");
+        }
+        return new SteelArena(this, id, name, spawnPoint);
+    }
+
+    @Override
+    public Arena createArena(String id, Location3D spawnPoint) throws IllegalArgumentException {
+        return createArena(id, id, spawnPoint);
     }
 }

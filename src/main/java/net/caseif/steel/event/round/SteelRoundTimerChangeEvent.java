@@ -34,7 +34,7 @@ import net.caseif.flint.event.round.RoundTimerChangeEvent;
 import net.caseif.flint.round.Round;
 
 /**
- * Implementation of {@link RoundTimerChangeEvent}.
+ * Implements {@link RoundTimerChangeEvent}.
  *
  * @author Max Roncacé
  */

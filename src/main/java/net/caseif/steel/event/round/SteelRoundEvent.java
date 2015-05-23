@@ -34,7 +34,7 @@ import net.caseif.flint.event.round.RoundEvent;
 import net.caseif.flint.round.Round;
 
 /**
- * Implementation of {@link RoundEvent}.
+ * Implements {@link RoundEvent}.
  *
  * @author Max Roncacé
  */

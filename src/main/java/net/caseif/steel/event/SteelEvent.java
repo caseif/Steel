@@ -34,7 +34,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 /**
- * Implementation of {@link FlintEvent}.
+ * Implements {@link FlintEvent}.
  *
  * @author Max Roncacé
  */
