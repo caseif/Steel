@@ -33,8 +33,9 @@ import net.caseif.steel.round.SteelRound;
 
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.challenger.CommonChallenger;
-import net.caseif.flint.event.challenger.ChallengerJoinRoundEvent;
 import net.caseif.flint.exception.round.RoundJoinException;
+
+import net.caseif.steel.util.MiscUtil;
 import org.bukkit.Bukkit;
 
 import java.util.UUID;
@@ -53,7 +54,11 @@ public class SteelChallenger extends CommonChallenger {
         this.uuid = uuid;
         this.name = Bukkit.getPlayer(uuid).getName();
         this.round = round;
-        ChallengerJoinRoundEvent event = new SteelChallengerJoinRoundEvent(this);
-
+        SteelChallengerJoinRoundEvent event = new SteelChallengerJoinRoundEvent(this);
+        MiscUtil.callEvent(event);
+        if (event.isCancelled()) {
+            throw new RoundJoinException(uuid, round, RoundJoinException.Reason.CANCELLED, "Event was cancelled");
+        }
+        round.getChallengerMap().put(uuid, this);
     }
 }

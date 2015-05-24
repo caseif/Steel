@@ -29,6 +29,12 @@
 package net.caseif.steel.round;
 
 import net.caseif.steel.challenger.SteelChallenger;
+import net.caseif.steel.event.challenger.SteelChallengerJoinRoundEvent;
+import net.caseif.steel.event.challenger.SteelChallengerLeaveRoundEvent;
+import net.caseif.steel.event.round.SteelRoundTimerChangeEvent;
+import net.caseif.steel.event.round.SteelRoundTimerStartEvent;
+import net.caseif.steel.event.round.SteelRoundTimerStopEvent;
+import net.caseif.steel.util.MiscUtil;
 
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonArena;
@@ -36,8 +42,6 @@ import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.exception.round.RoundJoinException;
 import net.caseif.flint.round.Round;
 
-import java.util.ArrayList;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -54,6 +58,42 @@ public class SteelRound extends CommonRound {
     @Override
     public Challenger addChallenger(UUID uuid) throws RoundJoinException {
         return new SteelChallenger(uuid, this);
+    }
+
+    @Override
+    public void removeChallenger(Challenger challenger) {
+        SteelChallengerLeaveRoundEvent event = new SteelChallengerLeaveRoundEvent(challenger);
+        MiscUtil.callEvent(event);
+        if (!event.isCancelled()) {
+            super.removeChallenger(challenger);
+        }
+    }
+
+    @Override
+    public void startTimer() {
+        SteelRoundTimerStartEvent event = new SteelRoundTimerStartEvent(this);
+        MiscUtil.callEvent(event);
+        if (!event.isCancelled()) {
+            super.startTimer();
+        }
+    }
+
+    @Override
+    public void stopTimer() {
+        SteelRoundTimerStopEvent event = new SteelRoundTimerStopEvent(this);
+        MiscUtil.callEvent(event);
+        if (!event.isCancelled()) {
+            super.stopTimer();
+        }
+    }
+
+    @Override
+    public void setTime(long time) {
+        SteelRoundTimerChangeEvent event = new SteelRoundTimerChangeEvent(this, this.getTime(), time);
+        MiscUtil.callEvent(event);
+        if (!event.isCancelled()) {
+            super.setTime(time);
+        }
     }
 
 }
