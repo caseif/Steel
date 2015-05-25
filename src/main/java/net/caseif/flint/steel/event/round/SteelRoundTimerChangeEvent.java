@@ -26,33 +26,36 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel.event.round;
+package net.caseif.flint.steel.event.round;
 
-import net.caseif.steel.event.SteelCancellable;
-
-import net.caseif.flint.event.round.RoundTimerStartEvent;
+import net.caseif.flint.event.round.RoundTimerChangeEvent;
 import net.caseif.flint.round.Round;
 
 /**
- * Implements {@link RoundTimerStartEvent}.
+ * Implements {@link RoundTimerChangeEvent}.
  *
  * @author Max Roncacé
  */
-public class SteelRoundTimerStartEvent extends SteelRoundEvent implements RoundTimerStartEvent, SteelCancellable {
+public class SteelRoundTimerChangeEvent extends SteelRoundEvent implements RoundTimerChangeEvent {
+
+    private long oldTime;
+    private long newTime;
 
     private boolean cancelled = false;
 
-    public SteelRoundTimerStartEvent(Round round) {
+    public SteelRoundTimerChangeEvent(Round round, long oldTime, long newTime) {
         super(round);
+        this.oldTime = oldTime;
+        this.newTime = newTime;
     }
 
     @Override
-    public boolean isCancelled() {
-        return cancelled;
+    public long getOldTime() {
+        return oldTime;
     }
 
     @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
+    public long getNewTime() {
+        return newTime;
     }
 }

@@ -26,38 +26,29 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel.event;
+package net.caseif.flint.steel.event.round;
 
-import net.caseif.flint.Minigame;
-import net.caseif.flint.event.FlintEvent;
-import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
+import net.caseif.flint.steel.event.SteelEvent;
+
+import net.caseif.flint.event.round.RoundEvent;
+import net.caseif.flint.round.Round;
 
 /**
- * Implements {@link FlintEvent}.
+ * Implements {@link RoundEvent}.
  *
  * @author Max Roncacé
  */
-public class SteelEvent extends Event implements FlintEvent {
+public class SteelRoundEvent extends SteelEvent implements RoundEvent {
 
-    private Minigame minigame;
+    private Round round;
 
-    protected SteelEvent(Minigame minigame) {
-        this.minigame = minigame;
+    protected SteelRoundEvent(Round round) {
+        super(round.getMinigame());
+        this.round = round;
     }
 
     @Override
-    public Minigame getMinigame() {
-        return minigame;
-    }
-
-    @Override
-    public String getPlugin() {
-        return minigame.getPlugin();
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return null;
+    public Round getRound() {
+        return this.round;
     }
 }

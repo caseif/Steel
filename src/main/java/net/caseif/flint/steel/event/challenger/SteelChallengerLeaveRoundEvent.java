@@ -26,38 +26,34 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel.challenger;
+package net.caseif.flint.steel.event.challenger;
 
-import net.caseif.steel.event.challenger.SteelChallengerJoinRoundEvent;
-import net.caseif.steel.round.SteelRound;
-import net.caseif.steel.util.MiscUtil;
+import net.caseif.flint.steel.event.SteelCancellable;
 
 import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.common.challenger.CommonChallenger;
-import net.caseif.flint.exception.round.RoundJoinException;
-import org.bukkit.Bukkit;
-
-import java.util.UUID;
+import net.caseif.flint.event.challenger.ChallengerLeaveRoundEvent;
 
 /**
- * Implements {@link Challenger}.
+ * Implements {@link ChallengerLeaveRoundEvent}.
  *
  * @author Max Roncacé
  */
-public class SteelChallenger extends CommonChallenger {
+public class SteelChallengerLeaveRoundEvent extends SteelChallengerEvent
+        implements ChallengerLeaveRoundEvent, SteelCancellable {
 
-    public SteelChallenger(UUID uuid, SteelRound round) throws RoundJoinException {
-        if (Bukkit.getPlayer(uuid) == null) {
-            throw new RoundJoinException(uuid, round, RoundJoinException.Reason.OFFLINE, "Player is offline");
-        }
-        this.uuid = uuid;
-        this.name = Bukkit.getPlayer(uuid).getName();
-        this.round = round;
-        SteelChallengerJoinRoundEvent event = new SteelChallengerJoinRoundEvent(this);
-        MiscUtil.callEvent(event);
-        if (event.isCancelled()) {
-            throw new RoundJoinException(uuid, round, RoundJoinException.Reason.CANCELLED, "Event was cancelled");
-        }
-        round.getChallengerMap().put(uuid, this);
+    private boolean cancelled = false;
+
+    public SteelChallengerLeaveRoundEvent(Challenger challenger) {
+        super(challenger);
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
     }
 }

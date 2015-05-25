@@ -26,29 +26,31 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel.event.round;
+package net.caseif.flint.steel;
 
-import net.caseif.steel.event.SteelEvent;
-
-import net.caseif.flint.event.round.RoundEvent;
-import net.caseif.flint.round.Round;
+import net.caseif.flint.FlintCore;
+import net.caseif.flint.Minigame;
+import net.caseif.flint.common.CommonCore;
 
 /**
- * Implements {@link RoundEvent}.
+ * Implements {@link FlintCore}.
  *
  * @author Max Roncacé
  */
-public class SteelRoundEvent extends SteelEvent implements RoundEvent {
+public class SteelCore extends CommonCore {
 
-    private Round round;
-
-    protected SteelRoundEvent(Round round) {
-        super(round.getMinigame());
-        this.round = round;
+    static {
+        INSTANCE = new SteelCore();
     }
 
     @Override
-    public Round getRound() {
-        return this.round;
+    public Minigame registerPlugin(String pluginId) throws IllegalArgumentException {
+        if (minigames.containsKey(pluginId)) {
+            throw new IllegalArgumentException(pluginId + " attempted to register itself more than once");
+        }
+        Minigame minigame = new SteelMinigame(pluginId);
+        minigames.put(pluginId, minigame);
+        return minigame;
     }
+
 }

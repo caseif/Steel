@@ -26,34 +26,38 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel.event.challenger;
+package net.caseif.flint.steel.challenger;
 
-import net.caseif.steel.event.SteelCancellable;
+import net.caseif.flint.steel.event.challenger.SteelChallengerJoinRoundEvent;
+import net.caseif.flint.steel.round.SteelRound;
+import net.caseif.flint.steel.util.MiscUtil;
 
 import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.event.challenger.ChallengerJoinRoundEvent;
+import net.caseif.flint.common.challenger.CommonChallenger;
+import net.caseif.flint.exception.round.RoundJoinException;
+import org.bukkit.Bukkit;
+
+import java.util.UUID;
 
 /**
- * Implements {@link ChallengerJoinRoundEvent}.
+ * Implements {@link Challenger}.
  *
  * @author Max Roncacé
  */
-public class SteelChallengerJoinRoundEvent extends SteelChallengerEvent
-        implements ChallengerJoinRoundEvent, SteelCancellable {
+public class SteelChallenger extends CommonChallenger {
 
-    private boolean cancelled = false;
-
-    public SteelChallengerJoinRoundEvent(Challenger challenger) {
-        super(challenger);
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
+    public SteelChallenger(UUID uuid, SteelRound round) throws RoundJoinException {
+        if (Bukkit.getPlayer(uuid) == null) {
+            throw new RoundJoinException(uuid, round, RoundJoinException.Reason.OFFLINE, "Player is offline");
+        }
+        this.uuid = uuid;
+        this.name = Bukkit.getPlayer(uuid).getName();
+        this.round = round;
+        SteelChallengerJoinRoundEvent event = new SteelChallengerJoinRoundEvent(this);
+        MiscUtil.callEvent(event);
+        if (event.isCancelled()) {
+            throw new RoundJoinException(uuid, round, RoundJoinException.Reason.CANCELLED, "Event was cancelled");
+        }
+        round.getChallengerMap().put(uuid, this);
     }
 }

@@ -26,34 +26,45 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel.event.challenger;
+package net.caseif.flint.steel.round;
 
-import net.caseif.steel.event.SteelCancellable;
+import net.caseif.flint.steel.event.round.SteelRoundTimerTickEvent;
+import net.caseif.flint.steel.util.MiscUtil;
 
-import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.event.challenger.ChallengerLeaveRoundEvent;
+import com.google.common.base.Optional;
+import net.caseif.flint.round.LifecycleStage;
+import net.caseif.flint.round.Round;
 
 /**
- * Implements {@link ChallengerLeaveRoundEvent}.
+ * Used as the {@link Runnable} for {@link Round} timers.
  *
  * @author Max Roncacé
  */
-public class SteelChallengerLeaveRoundEvent extends SteelChallengerEvent
-        implements ChallengerLeaveRoundEvent, SteelCancellable {
+public class RoundWorker implements Runnable {
 
-    private boolean cancelled = false;
+    private SteelRound round;
 
-    public SteelChallengerLeaveRoundEvent(Challenger challenger) {
-        super(challenger);
+    public RoundWorker(SteelRound round) {
+        this.round = round;
     }
 
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
+    public void run() {
+        boolean stageSwitch = round.getTime() >= round.getLifecycleStage().getDuration();
+        SteelRoundTimerTickEvent event = new SteelRoundTimerTickEvent(round, round.getTime(),
+                stageSwitch ? 0 : round.getTime() + 1);
+        MiscUtil.callEvent(event);
+        if (stageSwitch) {
+            Optional<LifecycleStage> nextStage = round.getNextLifecycleStage();
+            if (nextStage.isPresent()) {
+                round.setTime(0);
+                round.setLifecycleStage(nextStage.get());
+            } else {
+                round.end();
+                return;
+            }
+        } else {
+            round.setTime(round.getTime() + 1, false);
+        }
     }
 
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
 }

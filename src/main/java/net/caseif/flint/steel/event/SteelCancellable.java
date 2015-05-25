@@ -26,33 +26,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel.event.round;
+package net.caseif.flint.steel.event;
 
-import net.caseif.steel.event.SteelCancellable;
-
-import net.caseif.flint.event.round.RoundTimerStopEvent;
-import net.caseif.flint.round.Round;
+import net.caseif.flint.event.Cancellable;
 
 /**
- * Implements {@link RoundTimerStopEvent}.
+ * Sub-interface of both Flint and Bukkit's <code>Cancellable</code> interfaces.
  *
  * @author Max Roncacé
  */
-public class SteelRoundTimerStopEvent extends SteelRoundEvent implements RoundTimerStopEvent, SteelCancellable {
-
-    private boolean cancelled = false;
-
-    public SteelRoundTimerStopEvent(Round round) {
-        super(round);
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
+public interface SteelCancellable extends Cancellable, org.bukkit.event.Cancellable {
 }

@@ -26,39 +26,50 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel.util;
+package net.caseif.flint.steel;
 
-import net.caseif.steel.event.SteelEvent;
+import net.gravitydevelopment.updater.Updater;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.mcstats.Metrics;
 
-import net.caseif.flint.Minigame;
-import org.bukkit.event.EventException;
-import org.bukkit.event.HandlerList;
-import org.bukkit.plugin.RegisteredListener;
+import java.io.IOException;
 
 /**
- * Miscellaneous utility methods for use within Steel.
+ * The main plugin class.
  *
  * @author Max Roncacé
+ * @version 1.0.0-SNAPSHOT
  */
-public class MiscUtil {
+public class SteelMain extends JavaPlugin {
 
-    /**
-     * Calls a {@link SteelEvent}, sending it only to the plugin owning its
-     * parent {@link Minigame}.
-     *
-     * @param event The {@link SteelEvent} to call
-     */
-    public static void callEvent(SteelEvent event) {
-        HandlerList hl = event.getHandlers();
-        for (RegisteredListener rl : hl.getRegisteredListeners()) {
-            if (rl.getPlugin().getName().equals(event.getPlugin()) || rl.getPlugin().getName().equals("Steel")) {
-                try {
-                    rl.callEvent(event);
-                } catch (EventException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-    }
+	@Override
+	public void onEnable() {
+		saveDefaultConfig();
+		initMetrics();
+		//initUpdater(); //TODO
+	}
+
+	@Override
+	public void onDisable() {
+	}
+
+	public void initMetrics() {
+		if (getConfig().getBoolean("enable-metrics")) {
+			try {
+				Metrics metrics = new Metrics(this);
+				metrics.start();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+				getLogger().severe("Failed to enable Plugin Metrics!");
+			}
+		}
+	}
+
+	public void initUpdater() {
+		if (getConfig().getBoolean("enable-updater")) {
+			new Updater(this, -1, this.getFile(), Updater.UpdateType.DEFAULT, true);
+		}
+	}
+
 
 }

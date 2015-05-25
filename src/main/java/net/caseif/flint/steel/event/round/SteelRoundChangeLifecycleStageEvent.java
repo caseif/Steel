@@ -26,38 +26,35 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel;
+package net.caseif.flint.steel.event.round;
 
-import net.caseif.steel.round.SteelRound;
-
-import com.google.common.collect.ImmutableSet;
-import net.caseif.flint.Arena;
-import net.caseif.flint.common.CommonArena;
-import net.caseif.flint.common.CommonMinigame;
+import net.caseif.flint.event.round.RoundChangeLifecycleStageEvent;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
-import net.caseif.flint.util.physical.Location3D;
-
-import java.util.LinkedHashSet;
 
 /**
- * Implements {@link Arena}.
+ * Implementation of {@link RoundChangeLifecycleStageEvent}.
  *
  * @author Max Roncacé
  */
-public class SteelArena extends CommonArena {
+public class SteelRoundChangeLifecycleStageEvent extends SteelRoundEvent implements RoundChangeLifecycleStageEvent {
 
-    public SteelArena(CommonMinigame parent, String id, String name, Location3D initialSpawn) {
-        super(parent, id, name, initialSpawn);
+    private LifecycleStage before;
+    private LifecycleStage after;
+
+    protected SteelRoundChangeLifecycleStageEvent(Round round, LifecycleStage before, LifecycleStage after) {
+        super(round);
+        this.before = before;
+        this.after = after;
     }
 
     @Override
-    public Round createRound(ImmutableSet<LifecycleStage> stages) throws UnsupportedOperationException {
-        if (parent.getRoundMap().containsKey(this)) {
-            throw new UnsupportedOperationException("Round already exists in arena \"" + getName() + "\"");
-        }
-        parent.getRoundMap().put(this, new SteelRound(this));
-        assert getRound().isPresent();
-        return getRound().get(); // should never be absent
+    public LifecycleStage getStageBefore() {
+        return before;
+    }
+
+    @Override
+    public LifecycleStage getStageAfter() {
+        return after;
     }
 }

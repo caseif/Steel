@@ -26,9 +26,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel.event.challenger;
+package net.caseif.flint.steel.event.challenger;
 
-import net.caseif.steel.event.SteelEvent;
+import net.caseif.flint.steel.event.SteelEvent;
 
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.event.challenger.ChallengerEvent;

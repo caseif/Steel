@@ -26,14 +26,27 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel.event;
+package net.caseif.flint.steel.event.round;
 
-import net.caseif.flint.event.Cancellable;
+import net.caseif.flint.event.round.RoundEndEvent;
+import net.caseif.flint.round.Round;
 
 /**
- * Sub-interface of both Flint and Bukkit's <code>Cancellable</code> interfaces.
+ * Implementation of {@link RoundEndEvent}.
  *
  * @author Max Roncacé
  */
-public interface SteelCancellable extends Cancellable, org.bukkit.event.Cancellable {
+public class SteelRoundEndEvent extends SteelRoundEvent implements RoundEndEvent {
+
+    private boolean natural;
+
+    protected SteelRoundEndEvent(Round round, boolean natural) {
+        super(round);
+        this.natural = natural;
+    }
+
+    @Override
+    public boolean isNatural() {
+        return natural;
+    }
 }

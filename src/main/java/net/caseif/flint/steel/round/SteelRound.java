@@ -26,15 +26,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel.round;
+package net.caseif.flint.steel.round;
 
-import net.caseif.steel.SteelMinigame;
-import net.caseif.steel.challenger.SteelChallenger;
-import net.caseif.steel.event.challenger.SteelChallengerLeaveRoundEvent;
-import net.caseif.steel.event.round.SteelRoundTimerChangeEvent;
-import net.caseif.steel.event.round.SteelRoundTimerStartEvent;
-import net.caseif.steel.event.round.SteelRoundTimerStopEvent;
-import net.caseif.steel.util.MiscUtil;
+import net.caseif.flint.steel.SteelMinigame;
+import net.caseif.flint.steel.challenger.SteelChallenger;
+import net.caseif.flint.steel.event.challenger.SteelChallengerLeaveRoundEvent;
+import net.caseif.flint.steel.event.round.SteelRoundTimerChangeEvent;
+import net.caseif.flint.steel.event.round.SteelRoundTimerStartEvent;
+import net.caseif.flint.steel.event.round.SteelRoundTimerStopEvent;
+import net.caseif.flint.steel.util.MiscUtil;
 
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonArena;

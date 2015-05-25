@@ -26,50 +26,20 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel;
+package net.caseif.flint.steel.event.round;
 
-import net.gravitydevelopment.updater.Updater;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.mcstats.Metrics;
-
-import java.io.IOException;
+import net.caseif.flint.event.round.RoundTimerTickEvent;
+import net.caseif.flint.round.Round;
 
 /**
- * The main plugin class.
+ * Implements {@link RoundTimerTickEvent}.
  *
  * @author Max Roncacé
- * @version 1.0.0-SNAPSHOT
  */
-public class SteelMain extends JavaPlugin {
+public class SteelRoundTimerTickEvent extends SteelRoundTimerChangeEvent implements RoundTimerTickEvent {
 
-	@Override
-	public void onEnable() {
-		saveDefaultConfig();
-		initMetrics();
-		//initUpdater(); //TODO
-	}
-
-	@Override
-	public void onDisable() {
-	}
-
-	public void initMetrics() {
-		if (getConfig().getBoolean("enable-metrics")) {
-			try {
-				Metrics metrics = new Metrics(this);
-				metrics.start();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-				getLogger().severe("Failed to enable Plugin Metrics!");
-			}
-		}
-	}
-
-	public void initUpdater() {
-		if (getConfig().getBoolean("enable-updater")) {
-			new Updater(this, -1, this.getFile(), Updater.UpdateType.DEFAULT, true);
-		}
-	}
-
+    public SteelRoundTimerTickEvent(Round round, long oldTime, long newTime) {
+        super(round, oldTime, newTime);
+    }
 
 }

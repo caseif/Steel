@@ -26,51 +26,34 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel;
+package net.caseif.flint.steel.event.challenger;
 
-import net.caseif.flint.Arena;
-import net.caseif.flint.Minigame;
-import net.caseif.flint.common.CommonMinigame;
-import net.caseif.flint.util.physical.Location3D;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.Plugin;
+import net.caseif.flint.steel.event.SteelCancellable;
+
+import net.caseif.flint.challenger.Challenger;
+import net.caseif.flint.event.challenger.ChallengerJoinRoundEvent;
 
 /**
- * Implements {@link Minigame}.
+ * Implements {@link ChallengerJoinRoundEvent}.
  *
  * @author Max Roncacé
  */
-public class SteelMinigame extends CommonMinigame {
+public class SteelChallengerJoinRoundEvent extends SteelChallengerEvent
+        implements ChallengerJoinRoundEvent, SteelCancellable {
 
-    private Plugin plugin;
+    private boolean cancelled = false;
 
-    public SteelMinigame(String plugin) {
-        if (Bukkit.getPluginManager().isPluginEnabled(plugin)) {
-            this.plugin = Bukkit.getPluginManager().getPlugin(plugin);
-        } else {
-            throw new IllegalArgumentException("Plugin \"" + plugin + "\" is not loaded!");
-        }
+    public SteelChallengerJoinRoundEvent(Challenger challenger) {
+        super(challenger);
     }
 
     @Override
-    public String getPlugin() {
-        return plugin.getName();
-    }
-
-    public Plugin getBukkitPlugin() {
-        return plugin;
+    public boolean isCancelled() {
+        return cancelled;
     }
 
     @Override
-    public Arena createArena(String id, String name, Location3D spawnPoint) throws IllegalArgumentException {
-        if (arenas.containsKey(id)) {
-            throw new IllegalArgumentException("Arena with ID \"" + id + "\" already exists");
-        }
-        return new SteelArena(this, id, name, spawnPoint);
-    }
-
-    @Override
-    public Arena createArena(String id, Location3D spawnPoint) throws IllegalArgumentException {
-        return createArena(id, id, spawnPoint);
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
     }
 }

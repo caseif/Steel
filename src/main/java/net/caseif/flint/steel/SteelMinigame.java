@@ -26,38 +26,51 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel.event.round;
+package net.caseif.flint.steel;
 
-import net.caseif.steel.event.SteelCancellable;
-
-import net.caseif.flint.event.round.RoundTimerChangeEvent;
-import net.caseif.flint.round.Round;
+import net.caseif.flint.Arena;
+import net.caseif.flint.Minigame;
+import net.caseif.flint.common.CommonMinigame;
+import net.caseif.flint.util.physical.Location3D;
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 
 /**
- * Implements {@link RoundTimerChangeEvent}.
+ * Implements {@link Minigame}.
  *
  * @author Max Roncacé
  */
-public class SteelRoundTimerChangeEvent extends SteelRoundEvent implements RoundTimerChangeEvent {
+public class SteelMinigame extends CommonMinigame {
 
-    private long oldTime;
-    private long newTime;
+    private Plugin plugin;
 
-    private boolean cancelled = false;
-
-    public SteelRoundTimerChangeEvent(Round round, long oldTime, long newTime) {
-        super(round);
-        this.oldTime = oldTime;
-        this.newTime = newTime;
+    public SteelMinigame(String plugin) {
+        if (Bukkit.getPluginManager().isPluginEnabled(plugin)) {
+            this.plugin = Bukkit.getPluginManager().getPlugin(plugin);
+        } else {
+            throw new IllegalArgumentException("Plugin \"" + plugin + "\" is not loaded!");
+        }
     }
 
     @Override
-    public long getOldTime() {
-        return oldTime;
+    public String getPlugin() {
+        return plugin.getName();
+    }
+
+    public Plugin getBukkitPlugin() {
+        return plugin;
     }
 
     @Override
-    public long getNewTime() {
-        return newTime;
+    public Arena createArena(String id, String name, Location3D spawnPoint) throws IllegalArgumentException {
+        if (arenas.containsKey(id)) {
+            throw new IllegalArgumentException("Arena with ID \"" + id + "\" already exists");
+        }
+        return new SteelArena(this, id, name, spawnPoint);
+    }
+
+    @Override
+    public Arena createArena(String id, Location3D spawnPoint) throws IllegalArgumentException {
+        return createArena(id, id, spawnPoint);
     }
 }

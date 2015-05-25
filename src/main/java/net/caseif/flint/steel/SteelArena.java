@@ -26,31 +26,36 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.steel;
+package net.caseif.flint.steel;
 
-import net.caseif.flint.FlintCore;
-import net.caseif.flint.Minigame;
-import net.caseif.flint.common.CommonCore;
+import net.caseif.flint.steel.round.SteelRound;
+
+import com.google.common.collect.ImmutableSet;
+import net.caseif.flint.Arena;
+import net.caseif.flint.common.CommonArena;
+import net.caseif.flint.common.CommonMinigame;
+import net.caseif.flint.round.LifecycleStage;
+import net.caseif.flint.round.Round;
+import net.caseif.flint.util.physical.Location3D;
 
 /**
- * Implements {@link FlintCore}.
+ * Implements {@link Arena}.
  *
  * @author Max Roncacé
  */
-public class SteelCore extends CommonCore {
+public class SteelArena extends CommonArena {
 
-    static {
-        INSTANCE = new SteelCore();
+    public SteelArena(CommonMinigame parent, String id, String name, Location3D initialSpawn) {
+        super(parent, id, name, initialSpawn);
     }
 
     @Override
-    public Minigame registerPlugin(String pluginId) throws IllegalArgumentException {
-        if (minigames.containsKey(pluginId)) {
-            throw new IllegalArgumentException(pluginId + " attempted to register itself more than once");
+    public Round createRound(ImmutableSet<LifecycleStage> stages) throws UnsupportedOperationException {
+        if (parent.getRoundMap().containsKey(this)) {
+            throw new UnsupportedOperationException("Round already exists in arena \"" + getName() + "\"");
         }
-        Minigame minigame = new SteelMinigame(pluginId);
-        minigames.put(pluginId, minigame);
-        return minigame;
+        parent.getRoundMap().put(this, new SteelRound(this));
+        assert getRound().isPresent();
+        return getRound().get(); // should never be absent
     }
-
 }
