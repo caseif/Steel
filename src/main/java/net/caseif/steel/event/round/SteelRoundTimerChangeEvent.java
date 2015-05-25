@@ -38,7 +38,7 @@ import net.caseif.flint.round.Round;
  *
  * @author Max Roncacé
  */
-public class SteelRoundTimerChangeEvent extends SteelRoundEvent implements RoundTimerChangeEvent, SteelCancellable {
+public class SteelRoundTimerChangeEvent extends SteelRoundEvent implements RoundTimerChangeEvent {
 
     private long oldTime;
     private long newTime;
@@ -59,15 +59,5 @@ public class SteelRoundTimerChangeEvent extends SteelRoundEvent implements Round
     @Override
     public long getNewTime() {
         return newTime;
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    @Override
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
     }
 }

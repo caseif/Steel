@@ -28,8 +28,8 @@
  */
 package net.caseif.steel.round;
 
+import net.caseif.steel.SteelMinigame;
 import net.caseif.steel.challenger.SteelChallenger;
-import net.caseif.steel.event.challenger.SteelChallengerJoinRoundEvent;
 import net.caseif.steel.event.challenger.SteelChallengerLeaveRoundEvent;
 import net.caseif.steel.event.round.SteelRoundTimerChangeEvent;
 import net.caseif.steel.event.round.SteelRoundTimerStartEvent;
@@ -41,6 +41,7 @@ import net.caseif.flint.common.CommonArena;
 import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.exception.round.RoundJoinException;
 import net.caseif.flint.round.Round;
+import org.bukkit.Bukkit;
 
 import java.util.UUID;
 
@@ -50,6 +51,8 @@ import java.util.UUID;
  * @author Max Roncacé
  */
 public class SteelRound extends CommonRound {
+
+    private int schedulerHandle = -1;
 
     public SteelRound(CommonArena arena) {
         super(arena);
@@ -71,29 +74,55 @@ public class SteelRound extends CommonRound {
 
     @Override
     public void startTimer() {
-        SteelRoundTimerStartEvent event = new SteelRoundTimerStartEvent(this);
-        MiscUtil.callEvent(event);
-        if (!event.isCancelled()) {
-            super.startTimer();
+        if (!isTimerTicking()) {
+            SteelRoundTimerStartEvent event = new SteelRoundTimerStartEvent(this);
+            MiscUtil.callEvent(event);
+            if (event.isCancelled()) {
+                return;
+            }
+            schedulerHandle = Bukkit.getScheduler().scheduleSyncRepeatingTask(
+                    ((SteelMinigame) getMinigame()).getBukkitPlugin(),
+                    new RoundWorker(this),
+                    0L,
+                    20L
+            );
         }
     }
 
     @Override
     public void stopTimer() {
-        SteelRoundTimerStopEvent event = new SteelRoundTimerStopEvent(this);
-        MiscUtil.callEvent(event);
-        if (!event.isCancelled()) {
-            super.stopTimer();
+        if (isTimerTicking()) {
+            SteelRoundTimerStopEvent event = new SteelRoundTimerStopEvent(this);
+            MiscUtil.callEvent(event);
+            if (event.isCancelled()) {
+                return;
+            }
+            Bukkit.getScheduler().cancelTask(schedulerHandle);
         }
     }
 
     @Override
+    public boolean isTimerTicking() {
+        return schedulerHandle >= 0;
+    }
+
+    @Override
     public void setTime(long time) {
-        SteelRoundTimerChangeEvent event = new SteelRoundTimerChangeEvent(this, this.getTime(), time);
-        MiscUtil.callEvent(event);
-        if (!event.isCancelled()) {
-            super.setTime(time);
+        setTime(time, true);
+    }
+
+    /**
+     * Sets the time of this {@link Round}.
+     *
+     * @param time The new time of the {@link Round}
+     * @param callEvent Whether an event should be fired
+     */
+    public void setTime(long time, boolean callEvent) {
+        if (callEvent) {
+            SteelRoundTimerChangeEvent event = new SteelRoundTimerChangeEvent(this, this.getTime(), time);
+            MiscUtil.callEvent(event);
         }
+        super.setTime(time);
     }
 
 }

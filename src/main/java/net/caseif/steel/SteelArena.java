@@ -28,14 +28,17 @@
  */
 package net.caseif.steel;
 
+import net.caseif.steel.round.SteelRound;
+
+import com.google.common.collect.ImmutableSet;
 import net.caseif.flint.Arena;
 import net.caseif.flint.common.CommonArena;
 import net.caseif.flint.common.CommonMinigame;
-import net.caseif.flint.common.round.CommonRound;
+import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.util.physical.Location3D;
 
-import net.caseif.steel.round.SteelRound;
+import java.util.LinkedHashSet;
 
 /**
  * Implements {@link Arena}.
@@ -49,11 +52,12 @@ public class SteelArena extends CommonArena {
     }
 
     @Override
-    public Round createRound() throws UnsupportedOperationException {
+    public Round createRound(ImmutableSet<LifecycleStage> stages) throws UnsupportedOperationException {
         if (parent.getRoundMap().containsKey(this)) {
             throw new UnsupportedOperationException("Round already exists in arena \"" + getName() + "\"");
         }
         parent.getRoundMap().put(this, new SteelRound(this));
+        assert getRound().isPresent();
         return getRound().get(); // should never be absent
     }
 }

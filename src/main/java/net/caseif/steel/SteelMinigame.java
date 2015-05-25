@@ -32,7 +32,6 @@ import net.caseif.flint.Arena;
 import net.caseif.flint.Minigame;
 import net.caseif.flint.common.CommonMinigame;
 import net.caseif.flint.util.physical.Location3D;
-
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -56,6 +55,10 @@ public class SteelMinigame extends CommonMinigame {
     @Override
     public String getPlugin() {
         return plugin.getName();
+    }
+
+    public Plugin getBukkitPlugin() {
+        return plugin;
     }
 
     @Override

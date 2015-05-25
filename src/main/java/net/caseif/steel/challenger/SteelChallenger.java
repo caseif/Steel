@@ -30,12 +30,11 @@ package net.caseif.steel.challenger;
 
 import net.caseif.steel.event.challenger.SteelChallengerJoinRoundEvent;
 import net.caseif.steel.round.SteelRound;
+import net.caseif.steel.util.MiscUtil;
 
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.challenger.CommonChallenger;
 import net.caseif.flint.exception.round.RoundJoinException;
-
-import net.caseif.steel.util.MiscUtil;
 import org.bukkit.Bukkit;
 
 import java.util.UUID;
