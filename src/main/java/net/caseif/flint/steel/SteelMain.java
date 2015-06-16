@@ -42,8 +42,11 @@ import java.io.IOException;
  */
 public class SteelMain extends JavaPlugin {
 
+	private static JavaPlugin plugin;
+
 	@Override
 	public void onEnable() {
+		plugin = this;
 		saveDefaultConfig();
 		initMetrics();
 		//initUpdater(); //TODO
@@ -51,6 +54,10 @@ public class SteelMain extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
+	}
+
+	public static JavaPlugin getPlugin() {
+		return plugin;
 	}
 
 	public void initMetrics() {
