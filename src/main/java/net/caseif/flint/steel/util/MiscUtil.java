@@ -28,9 +28,9 @@
  */
 package net.caseif.flint.steel.util;
 
+import net.caseif.flint.Minigame;
 import net.caseif.flint.steel.event.SteelEvent;
 
-import net.caseif.flint.Minigame;
 import org.bukkit.event.EventException;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.RegisteredListener;

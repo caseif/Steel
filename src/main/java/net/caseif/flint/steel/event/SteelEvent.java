@@ -30,6 +30,7 @@ package net.caseif.flint.steel.event;
 
 import net.caseif.flint.Minigame;
 import net.caseif.flint.event.FlintEvent;
+
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 

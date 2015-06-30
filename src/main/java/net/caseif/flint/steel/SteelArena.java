@@ -28,15 +28,17 @@
  */
 package net.caseif.flint.steel;
 
-import net.caseif.flint.steel.round.SteelRound;
-
-import com.google.common.collect.ImmutableSet;
 import net.caseif.flint.Arena;
 import net.caseif.flint.common.CommonArena;
 import net.caseif.flint.common.CommonMinigame;
+import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
+import net.caseif.flint.steel.round.SteelRound;
 import net.caseif.flint.util.physical.Location3D;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Implements {@link Arena}.
@@ -50,12 +52,20 @@ public class SteelArena extends CommonArena {
     }
 
     @Override
-    public Round createRound(ImmutableSet<LifecycleStage> stages) throws UnsupportedOperationException {
-        if (parent.getRoundMap().containsKey(this)) {
-            throw new UnsupportedOperationException("Round already exists in arena \"" + getName() + "\"");
-        }
-        parent.getRoundMap().put(this, new SteelRound(this));
+    public Round createRound(ImmutableSet<LifecycleStage> stages) throws IllegalArgumentException,
+            IllegalStateException {
+        Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
+        Preconditions.checkArgument(!stages.isEmpty(), "LifecycleStage set must not be empty");
+        parent.getRoundMap().put(this, new SteelRound(this, stages));
         assert getRound().isPresent();
-        return getRound().get(); // should never be absent
+        return getRound().get();
+    }
+
+    @Override
+    public Round createRound() throws IllegalArgumentException, IllegalStateException {
+        Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
+        Preconditions.checkArgument(parent.getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES) != null,
+                "Illegal call to no-args createRound method: default lifecycle stages are not set");
+        return createRound(parent.getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES));
     }
 }

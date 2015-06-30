@@ -28,10 +28,9 @@
  */
 package net.caseif.flint.steel.event.round;
 
-import net.caseif.flint.steel.event.SteelCancellable;
-
 import net.caseif.flint.event.round.RoundTimerStartEvent;
 import net.caseif.flint.round.Round;
+import net.caseif.flint.steel.event.SteelCancellable;
 
 /**
  * Implements {@link RoundTimerStartEvent}.

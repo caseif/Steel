@@ -28,12 +28,12 @@
  */
 package net.caseif.flint.steel.round;
 
+import net.caseif.flint.round.LifecycleStage;
+import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.event.round.SteelRoundTimerTickEvent;
 import net.caseif.flint.steel.util.MiscUtil;
 
 import com.google.common.base.Optional;
-import net.caseif.flint.round.LifecycleStage;
-import net.caseif.flint.round.Round;
 
 /**
  * Used as the {@link Runnable} for {@link Round} timers.

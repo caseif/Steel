@@ -28,10 +28,9 @@
  */
 package net.caseif.flint.steel.event.challenger;
 
-import net.caseif.flint.steel.event.SteelEvent;
-
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.event.challenger.ChallengerEvent;
+import net.caseif.flint.steel.event.SteelEvent;
 
 /**
  * Implements {@link ChallengerEvent}.

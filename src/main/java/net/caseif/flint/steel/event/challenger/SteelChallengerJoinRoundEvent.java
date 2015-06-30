@@ -28,10 +28,9 @@
  */
 package net.caseif.flint.steel.event.challenger;
 
-import net.caseif.flint.steel.event.SteelCancellable;
-
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.event.challenger.ChallengerJoinRoundEvent;
+import net.caseif.flint.steel.event.SteelCancellable;
 
 /**
  * Implements {@link ChallengerJoinRoundEvent}.

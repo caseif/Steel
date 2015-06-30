@@ -28,6 +28,12 @@
  */
 package net.caseif.flint.steel.round;
 
+import net.caseif.flint.challenger.Challenger;
+import net.caseif.flint.common.CommonArena;
+import net.caseif.flint.common.round.CommonRound;
+import net.caseif.flint.exception.round.RoundJoinException;
+import net.caseif.flint.round.LifecycleStage;
+import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelMinigame;
 import net.caseif.flint.steel.challenger.SteelChallenger;
 import net.caseif.flint.steel.event.challenger.SteelChallengerLeaveRoundEvent;
@@ -36,11 +42,7 @@ import net.caseif.flint.steel.event.round.SteelRoundTimerStartEvent;
 import net.caseif.flint.steel.event.round.SteelRoundTimerStopEvent;
 import net.caseif.flint.steel.util.MiscUtil;
 
-import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.common.CommonArena;
-import net.caseif.flint.common.round.CommonRound;
-import net.caseif.flint.exception.round.RoundJoinException;
-import net.caseif.flint.round.Round;
+import com.google.common.collect.ImmutableSet;
 import org.bukkit.Bukkit;
 
 import java.util.UUID;
@@ -54,8 +56,8 @@ public class SteelRound extends CommonRound {
 
     private int schedulerHandle = -1;
 
-    public SteelRound(CommonArena arena) {
-        super(arena);
+    public SteelRound(CommonArena arena, ImmutableSet<LifecycleStage> stages) {
+        super(arena, stages);
     }
 
     @Override
