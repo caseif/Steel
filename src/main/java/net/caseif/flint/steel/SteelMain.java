@@ -28,7 +28,10 @@
  */
 package net.caseif.flint.steel;
 
+import net.caseif.flint.steel.listener.PlayerListener;
+
 import net.gravitydevelopment.updater.Updater;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 
@@ -47,7 +50,8 @@ public class SteelMain extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		plugin = this;
-		saveDefaultConfig();
+        Bukkit.getPluginManager().registerEvents(new PlayerListener(), getPlugin());
+        saveDefaultConfig();
 		initMetrics();
 		//initUpdater(); //TODO
 	}

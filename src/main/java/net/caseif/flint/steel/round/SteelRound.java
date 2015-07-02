@@ -86,14 +86,28 @@ public class SteelRound extends CommonRound {
 
     @Override
     public void removeChallenger(Challenger challenger) {
+        removeChallenger(challenger, false);
+    }
+
+    /**
+     * Removes the given {@link Challenger} from this {@link SteelRound}, taking
+     * note as to whether they are currently disconnecting from the server.
+     *
+     * @param challenger The {@link Challenger} to remove
+     * @param isDisconnecting Whether the {@link Challenger} is currently
+     *     disconnecting from the server
+     */
+    public void removeChallenger(Challenger challenger, boolean isDisconnecting) {
         SteelChallengerLeaveRoundEvent event = new SteelChallengerLeaveRoundEvent(challenger);
         MiscUtil.callEvent(event);
         if (!event.isCancelled()) {
             super.removeChallenger(challenger);
-            try {
-                PlayerUtil.popInventory(Bukkit.getPlayer(challenger.getUniqueId()));
-            } catch (InvalidConfigurationException | IOException ex) {
-                throw new RuntimeException(ex);
+            if (!isDisconnecting) {
+                try {
+                    PlayerUtil.popInventory(Bukkit.getPlayer(challenger.getUniqueId()));
+                } catch (InvalidConfigurationException | IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         }
     }
