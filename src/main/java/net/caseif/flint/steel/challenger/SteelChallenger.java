@@ -47,17 +47,8 @@ import java.util.UUID;
 public class SteelChallenger extends CommonChallenger {
 
     public SteelChallenger(UUID uuid, SteelRound round) throws RoundJoinException {
-        if (Bukkit.getPlayer(uuid) == null) {
-            throw new RoundJoinException(uuid, round, RoundJoinException.Reason.OFFLINE, "Player is offline");
-        }
         this.uuid = uuid;
         this.name = Bukkit.getPlayer(uuid).getName();
         this.round = round;
-        SteelChallengerJoinRoundEvent event = new SteelChallengerJoinRoundEvent(this);
-        MiscUtil.callEvent(event);
-        if (event.isCancelled()) {
-            throw new RoundJoinException(uuid, round, RoundJoinException.Reason.CANCELLED, "Event was cancelled");
-        }
-        round.getChallengerMap().put(uuid, this);
     }
 }

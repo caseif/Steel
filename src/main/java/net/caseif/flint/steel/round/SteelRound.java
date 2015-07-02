@@ -36,15 +36,19 @@ import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelMinigame;
 import net.caseif.flint.steel.challenger.SteelChallenger;
+import net.caseif.flint.steel.event.challenger.SteelChallengerJoinRoundEvent;
 import net.caseif.flint.steel.event.challenger.SteelChallengerLeaveRoundEvent;
 import net.caseif.flint.steel.event.round.SteelRoundTimerChangeEvent;
 import net.caseif.flint.steel.event.round.SteelRoundTimerStartEvent;
 import net.caseif.flint.steel.event.round.SteelRoundTimerStopEvent;
 import net.caseif.flint.steel.util.MiscUtil;
+import net.caseif.flint.steel.util.PlayerUtil;
 
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.InvalidConfigurationException;
 
+import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -62,7 +66,22 @@ public class SteelRound extends CommonRound {
 
     @Override
     public Challenger addChallenger(UUID uuid) throws RoundJoinException {
-        return new SteelChallenger(uuid, this);
+        if (Bukkit.getPlayer(uuid) == null) {
+            throw new RoundJoinException(uuid, this, RoundJoinException.Reason.OFFLINE, "Player is offline");
+        }
+        SteelChallenger challenger = new SteelChallenger(uuid, this);
+        SteelChallengerJoinRoundEvent event = new SteelChallengerJoinRoundEvent(challenger);
+        MiscUtil.callEvent(event);
+        if (event.isCancelled()) {
+            throw new RoundJoinException(uuid, this, RoundJoinException.Reason.CANCELLED, "Event was cancelled");
+        }
+        try {
+            PlayerUtil.pushInventory(Bukkit.getPlayer(uuid));
+        } catch (IOException ex) {
+            throw new RoundJoinException(uuid, this, "Could not push player inventory into persistent storage", ex);
+        }
+        getChallengerMap().put(uuid, challenger);
+        return challenger;
     }
 
     @Override
@@ -71,6 +90,11 @@ public class SteelRound extends CommonRound {
         MiscUtil.callEvent(event);
         if (!event.isCancelled()) {
             super.removeChallenger(challenger);
+            try {
+                PlayerUtil.popInventory(Bukkit.getPlayer(challenger.getUniqueId()));
+            } catch (InvalidConfigurationException | IOException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
