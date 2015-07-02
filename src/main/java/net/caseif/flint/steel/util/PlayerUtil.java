@@ -1,7 +1,7 @@
 /*
  * New BSD License (BSD-new)
  *
- * Copyright (c) 2015 Maxim Roncacé
+ * Copyright (c) 2015 Maxim RoncacÃ©
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ import java.io.IOException;
 /**
  * Utility methods regarding players.
  *
- * @author Max Roncac�
+ * @author Max Roncacé
  */
 public class PlayerUtil {
 
