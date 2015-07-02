@@ -39,7 +39,7 @@ import net.caseif.flint.common.CommonCore;
  */
 public class SteelCore extends CommonCore {
 
-    static {
+    static void initialize() {
         INSTANCE = new SteelCore();
     }
 

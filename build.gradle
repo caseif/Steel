@@ -2,11 +2,9 @@ buildscript {
     repositories {
         mavenCentral()
         jcenter()
-        maven { url 'http://repo.caseif.net/content/groups/public/' }
     }
     dependencies {
         classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
-        classpath 'net.caseif.iinjector:iinjector:0.1.0'
     }
 }
 
@@ -21,9 +19,8 @@ plugins {
 }
 
 apply plugin: 'license'
-apply plugin: 'net.caseif.iinjector'
 
-defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar', 'iinject'
+defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
 
 // Project information
 group = 'net.caseif.flint.steel'
@@ -145,13 +142,7 @@ shadowJar {
         exclude dependency('com.google.guava:guava')
         exclude dependency('org.bukkit:bukkit')
     }
-    classifier = 'shadow'
-}
-
-iinject {
-    inputTask shadowJar
-    config file('etc/iinject.txt')
-    classifier ''
+    classifier = ''
 }
 
 task sourceJar(type: Jar) {

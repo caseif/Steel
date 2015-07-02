@@ -50,6 +50,7 @@ public class SteelMain extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		plugin = this;
+		SteelCore.initialize();
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), getPlugin());
         saveDefaultConfig();
 		initMetrics();
