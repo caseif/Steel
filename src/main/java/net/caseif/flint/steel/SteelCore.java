@@ -44,7 +44,7 @@ public class SteelCore extends CommonCore {
     }
 
     @Override
-    public Minigame registerPlugin(String pluginId) throws IllegalArgumentException {
+    protected Minigame registerPlugin0(String pluginId) throws IllegalArgumentException {
         if (minigames.containsKey(pluginId)) {
             throw new IllegalArgumentException(pluginId + " attempted to register itself more than once");
         }

@@ -52,7 +52,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
-        for (Minigame mg : ((CommonCore)CommonCore.getInstance()).getMinigames().values()) {
+        for (Minigame mg : CommonCore.getMinigames().values()) {
             Optional<Challenger> ch = mg.getChallenger(uuid);
             if (ch.isPresent()) {
                 ((SteelRound)ch.get().getRound()).removeChallenger(ch.get(), true);
