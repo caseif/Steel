@@ -31,7 +31,6 @@ package net.caseif.flint.steel.listener;
 import net.caseif.flint.Minigame;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
-import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.round.SteelRound;
 
 import com.google.common.base.Optional;
@@ -43,7 +42,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.UUID;
 
 /**
- * Listener for {@link Player}-related events.
+ * Listener for {@link org.bukkit.entity.Player}-related events.
  *
  * @author Max Roncacé
  */

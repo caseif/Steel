@@ -30,6 +30,11 @@ package net.caseif.flint.steel.round;
 
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonArena;
+import net.caseif.flint.common.event.challenger.CommonChallengerJoinRoundEvent;
+import net.caseif.flint.common.event.challenger.CommonChallengerLeaveRoundEvent;
+import net.caseif.flint.common.event.round.CommonRoundTimerChangeEvent;
+import net.caseif.flint.common.event.round.CommonRoundTimerStartEvent;
+import net.caseif.flint.common.event.round.CommonRoundTimerStopEvent;
 import net.caseif.flint.common.event.service.EventDispatcher;
 import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.exception.round.RoundJoinException;
@@ -37,11 +42,6 @@ import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelMinigame;
 import net.caseif.flint.steel.challenger.SteelChallenger;
-import net.caseif.flint.steel.event.challenger.SteelChallengerJoinRoundEvent;
-import net.caseif.flint.steel.event.challenger.SteelChallengerLeaveRoundEvent;
-import net.caseif.flint.steel.event.round.SteelRoundTimerChangeEvent;
-import net.caseif.flint.steel.event.round.SteelRoundTimerStartEvent;
-import net.caseif.flint.steel.event.round.SteelRoundTimerStopEvent;
 import net.caseif.flint.steel.util.PlayerUtil;
 
 import com.google.common.collect.ImmutableSet;
@@ -70,7 +70,7 @@ public class SteelRound extends CommonRound {
             throw new RoundJoinException(uuid, this, RoundJoinException.Reason.OFFLINE, "Player is offline");
         }
         SteelChallenger challenger = new SteelChallenger(uuid, this);
-        SteelChallengerJoinRoundEvent event = new SteelChallengerJoinRoundEvent(challenger);
+        CommonChallengerJoinRoundEvent event = new CommonChallengerJoinRoundEvent(challenger);
         EventDispatcher.dispatchEvent(event);
         if (event.isCancelled()) {
             throw new RoundJoinException(uuid, this, RoundJoinException.Reason.CANCELLED, "Event was cancelled");
@@ -98,7 +98,7 @@ public class SteelRound extends CommonRound {
      *     disconnecting from the server
      */
     public void removeChallenger(Challenger challenger, boolean isDisconnecting) {
-        SteelChallengerLeaveRoundEvent event = new SteelChallengerLeaveRoundEvent(challenger);
+        CommonChallengerLeaveRoundEvent event = new CommonChallengerLeaveRoundEvent(challenger);
         EventDispatcher.dispatchEvent(event);
         if (!event.isCancelled()) {
             super.removeChallenger(challenger);
@@ -115,7 +115,7 @@ public class SteelRound extends CommonRound {
     @Override
     public void startTimer() {
         if (!isTimerTicking()) {
-            SteelRoundTimerStartEvent event = new SteelRoundTimerStartEvent(this);
+            CommonRoundTimerStartEvent event = new CommonRoundTimerStartEvent(this);
             EventDispatcher.dispatchEvent(event);
             if (event.isCancelled()) {
                 return;
@@ -132,7 +132,7 @@ public class SteelRound extends CommonRound {
     @Override
     public void stopTimer() {
         if (isTimerTicking()) {
-            SteelRoundTimerStopEvent event = new SteelRoundTimerStopEvent(this);
+            CommonRoundTimerStopEvent event = new CommonRoundTimerStopEvent(this);
             EventDispatcher.dispatchEvent(event);
             if (event.isCancelled()) {
                 return;
@@ -159,7 +159,7 @@ public class SteelRound extends CommonRound {
      */
     public void setTime(long time, boolean callEvent) {
         if (callEvent) {
-            SteelRoundTimerChangeEvent event = new SteelRoundTimerChangeEvent(this, this.getTime(), time);
+            CommonRoundTimerChangeEvent event = new CommonRoundTimerChangeEvent(this, this.getTime(), time);
             EventDispatcher.dispatchEvent(event);
         }
         super.setTime(time);
