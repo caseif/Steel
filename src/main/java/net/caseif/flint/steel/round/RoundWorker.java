@@ -28,10 +28,10 @@
  */
 package net.caseif.flint.steel.round;
 
+import net.caseif.flint.common.event.service.EventDispatcher;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.event.round.SteelRoundTimerTickEvent;
-import net.caseif.flint.steel.util.MiscUtil;
 
 import com.google.common.base.Optional;
 
@@ -52,7 +52,7 @@ public class RoundWorker implements Runnable {
         boolean stageSwitch = round.getTime() >= round.getLifecycleStage().getDuration();
         SteelRoundTimerTickEvent event = new SteelRoundTimerTickEvent(round, round.getTime(),
                 stageSwitch ? 0 : round.getTime() + 1);
-        MiscUtil.callEvent(event);
+        EventDispatcher.dispatchEvent(event);
         if (stageSwitch) {
             Optional<LifecycleStage> nextStage = round.getNextLifecycleStage();
             if (nextStage.isPresent()) {

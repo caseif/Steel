@@ -31,9 +31,7 @@ package net.caseif.flint.steel.challenger;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.challenger.CommonChallenger;
 import net.caseif.flint.exception.round.RoundJoinException;
-import net.caseif.flint.steel.event.challenger.SteelChallengerJoinRoundEvent;
 import net.caseif.flint.steel.round.SteelRound;
-import net.caseif.flint.steel.util.MiscUtil;
 
 import org.bukkit.Bukkit;
 

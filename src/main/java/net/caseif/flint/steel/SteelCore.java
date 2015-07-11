@@ -53,4 +53,19 @@ public class SteelCore extends CommonCore {
         return minigame;
     }
 
+    @Override
+    protected void logInfo0(String message) {
+        SteelMain.getPlugin().getLogger().info(message);
+    }
+
+    @Override
+    protected void logWarning0(String message) {
+        SteelMain.getPlugin().getLogger().warning(message);
+    }
+
+    @Override
+    protected void logSevere0(String message) {
+        SteelMain.getPlugin().getLogger().severe(message);
+    }
+
 }

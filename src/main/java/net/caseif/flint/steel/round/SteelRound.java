@@ -30,6 +30,7 @@ package net.caseif.flint.steel.round;
 
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonArena;
+import net.caseif.flint.common.event.service.EventDispatcher;
 import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.exception.round.RoundJoinException;
 import net.caseif.flint.round.LifecycleStage;
@@ -41,7 +42,6 @@ import net.caseif.flint.steel.event.challenger.SteelChallengerLeaveRoundEvent;
 import net.caseif.flint.steel.event.round.SteelRoundTimerChangeEvent;
 import net.caseif.flint.steel.event.round.SteelRoundTimerStartEvent;
 import net.caseif.flint.steel.event.round.SteelRoundTimerStopEvent;
-import net.caseif.flint.steel.util.MiscUtil;
 import net.caseif.flint.steel.util.PlayerUtil;
 
 import com.google.common.collect.ImmutableSet;
@@ -71,7 +71,7 @@ public class SteelRound extends CommonRound {
         }
         SteelChallenger challenger = new SteelChallenger(uuid, this);
         SteelChallengerJoinRoundEvent event = new SteelChallengerJoinRoundEvent(challenger);
-        MiscUtil.callEvent(event);
+        EventDispatcher.dispatchEvent(event);
         if (event.isCancelled()) {
             throw new RoundJoinException(uuid, this, RoundJoinException.Reason.CANCELLED, "Event was cancelled");
         }
@@ -99,7 +99,7 @@ public class SteelRound extends CommonRound {
      */
     public void removeChallenger(Challenger challenger, boolean isDisconnecting) {
         SteelChallengerLeaveRoundEvent event = new SteelChallengerLeaveRoundEvent(challenger);
-        MiscUtil.callEvent(event);
+        EventDispatcher.dispatchEvent(event);
         if (!event.isCancelled()) {
             super.removeChallenger(challenger);
             if (!isDisconnecting) {
@@ -116,7 +116,7 @@ public class SteelRound extends CommonRound {
     public void startTimer() {
         if (!isTimerTicking()) {
             SteelRoundTimerStartEvent event = new SteelRoundTimerStartEvent(this);
-            MiscUtil.callEvent(event);
+            EventDispatcher.dispatchEvent(event);
             if (event.isCancelled()) {
                 return;
             }
@@ -133,7 +133,7 @@ public class SteelRound extends CommonRound {
     public void stopTimer() {
         if (isTimerTicking()) {
             SteelRoundTimerStopEvent event = new SteelRoundTimerStopEvent(this);
-            MiscUtil.callEvent(event);
+            EventDispatcher.dispatchEvent(event);
             if (event.isCancelled()) {
                 return;
             }
@@ -160,7 +160,7 @@ public class SteelRound extends CommonRound {
     public void setTime(long time, boolean callEvent) {
         if (callEvent) {
             SteelRoundTimerChangeEvent event = new SteelRoundTimerChangeEvent(this, this.getTime(), time);
-            MiscUtil.callEvent(event);
+            EventDispatcher.dispatchEvent(event);
         }
         super.setTime(time);
     }

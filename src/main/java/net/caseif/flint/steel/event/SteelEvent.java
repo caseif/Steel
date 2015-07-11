@@ -39,6 +39,7 @@ import org.bukkit.event.HandlerList;
  *
  * @author Max Roncacé
  */
+//TODO: all events are to be moved to FlintCommon
 public class SteelEvent extends Event implements FlintEvent {
 
     private Minigame minigame;
