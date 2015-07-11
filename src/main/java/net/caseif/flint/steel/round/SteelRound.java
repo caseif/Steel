@@ -35,7 +35,6 @@ import net.caseif.flint.common.event.challenger.CommonChallengerLeaveRoundEvent;
 import net.caseif.flint.common.event.round.CommonRoundTimerChangeEvent;
 import net.caseif.flint.common.event.round.CommonRoundTimerStartEvent;
 import net.caseif.flint.common.event.round.CommonRoundTimerStopEvent;
-import net.caseif.flint.common.event.service.EventDispatcher;
 import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.exception.round.RoundJoinException;
 import net.caseif.flint.round.LifecycleStage;
@@ -71,7 +70,7 @@ public class SteelRound extends CommonRound {
         }
         SteelChallenger challenger = new SteelChallenger(uuid, this);
         CommonChallengerJoinRoundEvent event = new CommonChallengerJoinRoundEvent(challenger);
-        EventDispatcher.dispatchEvent(event);
+        getMinigame().getEventBus().post(event);
         if (event.isCancelled()) {
             throw new RoundJoinException(uuid, this, RoundJoinException.Reason.CANCELLED, "Event was cancelled");
         }
@@ -99,7 +98,7 @@ public class SteelRound extends CommonRound {
      */
     public void removeChallenger(Challenger challenger, boolean isDisconnecting) {
         CommonChallengerLeaveRoundEvent event = new CommonChallengerLeaveRoundEvent(challenger);
-        EventDispatcher.dispatchEvent(event);
+        getMinigame().getEventBus().post(event);
         if (!event.isCancelled()) {
             super.removeChallenger(challenger);
             if (!isDisconnecting) {
@@ -116,7 +115,7 @@ public class SteelRound extends CommonRound {
     public void startTimer() {
         if (!isTimerTicking()) {
             CommonRoundTimerStartEvent event = new CommonRoundTimerStartEvent(this);
-            EventDispatcher.dispatchEvent(event);
+            getMinigame().getEventBus().post(event);
             if (event.isCancelled()) {
                 return;
             }
@@ -133,7 +132,7 @@ public class SteelRound extends CommonRound {
     public void stopTimer() {
         if (isTimerTicking()) {
             CommonRoundTimerStopEvent event = new CommonRoundTimerStopEvent(this);
-            EventDispatcher.dispatchEvent(event);
+            getMinigame().getEventBus().post(event);
             if (event.isCancelled()) {
                 return;
             }
@@ -144,25 +143,6 @@ public class SteelRound extends CommonRound {
     @Override
     public boolean isTimerTicking() {
         return schedulerHandle >= 0;
-    }
-
-    @Override
-    public void setTime(long time) {
-        setTime(time, true);
-    }
-
-    /**
-     * Sets the time of this {@link Round}.
-     *
-     * @param time The new time of the {@link Round}
-     * @param callEvent Whether an event should be fired
-     */
-    public void setTime(long time, boolean callEvent) {
-        if (callEvent) {
-            CommonRoundTimerChangeEvent event = new CommonRoundTimerChangeEvent(this, this.getTime(), time);
-            EventDispatcher.dispatchEvent(event);
-        }
-        super.setTime(time);
     }
 
 }

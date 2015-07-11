@@ -29,7 +29,6 @@
 package net.caseif.flint.steel.round;
 
 import net.caseif.flint.common.event.round.CommonRoundTimerTickEvent;
-import net.caseif.flint.common.event.service.EventDispatcher;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 
@@ -52,7 +51,7 @@ public class RoundWorker implements Runnable {
         boolean stageSwitch = round.getTime() >= round.getLifecycleStage().getDuration();
         CommonRoundTimerTickEvent event = new CommonRoundTimerTickEvent(round, round.getTime(),
                 stageSwitch ? 0 : round.getTime() + 1);
-        EventDispatcher.dispatchEvent(event);
+        round.getMinigame().getEventBus().post(event);
         if (stageSwitch) {
             Optional<LifecycleStage> nextStage = round.getNextLifecycleStage();
             if (nextStage.isPresent()) {
