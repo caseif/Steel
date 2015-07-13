@@ -29,6 +29,7 @@
 package net.caseif.flint.steel.util;
 
 import net.caseif.flint.steel.SteelMain;
+import net.caseif.flint.util.physical.Location3D;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -49,7 +50,6 @@ public class PlayerUtil {
 
     private static final String PLAYER_INVENTORY_PRIMARY_KEY = "primary";
     private static final String PLAYER_INVENTORY_ARMOR_KEY = "armor";
-    private static final String PLAYER_INVENTORY_STORAGE_DIR = "inventories";
 
     /**
      * Pushes the inventory of the given player into persistent storage.
@@ -63,8 +63,8 @@ public class PlayerUtil {
     public static void pushInventory(Player player) throws IllegalStateException, IOException {
         PlayerInventory inv = player.getInventory();
         // the file to store the inventory in
-        File storage = new File(SteelMain.getPlugin().getDataFolder(),
-                PLAYER_INVENTORY_STORAGE_DIR + File.pathSeparatorChar + player.getUniqueId() + ".yml");
+        File storage = MiscUtil.getFile(SteelMain.getPlugin().getDataFolder(), DataFiles.ROOT_DATA_DIR,
+                DataFiles.PLAYER_INVENTORY_DIR, player.getUniqueId() + ".yml");
         if (storage.exists()) { // verify file isn't already present on disk (meaning it wasn't popped the last time)
             throw new IllegalStateException("Inventory push requested for player " + player.getName() + ", but "
                     + "inventory was already present in persistent storage!");
@@ -97,8 +97,8 @@ public class PlayerUtil {
     public static void popInventory(Player player) throws IllegalArgumentException, IOException,
             InvalidConfigurationException {
         // the file to load the inventory from
-        File storage = new File(SteelMain.getPlugin().getDataFolder(),
-                PLAYER_INVENTORY_STORAGE_DIR + File.pathSeparatorChar + player.getUniqueId() + ".yml");
+        File storage = MiscUtil.getFile(SteelMain.getPlugin().getDataFolder(), DataFiles.ROOT_DATA_DIR,
+                DataFiles.PLAYER_INVENTORY_DIR, player.getUniqueId() + ".yml");
         if (!storage.exists()) { // verify file is present on disk
             throw new IllegalStateException("Inventory pop requested for player " + player.getName() + ", but "
                     + "inventory was not present in persistent storage!");
@@ -148,6 +148,53 @@ public class PlayerUtil {
         }
         //noinspection ResultOfMethodCallIgnored
         storage.delete();
+    }
+
+    /**
+     * Stores the given {@link Player}'s current location to persistent storage.
+     *
+     * @param player The {@link Player} to store the location of
+     * @throws InvalidConfigurationException If an exception occurs while saving
+     *     to disk
+     * @throws IOException If an exception occurs while saving to disk
+     */
+    public static void storeLocation(Player player) throws InvalidConfigurationException, IOException {
+        File file = MiscUtil.getFile(SteelMain.getPlugin().getDataFolder(), DataFiles.ROOT_DATA_DIR,
+                DataFiles.PLAYER_LOCATION_STORE);
+        YamlConfiguration yaml = new YamlConfiguration();
+        yaml.load(file);
+        yaml.set(player.getUniqueId().toString(), MiscUtil.convertLocation(player.getLocation()).serialize());
+        yaml.save(file);
+    }
+
+    /**
+     * Pops the given {@link Player}'s stored location from persistent storage,
+     * teleporting them to it.
+     *
+     * @param player The {@link Player} to load the location of and teleport
+     * @throws IllegalArgumentException If the player's location is not present
+     *     in the persistent store or if an error occurs during deserialization
+     * @throws InvalidConfigurationException If an exception occurs while
+     *     loading from disk
+     * @throws IOException If an exception occurs while saving to disk
+     */
+    public static void popLocation(Player player) throws IllegalArgumentException, InvalidConfigurationException,
+            IOException {
+        File file = MiscUtil.getFile(SteelMain.getPlugin().getDataFolder(), DataFiles.ROOT_DATA_DIR,
+                DataFiles.PLAYER_LOCATION_STORE);
+        YamlConfiguration yaml = new YamlConfiguration();
+        yaml.load(file);
+        if (!yaml.isSet(player.getUniqueId().toString())) {
+            throw new IllegalArgumentException("Location of player " + player.getName() + " not present in persistent "
+                    + "store");
+        }
+        Location3D l3d = Location3D.deserialize(yaml.getString(player.getUniqueId().toString()));
+        if (!l3d.getWorld().isPresent()) {
+            throw new IllegalArgumentException("World not present in stored location of player " + player.getName());
+        }
+        player.teleport(MiscUtil.convertLocation(l3d));
+        yaml.set(player.getUniqueId().toString(), null);
+        yaml.save(file);
     }
 
 }

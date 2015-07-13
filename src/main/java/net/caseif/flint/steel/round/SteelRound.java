@@ -36,19 +36,23 @@ import net.caseif.flint.common.event.round.CommonRoundTimerChangeEvent;
 import net.caseif.flint.common.event.round.CommonRoundTimerStartEvent;
 import net.caseif.flint.common.event.round.CommonRoundTimerStopEvent;
 import net.caseif.flint.common.round.CommonRound;
+import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.exception.round.RoundJoinException;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelMinigame;
 import net.caseif.flint.steel.challenger.SteelChallenger;
+import net.caseif.flint.steel.util.MiscUtil;
 import net.caseif.flint.steel.util.PlayerUtil;
 
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Implements {@link Round}.
@@ -58,6 +62,7 @@ import java.util.UUID;
 public class SteelRound extends CommonRound {
 
     private int schedulerHandle = -1;
+    private AtomicInteger nextSpawn = new AtomicInteger();
 
     public SteelRound(CommonArena arena, ImmutableSet<LifecycleStage> stages) {
         super(arena, stages);
@@ -65,20 +70,38 @@ public class SteelRound extends CommonRound {
 
     @Override
     public Challenger addChallenger(UUID uuid) throws RoundJoinException {
-        if (Bukkit.getPlayer(uuid) == null) {
+        Player bukkitPlayer = Bukkit.getPlayer(uuid);
+        if (bukkitPlayer == null) {
             throw new RoundJoinException(uuid, this, RoundJoinException.Reason.OFFLINE, "Player is offline");
         }
+
         SteelChallenger challenger = new SteelChallenger(uuid, this);
         CommonChallengerJoinRoundEvent event = new CommonChallengerJoinRoundEvent(challenger);
         getMinigame().getEventBus().post(event);
         if (event.isCancelled()) {
             throw new RoundJoinException(uuid, this, RoundJoinException.Reason.CANCELLED, "Event was cancelled");
         }
+
         try {
-            PlayerUtil.pushInventory(Bukkit.getPlayer(uuid));
+            PlayerUtil.pushInventory(bukkitPlayer);
         } catch (IOException ex) {
-            throw new RoundJoinException(uuid, this, "Could not push player inventory into persistent storage", ex);
+            throw new RoundJoinException(uuid, this, "Could not push inventory for player " + challenger.getName()
+                    + " into persistent storage", ex);
         }
+        try {
+            PlayerUtil.storeLocation(bukkitPlayer);
+        } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
+            throw new RoundJoinException(uuid, this, "Could not push location for player " + challenger.getName()
+                    + " into persistent storage", ex);
+        }
+
+        int spawnIndex = getConfigValue(ConfigNode.RANDOM_SPAWNING)
+                ? (int)Math.floor(Math.random() * getArena().getSpawnPoints().size())
+                : nextSpawn.getAndIncrement();
+        if (nextSpawn.intValue() == getArena().getSpawnPoints().size()) {
+            nextSpawn.set(0);
+        }
+        bukkitPlayer.teleport(MiscUtil.convertLocation(getArena().getSpawnPoints().get(spawnIndex)));
         getChallengerMap().put(uuid, challenger);
         return challenger;
     }
@@ -101,11 +124,21 @@ public class SteelRound extends CommonRound {
         getMinigame().getEventBus().post(event);
         if (!event.isCancelled()) {
             super.removeChallenger(challenger);
+            Player bukkitPlayer = Bukkit.getPlayer(challenger.getUniqueId());
             if (!isDisconnecting) {
                 try {
-                    PlayerUtil.popInventory(Bukkit.getPlayer(challenger.getUniqueId()));
+                    PlayerUtil.popInventory(bukkitPlayer);
                 } catch (InvalidConfigurationException | IOException ex) {
-                    throw new RuntimeException(ex);
+                    throw new RuntimeException("Could not pop inventory for player " + challenger.getName()
+                            + " from persistent storage", ex);
+                }
+                try {
+                    PlayerUtil.popLocation(bukkitPlayer);
+                } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
+                    ex.printStackTrace();
+                    System.err.println("Could not pop location for player " + challenger.getName()
+                            + " from persistent storage - defaulting to world spawn");
+                    bukkitPlayer.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
                 }
             }
         }

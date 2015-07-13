@@ -26,48 +26,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel;
-
-import net.caseif.flint.FlintCore;
-import net.caseif.flint.Minigame;
-import net.caseif.flint.common.CommonCore;
-import net.caseif.flint.steel.util.SteelUtils;
+package net.caseif.flint.steel.util;
 
 /**
- * Implements {@link FlintCore}.
- *
- * @author Max Roncacé
+ * An enumeration of data file names used by Steel.
  */
-public class SteelCore extends CommonCore {
+public final class DataFiles {
 
-    static void initialize() {
-        INSTANCE = new SteelCore();
-        PLATFORM_UTILS = new SteelUtils();
-    }
-
-    @Override
-    protected Minigame registerPlugin0(String pluginId) throws IllegalArgumentException {
-        if (minigames.containsKey(pluginId)) {
-            throw new IllegalArgumentException(pluginId + " attempted to register itself more than once");
-        }
-        Minigame minigame = new SteelMinigame(pluginId);
-        minigames.put(pluginId, minigame);
-        return minigame;
-    }
-
-    @Override
-    protected void logInfo0(String message) {
-        SteelMain.getPlugin().getLogger().info(message);
-    }
-
-    @Override
-    protected void logWarning0(String message) {
-        SteelMain.getPlugin().getLogger().warning(message);
-    }
-
-    @Override
-    protected void logSevere0(String message) {
-        SteelMain.getPlugin().getLogger().severe(message);
-    }
+    public static final String ROOT_DATA_DIR = "data";
+    public static final String PLAYER_INVENTORY_DIR = "inventories";
+    public static final String PLAYER_LOCATION_STORE = "locs.yml";
 
 }
