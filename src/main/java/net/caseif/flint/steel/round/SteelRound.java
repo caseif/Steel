@@ -122,24 +122,22 @@ public class SteelRound extends CommonRound {
     public void removeChallenger(Challenger challenger, boolean isDisconnecting) {
         CommonChallengerLeaveRoundEvent event = new CommonChallengerLeaveRoundEvent(challenger);
         getMinigame().getEventBus().post(event);
-        if (!event.isCancelled()) {
-            super.removeChallenger(challenger);
-            Player bukkitPlayer = Bukkit.getPlayer(challenger.getUniqueId());
-            if (!isDisconnecting) {
-                try {
-                    PlayerUtil.popInventory(bukkitPlayer);
-                } catch (InvalidConfigurationException | IOException ex) {
-                    throw new RuntimeException("Could not pop inventory for player " + challenger.getName()
-                            + " from persistent storage", ex);
-                }
-                try {
-                    PlayerUtil.popLocation(bukkitPlayer);
-                } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
-                    ex.printStackTrace();
-                    System.err.println("Could not pop location for player " + challenger.getName()
-                            + " from persistent storage - defaulting to world spawn");
-                    bukkitPlayer.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
-                }
+        super.removeChallenger(challenger);
+        Player bukkitPlayer = Bukkit.getPlayer(challenger.getUniqueId());
+        if (!isDisconnecting) {
+            try {
+                PlayerUtil.popInventory(bukkitPlayer);
+            } catch (InvalidConfigurationException | IOException ex) {
+                throw new RuntimeException("Could not pop inventory for player " + challenger.getName()
+                        + " from persistent storage", ex);
+            }
+            try {
+                PlayerUtil.popLocation(bukkitPlayer);
+            } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
+                ex.printStackTrace();
+                System.err.println("Could not pop location for player " + challenger.getName()
+                        + " from persistent storage - defaulting to world spawn");
+                bukkitPlayer.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
             }
         }
     }
