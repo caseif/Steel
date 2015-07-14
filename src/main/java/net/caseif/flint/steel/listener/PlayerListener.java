@@ -32,7 +32,6 @@ import net.caseif.flint.Minigame;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.round.SteelRound;
 import net.caseif.flint.steel.util.MiscUtil;
 import net.caseif.flint.steel.util.PlayerUtil;
@@ -40,15 +39,12 @@ import net.caseif.flint.steel.util.io.DataFiles;
 import net.caseif.flint.util.physical.Boundary;
 
 import com.google.common.base.Optional;
-import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 

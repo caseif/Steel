@@ -16,7 +16,7 @@ public class DataFiles {
     static final String ROOT_DATA_DIR = "flint_data";
 
     public static final CoreDataFile OFFLINE_PLAYER_STORE = new CoreDataFile("offline_players.yml");
-    public static final CoreDataFile PLAYER_INVENTORY_DIR = new CoreDataFile("inventories");
+    public static final CoreDataFile PLAYER_INVENTORY_DIR = new CoreDataFile("inventories", true);
     public static final CoreDataFile PLAYER_LOCATION_STORE = new CoreDataFile("locs.yml");
 
     static final List<DataFile> files = new ArrayList<>();

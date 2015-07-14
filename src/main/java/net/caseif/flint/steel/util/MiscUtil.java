@@ -33,8 +33,6 @@ import net.caseif.flint.util.physical.Location3D;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
-import java.io.File;
-
 /**
  * Miscellaneous utility classes.
  */

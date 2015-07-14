@@ -28,15 +28,9 @@
  */
 package net.caseif.flint.steel.util;
 
-import net.caseif.flint.Minigame;
-import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.util.io.DataFiles;
-import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 
-import com.google.common.base.Optional;
-import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
