@@ -40,17 +40,6 @@ import java.io.File;
  */
 public class MiscUtil {
 
-    public static File getFile(File parent, String... hierarchy) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < hierarchy.length; i++) {
-            sb.append(hierarchy[i]);
-            if (i < hierarchy.length - 1) {
-                sb.append(File.pathSeparatorChar);
-            }
-        }
-        return new File(parent, sb.toString());
-    }
-
     public static Location3D convertLocation(Location location) {
         return new Location3D(location.getWorld().getName(), location.getX(), location.getY(), location.getZ());
     }

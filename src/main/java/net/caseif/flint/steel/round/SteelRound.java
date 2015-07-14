@@ -28,8 +28,10 @@
  */
 package net.caseif.flint.steel.round;
 
+import net.caseif.flint.Minigame;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonArena;
+import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.event.challenger.CommonChallengerJoinRoundEvent;
 import net.caseif.flint.common.event.challenger.CommonChallengerLeaveRoundEvent;
 import net.caseif.flint.common.event.round.CommonRoundTimerChangeEvent;
@@ -72,14 +74,30 @@ public class SteelRound extends CommonRound {
     public Challenger addChallenger(UUID uuid) throws RoundJoinException {
         Player bukkitPlayer = Bukkit.getPlayer(uuid);
         if (bukkitPlayer == null) {
-            throw new RoundJoinException(uuid, this, RoundJoinException.Reason.OFFLINE, "Player is offline");
+            throw new RoundJoinException(uuid, this, RoundJoinException.Reason.OFFLINE,
+                    "Cannot enter challenger with UUID " + uuid.toString() + "(Player is offline)");
+        }
+
+        if (getChallengers().size() >= getConfigValue(ConfigNode.MAX_PLAYERS)) {
+            throw new RoundJoinException(uuid, this, RoundJoinException.Reason.FULL,
+                    "Cannot enter challenger " + bukkitPlayer.getName() + " (Round is full)");
+        }
+
+        for (Minigame mg : CommonCore.getMinigames().values()) {
+            for (Challenger c : mg.getChallengers()) {
+                if (c.getUniqueId().equals(uuid)) {
+                    throw new RoundJoinException(uuid, this, RoundJoinException.Reason.ALREADY_ENTERED,
+                            "Cannot enter challenger " + bukkitPlayer.getName() + " (Already in a round)");
+                }
+            }
         }
 
         SteelChallenger challenger = new SteelChallenger(uuid, this);
         CommonChallengerJoinRoundEvent event = new CommonChallengerJoinRoundEvent(challenger);
         getMinigame().getEventBus().post(event);
         if (event.isCancelled()) {
-            throw new RoundJoinException(uuid, this, RoundJoinException.Reason.CANCELLED, "Event was cancelled");
+            throw new RoundJoinException(uuid, this, RoundJoinException.Reason.CANCELLED,
+                    "Cannot enter challenger " + bukkitPlayer.getName() + " (Event was cancelled)");
         }
 
         try {

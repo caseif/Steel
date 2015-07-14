@@ -31,6 +31,7 @@ package net.caseif.flint.steel;
 import net.caseif.flint.Arena;
 import net.caseif.flint.Minigame;
 import net.caseif.flint.common.CommonMinigame;
+import net.caseif.flint.steel.util.io.DataFiles;
 import net.caseif.flint.util.physical.Location3D;
 
 import org.bukkit.Bukkit;
@@ -51,6 +52,7 @@ public class SteelMinigame extends CommonMinigame {
         } else {
             throw new IllegalArgumentException("Plugin \"" + plugin + "\" is not loaded!");
         }
+        DataFiles.createCoreDataFiles();
     }
 
     @Override

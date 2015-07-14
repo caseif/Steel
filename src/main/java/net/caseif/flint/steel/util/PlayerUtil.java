@@ -28,7 +28,7 @@
  */
 package net.caseif.flint.steel.util;
 
-import net.caseif.flint.steel.SteelMain;
+import net.caseif.flint.steel.util.io.DataFiles;
 import net.caseif.flint.util.physical.Location3D;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -63,8 +63,7 @@ public class PlayerUtil {
     public static void pushInventory(Player player) throws IllegalStateException, IOException {
         PlayerInventory inv = player.getInventory();
         // the file to store the inventory in
-        File storage = MiscUtil.getFile(SteelMain.getPlugin().getDataFolder(), DataFiles.ROOT_DATA_DIR,
-                DataFiles.PLAYER_INVENTORY_DIR, player.getUniqueId() + ".yml");
+        File storage = new File(DataFiles.PLAYER_INVENTORY_DIR.getFile(), player.getUniqueId() + ".yml");
         if (storage.exists()) { // verify file isn't already present on disk (meaning it wasn't popped the last time)
             throw new IllegalStateException("Inventory push requested for player " + player.getName() + ", but "
                     + "inventory was already present in persistent storage!");
@@ -97,8 +96,7 @@ public class PlayerUtil {
     public static void popInventory(Player player) throws IllegalArgumentException, IOException,
             InvalidConfigurationException {
         // the file to load the inventory from
-        File storage = MiscUtil.getFile(SteelMain.getPlugin().getDataFolder(), DataFiles.ROOT_DATA_DIR,
-                DataFiles.PLAYER_INVENTORY_DIR, player.getUniqueId() + ".yml");
+        File storage = new File(DataFiles.PLAYER_INVENTORY_DIR.getFile(), player.getUniqueId() + ".yml");
         if (!storage.exists()) { // verify file is present on disk
             throw new IllegalStateException("Inventory pop requested for player " + player.getName() + ", but "
                     + "inventory was not present in persistent storage!");
@@ -159,8 +157,7 @@ public class PlayerUtil {
      * @throws IOException If an exception occurs while saving to disk
      */
     public static void storeLocation(Player player) throws InvalidConfigurationException, IOException {
-        File file = MiscUtil.getFile(SteelMain.getPlugin().getDataFolder(), DataFiles.ROOT_DATA_DIR,
-                DataFiles.PLAYER_LOCATION_STORE);
+        File file = DataFiles.PLAYER_LOCATION_STORE.getFile();
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.load(file);
         yaml.set(player.getUniqueId().toString(), MiscUtil.convertLocation(player.getLocation()).serialize());
@@ -180,8 +177,7 @@ public class PlayerUtil {
      */
     public static void popLocation(Player player) throws IllegalArgumentException, InvalidConfigurationException,
             IOException {
-        File file = MiscUtil.getFile(SteelMain.getPlugin().getDataFolder(), DataFiles.ROOT_DATA_DIR,
-                DataFiles.PLAYER_LOCATION_STORE);
+        File file = DataFiles.PLAYER_LOCATION_STORE.getFile();
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.load(file);
         if (!yaml.isSet(player.getUniqueId().toString())) {
