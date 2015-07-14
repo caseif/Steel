@@ -55,11 +55,13 @@ public class RoundWorker implements Runnable {
     }
 
     public void run() {
-        handleTimer();
+        if (round.isTimerTicking()) {
+            handleTick();
+        }
         checkPlayerLocations();
     }
 
-    private void handleTimer() {
+    private void handleTick() {
         boolean stageSwitch = round.getTime() >= round.getLifecycleStage().getDuration();
         CommonRoundTimerTickEvent event = new CommonRoundTimerTickEvent(round, round.getTime(),
                 stageSwitch ? 0 : round.getTime() + 1);
@@ -70,7 +72,7 @@ public class RoundWorker implements Runnable {
                 round.setTime(0);
                 round.setLifecycleStage(nextStage.get());
             } else {
-                round.end();
+                round.end(true, true);
                 return;
             }
         } else {

@@ -39,6 +39,8 @@ import net.caseif.flint.common.event.round.CommonRoundTimerStartEvent;
 import net.caseif.flint.common.event.round.CommonRoundTimerStopEvent;
 import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.config.ConfigNode;
+import net.caseif.flint.event.Cancellable;
+import net.caseif.flint.event.FlintEvent;
 import net.caseif.flint.exception.round.RoundJoinException;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
@@ -64,10 +66,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SteelRound extends CommonRound {
 
     private int schedulerHandle = -1;
+    private boolean timerTicking = false;
+
     private AtomicInteger nextSpawn = new AtomicInteger();
 
     public SteelRound(CommonArena arena, ImmutableSet<LifecycleStage> stages) {
         super(arena, stages);
+        schedulerHandle = Bukkit.getScheduler().scheduleSyncRepeatingTask(
+                ((SteelMinigame) getMinigame()).getBukkitPlugin(),
+                new RoundWorker(this),
+                0L,
+                20L
+        );
     }
 
     @Override
@@ -161,37 +171,30 @@ public class SteelRound extends CommonRound {
     }
 
     @Override
-    public void startTimer() {
-        if (!isTimerTicking()) {
-            CommonRoundTimerStartEvent event = new CommonRoundTimerStartEvent(this);
-            getMinigame().getEventBus().post(event);
-            if (event.isCancelled()) {
-                return;
-            }
-            schedulerHandle = Bukkit.getScheduler().scheduleSyncRepeatingTask(
-                    ((SteelMinigame) getMinigame()).getBukkitPlugin(),
-                    new RoundWorker(this),
-                    0L,
-                    20L
-            );
-        }
-    }
-
-    @Override
-    public void stopTimer() {
-        if (isTimerTicking()) {
-            CommonRoundTimerStopEvent event = new CommonRoundTimerStopEvent(this);
-            getMinigame().getEventBus().post(event);
-            if (event.isCancelled()) {
-                return;
-            }
-            Bukkit.getScheduler().cancelTask(schedulerHandle);
-        }
-    }
-
-    @Override
     public boolean isTimerTicking() {
-        return schedulerHandle >= 0;
+        return this.timerTicking;
+    }
+
+    @Override
+    public void setTimerTicking(boolean ticking) {
+        if (ticking != isTimerTicking()) {
+            Cancellable event = ticking ? new CommonRoundTimerStartEvent(this) : new CommonRoundTimerStopEvent(this);
+            getMinigame().getEventBus().post(event);
+            if (event.isCancelled()) {
+                return;
+            }
+            timerTicking = ticking;
+        }
+    }
+
+    @Override
+    public void end(boolean rollback, boolean natural) {
+        cancelTimerTask();
+        super.end(rollback, natural);
+    }
+
+    public void cancelTimerTask() {
+        Bukkit.getScheduler().cancelTask(schedulerHandle);
     }
 
 }
