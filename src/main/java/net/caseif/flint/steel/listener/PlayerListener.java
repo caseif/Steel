@@ -34,17 +34,23 @@ import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.round.SteelRound;
+import net.caseif.flint.steel.util.MiscUtil;
 import net.caseif.flint.steel.util.PlayerUtil;
 import net.caseif.flint.steel.util.io.DataFiles;
+import net.caseif.flint.util.physical.Boundary;
 
 import com.google.common.base.Optional;
+import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.io.File;
 import java.io.IOException;
@@ -128,6 +134,26 @@ public class PlayerListener implements Listener {
         } catch (InvalidConfigurationException | IOException ex) {
             ex.printStackTrace();
             SteelCore.logSevere("Failed to load offline player data");
+        }
+    }
+
+    @EventHandler
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        if (event.getFrom().getX() != event.getTo().getX()
+                || event.getFrom().getY() != event.getTo().getY()
+                || event.getFrom().getZ() != event.getTo().getZ()) {
+            for (Minigame mg : SteelCore.getMinigames().values()) {
+                Optional<Challenger> challenger = mg.getChallenger(event.getPlayer().getUniqueId());
+                // check whether the player is in a round for this minigame
+                if (challenger.isPresent()) {
+                    Optional<Boundary> bound = challenger.get().getRound().getArena().getBoundary();
+                    // check whether their arena has a boundary and if so whether the player is in it
+                    if (bound.isPresent() && bound.get().contains(MiscUtil.convertLocation(event.getTo()))) {
+                        event.setCancelled(true);
+                    }
+                    break;
+                }
+            }
         }
     }
 
