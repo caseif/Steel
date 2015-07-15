@@ -19,6 +19,8 @@ public class DataFiles {
     public static final CoreDataFile PLAYER_INVENTORY_DIR = new CoreDataFile("inventories", true);
     public static final CoreDataFile PLAYER_LOCATION_STORE = new CoreDataFile("locs.yml");
 
+    public static final MinigameDataFile ARENA_STORE = new MinigameDataFile("arenas.yml");
+
     static final List<DataFile> files = new ArrayList<>();
 
     static void register(DataFile dataFile) {

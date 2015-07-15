@@ -35,7 +35,13 @@ import net.caseif.flint.steel.util.io.DataFiles;
 import net.caseif.flint.util.physical.Location3D;
 
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Implements {@link Minigame}.
@@ -53,6 +59,7 @@ public class SteelMinigame extends CommonMinigame {
             throw new IllegalArgumentException("Plugin \"" + plugin + "\" is not loaded!");
         }
         DataFiles.createCoreDataFiles();
+        loadArenas();
     }
 
     @Override
@@ -69,11 +76,45 @@ public class SteelMinigame extends CommonMinigame {
         if (arenas.containsKey(id)) {
             throw new IllegalArgumentException("Arena with ID \"" + id + "\" already exists");
         }
-        return new SteelArena(this, id, name, spawnPoint);
+        SteelArena arena = new SteelArena(this, id, name, spawnPoint);
+        try {
+            arena.store();
+        } catch (InvalidConfigurationException | IOException ex) {
+            ex.printStackTrace();
+            SteelCore.logSevere("Failed to save arena with ID " + arena.getId() + " to persistent storage");
+        }
+        return arena;
     }
 
     @Override
     public Arena createArena(String id, Location3D spawnPoint) throws IllegalArgumentException {
         return createArena(id, id, spawnPoint);
     }
+
+    private void loadArenas() {
+        File arenaStore = DataFiles.ARENA_STORE.getFile(this);
+        YamlConfiguration yaml = new YamlConfiguration();
+        try {
+            yaml.load(arenaStore);
+            for (String key : yaml.getKeys(false)) {
+                if (yaml.isConfigurationSection(key)) {
+                    ConfigurationSection arenaSection = yaml.getConfigurationSection(key);
+                    if (arenaSection.isSet(SteelArena.PERSISTENCE_NAME_KEY)
+                            && arenaSection.isSet(SteelArena.PERSISTENCE_WORLD_KEY)) {
+                        SteelArena arena = new SteelArena(this, key,
+                                arenaSection.getString(SteelArena.PERSISTENCE_NAME_KEY),
+                                new Location3D(arenaSection.getString(SteelArena.PERSISTENCE_WORLD_KEY), 0, 0, 0));
+                        arena.removeSpawnPoint(0);
+                        arena.configure(arenaSection);
+                    } else {
+                        SteelCore.logWarning("Invalid configuration section \"" + key + "\"in arena store");
+                    }
+                }
+            }
+        } catch (InvalidConfigurationException | IOException ex) {
+            ex.printStackTrace();
+            SteelCore.logSevere("Failed to load existing arenas from disk");
+        }
+    }
+
 }

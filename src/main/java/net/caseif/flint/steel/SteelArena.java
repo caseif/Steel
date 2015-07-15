@@ -35,10 +35,19 @@ import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.round.SteelRound;
+import net.caseif.flint.steel.util.io.DataFiles;
+import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * Implements {@link Arena}.
@@ -46,6 +55,13 @@ import com.google.common.collect.ImmutableSet;
  * @author Max Roncacé
  */
 public class SteelArena extends CommonArena {
+
+    static final String PERSISTENCE_NAME_KEY = "name";
+    static final String PERSISTENCE_WORLD_KEY = "world";
+    static final String PERSISTENCE_SPAWNS_KEY = "spawns";
+    static final String PERSISTENCE_BOUNDS_UPPER_KEY = "bound.upper";
+    static final String PERSISTENCE_BOUNDS_LOWER_KEY = "bound.lower";
+    static final String PERSISTENCE_METADATA_KEY = "metadata";
 
     public SteelArena(CommonMinigame parent, String id, String name, Location3D initialSpawn) {
         super(parent, id, name, initialSpawn);
@@ -68,4 +84,54 @@ public class SteelArena extends CommonArena {
                 "Illegal call to no-args createRound method: default lifecycle stages are not set");
         return createRound(parent.getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES));
     }
+
+    public void store() throws InvalidConfigurationException, IOException {
+        File arenaStore = DataFiles.ARENA_STORE.getFile(getMinigame());
+        YamlConfiguration yaml = new YamlConfiguration();
+        yaml.load(arenaStore);
+        yaml.set(getId(), null); // for good measure
+        ConfigurationSection cs = yaml.createSection(getId());
+        cs.set(PERSISTENCE_NAME_KEY, getName());
+        cs.set(PERSISTENCE_WORLD_KEY, getWorld());
+        ConfigurationSection spawns = cs.createSection(PERSISTENCE_SPAWNS_KEY);
+        for (Map.Entry<Integer, Location3D> entry : getSpawnPoints().entrySet()) {
+            spawns.set(entry.getKey().toString(), entry.getValue().serialize());
+        }
+        if (getBoundary().isPresent()) {
+            cs.set(PERSISTENCE_BOUNDS_UPPER_KEY, getBoundary().get().getUpperBound());
+            cs.set(PERSISTENCE_BOUNDS_LOWER_KEY, getBoundary().get().getLowerBound());
+        }
+        ConfigurationSection metadata = cs.createSection(PERSISTENCE_METADATA_KEY);
+        for (String key : getAllMetadata()) {
+            //TODO: need to rework metadata API to support persisTENCE
+        }
+        yaml.save(arenaStore);
+    }
+
+    public void configure(ConfigurationSection section) {
+        {
+            ConfigurationSection spawnSection = section.getConfigurationSection(PERSISTENCE_SPAWNS_KEY);
+            for (String key : spawnSection.getKeys(false)) {
+                try {
+                    int index = Integer.parseInt(key);
+                    spawns.put(index, Location3D.deserialize(spawnSection.getString(key)));
+                } catch (IllegalArgumentException ignored) {
+                    SteelCore.logWarning("Invalid spawn at index " + key + " for arena \"" + getId() + "\"");
+                }
+            }
+        }
+
+        if (section.isSet(PERSISTENCE_BOUNDS_UPPER_KEY) && section.isSet(PERSISTENCE_BOUNDS_LOWER_KEY)) {
+            boundary = new Boundary(Location3D.deserialize(section.getString(PERSISTENCE_BOUNDS_UPPER_KEY)),
+                    Location3D.deserialize(section.getString(PERSISTENCE_BOUNDS_LOWER_KEY)));
+        }
+
+        if (section.isConfigurationSection(PERSISTENCE_METADATA_KEY)) {
+            ConfigurationSection metadataSection = section.getConfigurationSection(PERSISTENCE_METADATA_KEY);
+            for (String key : metadataSection.getKeys(false)) {
+                //TODO: rework metadata API
+            }
+        }
+    }
+
 }
