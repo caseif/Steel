@@ -30,7 +30,7 @@ package net.caseif.flint.steel.round;
 
 import net.caseif.flint.Minigame;
 import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.common.CommonArena;
+import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.event.challenger.CommonChallengerJoinRoundEvent;
 import net.caseif.flint.common.event.challenger.CommonChallengerLeaveRoundEvent;

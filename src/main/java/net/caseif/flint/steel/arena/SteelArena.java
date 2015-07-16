@@ -26,14 +26,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel;
+package net.caseif.flint.steel.arena;
 
-import net.caseif.flint.Arena;
-import net.caseif.flint.common.CommonArena;
+import net.caseif.flint.arena.Arena;
+import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.CommonMinigame;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
+import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.round.SteelRound;
 import net.caseif.flint.steel.util.io.DataFiles;
 import net.caseif.flint.util.physical.Boundary;
@@ -102,8 +103,8 @@ public class SteelArena extends CommonArena {
             cs.set(PERSISTENCE_BOUNDS_LOWER_KEY, getBoundary().get().getLowerBound());
         }
         ConfigurationSection metadata = cs.createSection(PERSISTENCE_METADATA_KEY);
-        for (String key : getAllMetadata()) {
-            //TODO: need to rework metadata API to support persisTENCE
+        for (String key : getMetadata().getAllKeys()) {
+            //TODO: need to rework metadata API to support persistence
         }
         yaml.save(arenaStore);
     }
