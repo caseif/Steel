@@ -29,9 +29,11 @@
 package net.caseif.flint.steel.arena;
 
 import net.caseif.flint.arena.Arena;
-import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.CommonMinigame;
+import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.config.ConfigNode;
+import net.caseif.flint.metadata.Metadata;
+import net.caseif.flint.metadata.persist.PersistableMetadata;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelCore;
@@ -40,6 +42,7 @@ import net.caseif.flint.steel.util.io.DataFiles;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.configuration.ConfigurationSection;
@@ -74,7 +77,7 @@ public class SteelArena extends CommonArena {
         Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
         Preconditions.checkArgument(!stages.isEmpty(), "LifecycleStage set must not be empty");
         parent.getRoundMap().put(this, new SteelRound(this, stages));
-        assert getRound().isPresent();
+        Preconditions.checkState(getRound().isPresent(), "Cannot get created round from arena! This is a bug.");
         return getRound().get();
     }
 
@@ -103,10 +106,28 @@ public class SteelArena extends CommonArena {
             cs.set(PERSISTENCE_BOUNDS_LOWER_KEY, getBoundary().get().getLowerBound());
         }
         ConfigurationSection metadata = cs.createSection(PERSISTENCE_METADATA_KEY);
-        for (String key : getMetadata().getAllKeys()) {
-            //TODO: need to rework metadata API to support persistence
-        }
+        storeMetadata(metadata, getPersistableMetadata());
         yaml.save(arenaStore);
+    }
+
+    /**
+     * Stores the given {@link Metadata} recursively into the given
+     * {@link ConfigurationSection}
+     *
+     * @param section The {@link ConfigurationSection} to store to
+     * @param data The {@link Metadata} to store
+     */
+    private void storeMetadata(ConfigurationSection section, PersistableMetadata data) {
+        for (String key : data.getAllKeys()) {
+            Optional<?> value = getPersistableMetadata().get(key);
+            Preconditions.checkState(value.isPresent(), "Value for key " + key + " is not present");
+
+            if (value.get() instanceof String) {
+                section.set(key, value.get());
+            } else if (value.get() instanceof PersistableMetadata) {
+                storeMetadata(section.createSection(key), (PersistableMetadata)value.get());
+            }
+        }
     }
 
     public void configure(ConfigurationSection section) {
@@ -128,9 +149,30 @@ public class SteelArena extends CommonArena {
         }
 
         if (section.isConfigurationSection(PERSISTENCE_METADATA_KEY)) {
-            ConfigurationSection metadataSection = section.getConfigurationSection(PERSISTENCE_METADATA_KEY);
-            for (String key : metadataSection.getKeys(false)) {
-                //TODO: rework metadata API
+            loadMetadata(section.getConfigurationSection(PERSISTENCE_METADATA_KEY), null);
+        }
+    }
+
+    /**
+     * Loads data recursively from the given {@link ConfigurationSection} into
+     * the given {@link PersistableMetadata}.
+     *
+     * <p>If <code>parent</code> is <code>null</code>, it will default to this
+     * arena's global {@link PersistableMetadata}.</p>
+     *
+     * @param section The {@link ConfigurationSection} to load data from
+     * @param parent The {@link PersistableMetadata} object ot load data into
+     */
+    private void loadMetadata(ConfigurationSection section, PersistableMetadata parent) {
+        if (parent == null) {
+            parent = getPersistableMetadata();
+        }
+
+        for (String key : section.getKeys(false)) {
+            if (section.isConfigurationSection(key)) {
+                loadMetadata(section.getConfigurationSection(key), parent.createStructure(key));
+            } else if (section.isString(key)) {
+                parent.set(key, section.getString(key));
             }
         }
     }
