@@ -57,12 +57,12 @@ import java.util.Map;
  */
 public class SteelArena extends CommonArena {
 
-    static final String PERSISTENCE_NAME_KEY = "name";
-    static final String PERSISTENCE_WORLD_KEY = "world";
-    static final String PERSISTENCE_SPAWNS_KEY = "spawns";
-    static final String PERSISTENCE_BOUNDS_UPPER_KEY = "bound.upper";
-    static final String PERSISTENCE_BOUNDS_LOWER_KEY = "bound.lower";
-    static final String PERSISTENCE_METADATA_KEY = "metadata";
+    public static final String PERSISTENCE_NAME_KEY = "name";
+    public static final String PERSISTENCE_WORLD_KEY = "world";
+    public static final String PERSISTENCE_SPAWNS_KEY = "spawns";
+    public static final String PERSISTENCE_BOUNDS_UPPER_KEY = "bound.upper";
+    public static final String PERSISTENCE_BOUNDS_LOWER_KEY = "bound.lower";
+    public static final String PERSISTENCE_METADATA_KEY = "metadata";
 
     public SteelArena(CommonMinigame parent, String id, String name, Location3D initialSpawn) {
         super(parent, id, name, initialSpawn);
