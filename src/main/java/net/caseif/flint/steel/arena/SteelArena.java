@@ -72,10 +72,9 @@ public class SteelArena extends CommonArena {
     }
 
     @Override
-    public Round createRound(ImmutableSet<LifecycleStage> stages) throws IllegalArgumentException,
-            IllegalStateException {
+    public Round createRound(ImmutableSet<LifecycleStage> stages) throws IllegalStateException {
         Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
-        Preconditions.checkArgument(!stages.isEmpty(), "LifecycleStage set must not be empty");
+        Preconditions.checkState(!stages.isEmpty(), "LifecycleStage set must not be empty");
         parent.getRoundMap().put(this, new SteelRound(this, stages));
         Preconditions.checkState(getRound().isPresent(), "Cannot get created round from arena! This is a bug.");
         return getRound().get();
