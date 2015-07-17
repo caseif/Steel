@@ -28,7 +28,8 @@
  */
 package net.caseif.flint.steel;
 
-import net.caseif.flint.steel.listener.PlayerListener;
+import net.caseif.flint.steel.listener.player.PlayerConnectionListener;
+import net.caseif.flint.steel.listener.player.PlayerWorldListener;
 import net.caseif.flint.steel.util.io.DataFiles;
 
 import net.gravitydevelopment.updater.Updater;
@@ -52,7 +53,8 @@ public class SteelMain extends JavaPlugin {
 	public void onEnable() {
 		plugin = this;
 		SteelCore.initialize();
-        Bukkit.getPluginManager().registerEvents(new PlayerListener(), getPlugin());
+        Bukkit.getPluginManager().registerEvents(new PlayerConnectionListener(), getPlugin());
+		Bukkit.getPluginManager().registerEvents(new PlayerWorldListener(), getPlugin());
         saveDefaultConfig();
 		DataFiles.createCoreDataFiles();
 		initMetrics();
