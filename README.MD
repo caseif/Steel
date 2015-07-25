@@ -1,4 +1,4 @@
-# Steel
+# Steel [![Build Status](http://ci.caseif.net/job/Steel/badge/icon)](http://ci.caseif.net/job/Steel/)
 
 ### What is Steel?
 
