@@ -38,6 +38,7 @@ import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.round.SteelRound;
+import net.caseif.flint.steel.util.helper.RollbackHelper;
 import net.caseif.flint.steel.util.io.DataFiles;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
@@ -51,6 +52,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -67,8 +69,11 @@ public class SteelArena extends CommonArena {
     public static final String PERSISTENCE_BOUNDS_LOWER_KEY = "bound.lower";
     public static final String PERSISTENCE_METADATA_KEY = "metadata";
 
+    private final RollbackHelper rbHelper;
+
     public SteelArena(CommonMinigame parent, String id, String name, Location3D initialSpawn, Boundary boundary) {
         super(parent, id, name, initialSpawn, boundary);
+        this.rbHelper = new RollbackHelper(this);
     }
 
     @Override
@@ -88,6 +93,33 @@ public class SteelArena extends CommonArena {
         return createRound(parent.getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES));
     }
 
+    @Override
+    public void rollback() throws IllegalStateException {
+        try {
+            getRollbackHelper().popRollbacks();
+        } catch (SQLException ex) {
+            throw new RuntimeException("Failed to rollback arena " + getName(), ex);
+        }
+    }
+
+    /**
+     * Gets the {@link RollbackHelper} associated with this {@link SteelArena}.
+     *
+     * @return The {@link RollbackHelper} associated with this
+     *     {@link SteelArena}
+     */
+    public RollbackHelper getRollbackHelper() {
+        return rbHelper;
+    }
+
+    /**
+     * Stores this arena into persistent storage.
+     *
+     * @throws InvalidConfigurationException If an exception occurs while
+     *     configuring the persistent store
+     * @throws IOException If an exception occurs while writing to the
+     *     persistent store
+     */
     public void store() throws InvalidConfigurationException, IOException {
         File arenaStore = DataFiles.ARENA_STORE.getFile(getMinigame());
         YamlConfiguration yaml = new YamlConfiguration();
@@ -109,7 +141,7 @@ public class SteelArena extends CommonArena {
 
     /**
      * Stores the given {@link Metadata} recursively into the given
-     * {@link ConfigurationSection}
+     * {@link ConfigurationSection}.
      *
      * @param section The {@link ConfigurationSection} to store to
      * @param data The {@link Metadata} to store
@@ -127,6 +159,12 @@ public class SteelArena extends CommonArena {
         }
     }
 
+    /**
+     * Configures this {@link SteelArena} from the given
+     * {@link ConfigurationSection}.
+     *
+     * @param section The section containing data for this {@link SteelArena}
+     */
     public void configure(ConfigurationSection section) {
         {
             ConfigurationSection spawnSection = section.getConfigurationSection(PERSISTENCE_SPAWNS_KEY);
