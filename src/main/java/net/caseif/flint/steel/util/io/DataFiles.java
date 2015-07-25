@@ -48,6 +48,7 @@ public class DataFiles {
     public static final CoreDataFile PLAYER_LOCATION_STORE = new CoreDataFile("locs.yml");
 
     public static final MinigameDataFile ARENA_STORE = new MinigameDataFile("arenas.yml");
+    public static final MinigameDataFile ROLLBACK_PROFILE_DIR = new MinigameDataFile("rollbacks", true);
 
     static final List<DataFile> files = new ArrayList<>();
 

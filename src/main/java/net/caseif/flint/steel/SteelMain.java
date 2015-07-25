@@ -57,6 +57,12 @@ public class SteelMain extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(new PlayerWorldListener(), getPlugin());
         saveDefaultConfig();
 		DataFiles.createCoreDataFiles();
+		try {
+			Class.forName("org.sqlite.JDBC"); // load the SQL driver
+		} catch (ClassNotFoundException ex) {
+			getLogger().severe("Failed to load SQL driver");
+			ex.printStackTrace();
+		}
 		initMetrics();
 		//initUpdater(); //TODO
 	}
