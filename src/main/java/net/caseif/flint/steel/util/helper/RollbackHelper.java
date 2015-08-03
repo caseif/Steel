@@ -4,7 +4,6 @@ import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.util.io.DataFiles;
 
 import com.google.common.base.Optional;
-import org.apache.commons.lang3.NotImplementedException;
 import org.bukkit.Location;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -155,14 +154,15 @@ public final class RollbackHelper {
 
     private Optional<ConfigurationSection> serializeState(BlockState state) {
         if (state instanceof InventoryHolder) {
-            throw new NotImplementedException("TODO");
+            //TODO
         } else if (state instanceof Sign) {
-            throw new NotImplementedException("TODO");
+            //TODO
         } else if (state instanceof Skull) {
-            throw new NotImplementedException("TODO");
+            //TODO
         } else {
             return Optional.absent();
         }
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
 }
