@@ -15,11 +15,14 @@ import org.bukkit.inventory.InventoryHolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Properties;
 
 /**
  * Static helper class for rollback functionality.
@@ -30,7 +33,17 @@ public final class RollbackHelper {
 
     public static final String ROLLBACK_STORE_BLOCK_TABLE = "blocks";
 
+    public static Properties SQL_QUERIES = new Properties();
+
     private SteelArena arena;
+
+    static {
+        try (InputStream is = RollbackHelper.class.getResourceAsStream("sql-queries.properties")) {
+            SQL_QUERIES.load(is);
+        } catch (IOException ex) {
+            throw new RuntimeException("Failed to load SQL query strings", ex);
+        }
+    }
 
     /**
      * Creates a new {@link RollbackHelper} backing the given
@@ -71,16 +84,11 @@ public final class RollbackHelper {
         //noinspection ResultOfMethodCallIgnored
         file.createNewFile();
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + file.getPath())) {
-            try (Statement st = conn.createStatement()) {
-                st.executeUpdate("CREATE TABLE IF NOT EXISTS `" + ROLLBACK_STORE_BLOCK_TABLE + "` ("
-                        + "`id` INTEGER NOT NULL PRIMARY KEY,"
-                        + "`world` VARCHAR"
-                        + "`x` INTEGER NOT NULL,"
-                        + "`y` INTEGER NOT NULL,"
-                        + "`z` INTEGER NOT NULL,"
-                        + "`type` VARCHAR(32) NOT NULL,"
-                        + "`data` INTEGER NOT NULL"
-                        + ")");
+            try (
+                    PreparedStatement st = conn.prepareStatement(SQL_QUERIES.getProperty("create-rollback-table")
+                            .replace("{table}", ROLLBACK_STORE_BLOCK_TABLE));
+            ) {
+                st.execute();
             }
         }
     }
@@ -110,21 +118,21 @@ public final class RollbackHelper {
                 Connection conn = DriverManager.getConnection("jdbc:sqlite:" + rollbackStore.getPath());
                 Statement st = conn.createStatement();
         ) {
-            try (ResultSet rs = st.executeQuery("SELECT * FROM `" + RollbackHelper.ROLLBACK_STORE_BLOCK_TABLE + "`"
-                    + " WHERE world='" + location.getWorld().getName() + "'"
-                    + " && x=" + location.getX()
-                    + " && y=" + location.getY()
-                    + " && z=" + location.getZ())) {
+            try (ResultSet rs = st.executeQuery(SQL_QUERIES.getProperty("query-rollback-table")
+                            .replace("{world}", location.getWorld().getName())
+                            .replace("{x}", "" + location.getBlockX())
+                            .replace("{y}", "" + location.getBlockY())
+                            .replace("{z}", "" + location.getBlockZ())
+            )) {
                 if (!rs.next()) { // if no results
-                    st.executeUpdate("INSERT INTO `" + ROLLBACK_STORE_BLOCK_TABLE + "` "
-                            + "(`world`, `x`, `y`, `z`, `type`, `data`) VALUES ("
-                            + "'" + location.getWorld().getName() + "',"
-                            + location.getBlockX() + ","
-                            + location.getBlockY() + ","
-                            + location.getBlockZ() + ","
-                            + "'" + originalState.getType().name() + "',"
-                            + originalState.getRawData()
-                            + ")", Statement.RETURN_GENERATED_KEYS);
+                    st.executeUpdate(SQL_QUERIES.getProperty("insert-rollback-record")
+                                    .replace("{world}", location.getWorld().getName())
+                                    .replace("{x}", "" + location.getBlockX())
+                                    .replace("{y}", "" + location.getBlockY())
+                                    .replace("{z}", "" + location.getBlockZ())
+                                    .replace("{type}", originalState.getType().name())
+                                    .replace("{data}", "" + originalState.getRawData()),
+                            Statement.RETURN_GENERATED_KEYS);
                     Optional<ConfigurationSection> state = serializeState(originalState);
                     if (state.isPresent()) {
                         try (ResultSet gen = st.getGeneratedKeys()) {
