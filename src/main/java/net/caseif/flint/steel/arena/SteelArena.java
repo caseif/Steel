@@ -67,8 +67,8 @@ public class SteelArena extends CommonArena {
     public static final String PERSISTENCE_BOUNDS_LOWER_KEY = "bound.lower";
     public static final String PERSISTENCE_METADATA_KEY = "metadata";
 
-    public SteelArena(CommonMinigame parent, String id, String name, Location3D initialSpawn) {
-        super(parent, id, name, initialSpawn);
+    public SteelArena(CommonMinigame parent, String id, String name, Location3D initialSpawn, Boundary boundary) {
+        super(parent, id, name, initialSpawn, boundary);
     }
 
     @Override
@@ -100,10 +100,8 @@ public class SteelArena extends CommonArena {
         for (Map.Entry<Integer, Location3D> entry : getSpawnPoints().entrySet()) {
             spawns.set(entry.getKey().toString(), entry.getValue().serialize());
         }
-        if (getBoundary().isPresent()) {
-            cs.set(PERSISTENCE_BOUNDS_UPPER_KEY, getBoundary().get().getUpperBound());
-            cs.set(PERSISTENCE_BOUNDS_LOWER_KEY, getBoundary().get().getLowerBound());
-        }
+        cs.set(PERSISTENCE_BOUNDS_UPPER_KEY, getBoundary().getUpperBound());
+        cs.set(PERSISTENCE_BOUNDS_LOWER_KEY, getBoundary().getLowerBound());
         ConfigurationSection metadata = cs.createSection(PERSISTENCE_METADATA_KEY);
         storeMetadata(metadata, getPersistableMetadata());
         yaml.save(arenaStore);
@@ -140,11 +138,6 @@ public class SteelArena extends CommonArena {
                     SteelCore.logWarning("Invalid spawn at index " + key + " for arena \"" + getId() + "\"");
                 }
             }
-        }
-
-        if (section.isSet(PERSISTENCE_BOUNDS_UPPER_KEY) && section.isSet(PERSISTENCE_BOUNDS_LOWER_KEY)) {
-            boundary = new Boundary(Location3D.deserialize(section.getString(PERSISTENCE_BOUNDS_UPPER_KEY)),
-                    Location3D.deserialize(section.getString(PERSISTENCE_BOUNDS_LOWER_KEY)));
         }
 
         if (section.isConfigurationSection(PERSISTENCE_METADATA_KEY)) {

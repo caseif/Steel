@@ -28,11 +28,12 @@
  */
 package net.caseif.flint.steel;
 
-import net.caseif.flint.arena.Arena;
 import net.caseif.flint.Minigame;
+import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.CommonMinigame;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.util.io.DataFiles;
+import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 
 import org.bukkit.Bukkit;
@@ -73,11 +74,12 @@ public class SteelMinigame extends CommonMinigame {
     }
 
     @Override
-    public Arena createArena(String id, String name, Location3D spawnPoint) throws IllegalArgumentException {
+    public Arena createArena(String id, String name, Location3D spawnPoint, Boundary boundary)
+            throws IllegalArgumentException {
         if (arenas.containsKey(id)) {
             throw new IllegalArgumentException("Arena with ID \"" + id + "\" already exists");
         }
-        SteelArena arena = new SteelArena(this, id, name, spawnPoint);
+        SteelArena arena = new SteelArena(this, id, name, spawnPoint, boundary);
         try {
             arena.store();
         } catch (InvalidConfigurationException | IOException ex) {
@@ -88,8 +90,8 @@ public class SteelMinigame extends CommonMinigame {
     }
 
     @Override
-    public Arena createArena(String id, Location3D spawnPoint) throws IllegalArgumentException {
-        return createArena(id, id, spawnPoint);
+    public Arena createArena(String id, Location3D spawnPoint, Boundary boundary) throws IllegalArgumentException {
+        return createArena(id, id, spawnPoint, boundary);
     }
 
     private void loadArenas() {
@@ -102,9 +104,20 @@ public class SteelMinigame extends CommonMinigame {
                     ConfigurationSection arenaSection = yaml.getConfigurationSection(key);
                     if (arenaSection.isSet(SteelArena.PERSISTENCE_NAME_KEY)
                             && arenaSection.isSet(SteelArena.PERSISTENCE_WORLD_KEY)) {
-                        SteelArena arena = new SteelArena(this, key,
+                        SteelArena arena = new SteelArena(
+                                this,
+                                key,
                                 arenaSection.getString(SteelArena.PERSISTENCE_NAME_KEY),
-                                new Location3D(arenaSection.getString(SteelArena.PERSISTENCE_WORLD_KEY), 0, 0, 0));
+                                new Location3D(arenaSection.getString(SteelArena.PERSISTENCE_WORLD_KEY), 0, 0, 0),
+                                new Boundary(
+                                        Location3D.deserialize(
+                                                arenaSection.getString(SteelArena.PERSISTENCE_BOUNDS_UPPER_KEY)
+                                        ),
+                                        Location3D.deserialize(
+                                                arenaSection.getString(SteelArena.PERSISTENCE_BOUNDS_LOWER_KEY)
+                                        )
+                                )
+                        );
                         arena.removeSpawnPoint(0);
                         arena.configure(arenaSection);
                     } else {
