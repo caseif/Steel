@@ -7,6 +7,7 @@ import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.util.MiscUtil;
 
 import com.google.common.base.Optional;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -33,10 +34,9 @@ public class RollbackListener implements Listener {
                                     event.getBlock().getLocation(),
                                     event.getBlock().getState()
                             );
-                        } catch (IOException | SQLException ex) {
-                            SteelCore.logSevere("Failed to log block break in arena "
-                                    + challenger.get().getRound().getArena().getName());
-                            ex.printStackTrace();
+                        } catch (InvalidConfigurationException | IOException | SQLException ex) {
+                            throw new RuntimeException("Failed to log block break in arena "
+                                    + challenger.get().getRound().getArena().getName(), ex);
                         }
                     }
                 }

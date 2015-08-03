@@ -49,6 +49,8 @@ public class DataFiles {
 
     public static final MinigameDataFile ARENA_STORE = new MinigameDataFile("arenas.yml");
     public static final MinigameDataFile ROLLBACK_PROFILE_DIR = new MinigameDataFile("rollbacks", true);
+    public static final MinigameDataFile ROLLBACK_STATE_DIR = new MinigameDataFile(
+            ROLLBACK_PROFILE_DIR.getFileName() + File.pathSeparatorChar + "state");
 
     static final List<DataFile> files = new ArrayList<>();
 

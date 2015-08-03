@@ -93,6 +93,7 @@ public class PlayerUtil {
      *     storage
      * @throws InvalidConfigurationException If the stored inventory is invalid
      */
+    //TODO: generalize some of this code for use with rollback storage
     public static void popInventory(Player player) throws IllegalArgumentException, IOException,
             InvalidConfigurationException {
         // the file to load the inventory from
