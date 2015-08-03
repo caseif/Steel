@@ -26,11 +26,10 @@ public class RollbackListener implements Listener {
             Optional<Challenger> challenger = mg.getChallenger(event.getPlayer().getUniqueId());
             if (challenger.isPresent()) {
                 if (challenger.get().getRound().getArena().getWorld().equals(event.getBlock().getWorld().getName())) {
-                    if (!challenger.get().getRound().getArena().getBoundary().isPresent()
-                            || challenger.get().getRound().getArena().getBoundary().get().contains(
+                    if (challenger.get().getRound().getArena().getBoundary().contains(
                             MiscUtil.convertLocation(event.getBlock().getLocation()))) {
                         try {
-                            ((SteelArena)challenger.get().getRound().getArena()).logBlockChange(
+                            ((SteelArena)challenger.get().getRound().getArena()).getRollbackHelper().logBlockChange(
                                     event.getBlock().getLocation(),
                                     event.getBlock().getState()
                             );
