@@ -34,11 +34,11 @@ public class PlayerWorldListener implements Listener {
                 Optional<Challenger> challenger = mg.getChallenger(event.getPlayer().getUniqueId());
                 // check whether the player is in a round for this minigame
                 if (challenger.isPresent()) {
-                    Optional<Boundary> bound = challenger.get().getRound().getArena().getBoundary();
+                    Boundary bound = challenger.get().getRound().getArena().getBoundary();
                     // check whether they're allowed to teleport, or their arena
                     // has a boundary and if so whether the player is in it
                     if (!challenger.get().getRound().getConfigValue(ConfigNode.ALLOW_TELEPORT)
-                            || (bound.isPresent() && bound.get().contains(MiscUtil.convertLocation(event.getTo())))) {
+                            || (bound.contains(MiscUtil.convertLocation(event.getTo())))) {
                         event.setCancelled(true);
                     }
                     break;

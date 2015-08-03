@@ -81,26 +81,23 @@ public class RoundWorker implements Runnable {
     }
 
     private void checkPlayerLocations() {
-        if (round.getArena().getBoundary().isPresent()) {
-            Boundary bound = round.getArena().getBoundary().get();
-            for (Challenger challenger : round.getChallengers()) {
-                Player player = Bukkit.getPlayer(challenger.getUniqueId());
-                Location3D loc = MiscUtil.convertLocation(player.getLocation());
-                if (!bound.contains(loc)) {
-                    double x = loc.getX() > bound.getUpperBound().getX() ? bound.getUpperBound().getX()
-                            : loc.getX() < bound.getLowerBound().getX() ? bound.getLowerBound().getX()
-                                    : loc.getX();
-                    double y = loc.getY() > bound.getUpperBound().getY() ? bound.getUpperBound().getY()
-                            : loc.getY() < bound.getLowerBound().getY() ? bound.getLowerBound().getY()
-                                    : loc.getY();
-                    double z = loc.getZ() > bound.getUpperBound().getZ() ? bound.getUpperBound().getZ()
-                            : loc.getZ() < bound.getLowerBound().getZ() ? bound.getLowerBound().getZ()
-                                    : loc.getZ();
-                    player.teleport(new Location(player.getWorld(), x, y, z));
-                }
+        Boundary bound = round.getArena().getBoundary();
+        for (Challenger challenger : round.getChallengers()) {
+            Player player = Bukkit.getPlayer(challenger.getUniqueId());
+            Location3D loc = MiscUtil.convertLocation(player.getLocation());
+            if (!bound.contains(loc)) {
+                double x = loc.getX() > bound.getUpperBound().getX() ? bound.getUpperBound().getX()
+                        : loc.getX() < bound.getLowerBound().getX() ? bound.getLowerBound().getX()
+                        : loc.getX();
+                double y = loc.getY() > bound.getUpperBound().getY() ? bound.getUpperBound().getY()
+                        : loc.getY() < bound.getLowerBound().getY() ? bound.getLowerBound().getY()
+                        : loc.getY();
+                double z = loc.getZ() > bound.getUpperBound().getZ() ? bound.getUpperBound().getZ()
+                        : loc.getZ() < bound.getLowerBound().getZ() ? bound.getLowerBound().getZ()
+                        : loc.getZ();
+                player.teleport(new Location(player.getWorld(), x, y, z));
             }
         }
     }
-
 
 }
