@@ -45,18 +45,12 @@ import net.caseif.flint.util.physical.Location3D;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-import org.bukkit.Location;
-import org.bukkit.block.BlockState;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Map;
 
 /**
@@ -72,8 +66,6 @@ public class SteelArena extends CommonArena {
     public static final String PERSISTENCE_BOUNDS_UPPER_KEY = "bound.upper";
     public static final String PERSISTENCE_BOUNDS_LOWER_KEY = "bound.lower";
     public static final String PERSISTENCE_METADATA_KEY = "metadata";
-
-    private static final String ROLLBACK_STORE_BLOCK_TABLE = "blocks";
 
     public SteelArena(CommonMinigame parent, String id, String name, Location3D initialSpawn, Boundary boundary) {
         super(parent, id, name, initialSpawn, boundary);
@@ -174,22 +166,6 @@ public class SteelArena extends CommonArena {
             } else if (section.isString(key)) {
                 parent.set(key, section.getString(key));
             }
-        }
-    }
-
-    public void logBlockChange(Location location, BlockState originalState)
-            throws IOException, SQLException {
-        File rollbackStore = new File(DataFiles.ARENA_STORE.getFile(getMinigame()), getId() + ".db");
-        if (!rollbackStore.exists()) {
-            //noinspection ResultOfMethodCallIgnored
-            rollbackStore.createNewFile();
-        }
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + rollbackStore.getPath())) {
-            Statement st = conn.createStatement();
-            st.execute("SELECT * FROM `" + ROLLBACK_STORE_BLOCK_TABLE + "`"
-                    + " WHERE x=" + location.getX()
-                    + " && y=" + location.getY()
-                    + " && z=" + location.getZ());
         }
     }
 
