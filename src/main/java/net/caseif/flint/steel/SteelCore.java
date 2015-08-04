@@ -40,9 +40,12 @@ import net.caseif.flint.steel.util.SteelUtils;
  */
 public class SteelCore extends CommonCore {
 
+    private static boolean VERBOSE_LOGGING;
+
     static void initialize() {
         INSTANCE = new SteelCore();
         PLATFORM_UTILS = new SteelUtils();
+         VERBOSE_LOGGING = SteelMain.getPlugin().getConfig().getBoolean("verbose-logging");
     }
 
     @Override
@@ -68,6 +71,13 @@ public class SteelCore extends CommonCore {
     @Override
     protected void logSevere0(String message) {
         SteelMain.getPlugin().getLogger().severe(message);
+    }
+
+    @Override
+    protected void logVerbose0(String message) {
+        if (VERBOSE_LOGGING) {
+            SteelMain.getPlugin().getLogger().info("[VERBOSE] " + message);
+        }
     }
 
 }

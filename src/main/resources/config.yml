@@ -2,6 +2,9 @@
 # # Steel Configuration # #
 # ####################### #
 
+# Enable verbose logging? (Good for debugging, but should be disabled in production)
+verbose-logging: false
+
 # Allow the plugin to submit anonymous usage statistics to MCStats (pretty please)?
 enable-metrics: true
 
