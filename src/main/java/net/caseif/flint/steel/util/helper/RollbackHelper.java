@@ -28,7 +28,11 @@
  */
 package net.caseif.flint.steel.util.helper;
 
+import net.caseif.flint.Minigame;
+import net.caseif.flint.arena.Arena;
+import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
+import net.caseif.flint.steel.util.MiscUtil;
 import net.caseif.flint.steel.util.io.DataFiles;
 
 import com.google.common.base.Optional;
@@ -112,7 +116,7 @@ public final class RollbackHelper {
      * @throws SQLException If an exception occurs while manipulating the
      *     database
      */
-    public static void createRollbackDatabase(SteelArena arena) throws IOException, SQLException {
+    public void createRollbackDatabase() throws IOException, SQLException {
         File file = new File(DataFiles.ROLLBACK_PROFILE_DIR.getFile(arena.getMinigame()), arena.getId() + ".db");
         if (file.exists()) {
             return;
@@ -130,12 +134,12 @@ public final class RollbackHelper {
     }
 
     /**
-     * Logs a block change at the given location.
+     * Logs a rollback change at the given location.
      *
      * @param location The location of the change
-     * @param originalState The state of the block before the change
+     * @param originalState The state of the rollback before the change
      * @throws InvalidConfigurationException If an exception occurs while
-     *     storing the state of the block
+     *     storing the state of the rollback
      * @throws IOException If an exception occurs while reading to or from the
      *     rollback database
      * @throws SQLException If an exception occurs while manipulating the
@@ -245,6 +249,24 @@ public final class RollbackHelper {
             return Optional.of(cs);
         } else {
             return Optional.absent();
+        }
+    }
+
+    public static void checkBlockChange(Location location, BlockState originalState) {
+        for (Minigame mg : SteelCore.getMinigames().values()) {
+            for (Arena arena : mg.getArenas()) {
+                if (arena.getWorld().equals(location.getWorld().getName())) {
+                    if (arena.getBoundary().contains(
+                            MiscUtil.convertLocation(location))) {
+                        try {
+                            ((SteelArena) arena).getRollbackHelper().logBlockChange(location, originalState);
+                        } catch (InvalidConfigurationException | IOException | SQLException ex) {
+                            throw new RuntimeException("Failed to log block change for rollback in arena "
+                                    + arena.getName(), ex);
+                        }
+                    }
+                }
+            }
         }
     }
 

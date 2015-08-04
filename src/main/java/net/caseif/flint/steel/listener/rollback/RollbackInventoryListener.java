@@ -26,49 +26,46 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel.listener.block;
+package net.caseif.flint.steel.listener.rollback;
 
-import net.caseif.flint.Minigame;
-import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.steel.arena.SteelArena;
-import net.caseif.flint.steel.util.MiscUtil;
+import net.caseif.flint.steel.util.helper.RollbackHelper;
 
-import com.google.common.base.Optional;
-import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.block.BlockState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-
-import java.io.IOException;
-import java.sql.SQLException;
+import org.bukkit.event.inventory.InventoryInteractEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.inventory.Inventory;
 
 /**
- * Listener for events logged by the rollback engine.
+ * Listener for inventory events logged by the rollback engine.
+ *
+ * @author Max Roncacé
  */
-public class RollbackListener implements Listener {
+public class RollbackInventoryListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBlockBreak(BlockBreakEvent event) {
-        for (Minigame mg : SteelCore.getMinigames().values()) {
-            Optional<Challenger> challenger = mg.getChallenger(event.getPlayer().getUniqueId());
-            if (challenger.isPresent()) {
-                if (challenger.get().getRound().getArena().getWorld().equals(event.getBlock().getWorld().getName())) {
-                    if (challenger.get().getRound().getArena().getBoundary().contains(
-                            MiscUtil.convertLocation(event.getBlock().getLocation()))) {
-                        try {
-                            ((SteelArena)challenger.get().getRound().getArena()).getRollbackHelper().logBlockChange(
-                                    event.getBlock().getLocation(),
-                                    event.getBlock().getState()
-                            );
-                        } catch (InvalidConfigurationException | IOException | SQLException ex) {
-                            throw new RuntimeException("Failed to log block break in arena "
-                                    + challenger.get().getRound().getArena().getName(), ex);
-                        }
-                    }
-                }
-            }
+    public void onInventoryClick(InventoryInteractEvent event) {
+        checkInventoryEvent(event.getInventory());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onInventoryClick(InventoryPickupItemEvent event) {
+        checkInventoryEvent(event.getInventory());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onInventoryClick(InventoryMoveItemEvent event) {
+        checkInventoryEvent(event.getSource());
+        checkInventoryEvent(event.getDestination());
+    }
+
+    public void checkInventoryEvent(Inventory inventory) {
+        if (inventory.getHolder() instanceof BlockState) {
+            BlockState bs = ((BlockState) inventory.getHolder());
+            RollbackHelper.checkBlockChange(bs.getLocation(), bs);
         }
     }
 
