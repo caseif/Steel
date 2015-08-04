@@ -28,14 +28,13 @@
  */
 package net.caseif.flint.steel.util;
 
+import net.caseif.flint.steel.util.helper.InventoryHelper;
 import net.caseif.flint.steel.util.io.DataFiles;
 import net.caseif.flint.util.physical.Location3D;
 
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.io.File;
@@ -69,16 +68,8 @@ public class PlayerUtil {
                     + "inventory was already present in persistent storage!");
         }
         YamlConfiguration yaml = new YamlConfiguration();
-        ConfigurationSection mainInv = yaml.createSection(PLAYER_INVENTORY_PRIMARY_KEY); // section for the main inv
-        mainInv.set("capacity", inv.getContents().length);
-        for (int i = 0; i < inv.getContents().length; i++) {
-            mainInv.set(Integer.toString(i), inv.getContents()[i]);
-        }
-        ConfigurationSection armorInv = yaml.createSection(PLAYER_INVENTORY_ARMOR_KEY); // section for the armor inv
-        armorInv.set("capacity", inv.getArmorContents().length);
-        for (int i = 0; i < inv.getArmorContents().length; i++) {
-            armorInv.set(Integer.toString(i), inv.getArmorContents()[i]);
-        }
+        yaml.set(PLAYER_INVENTORY_PRIMARY_KEY, InventoryHelper.serializeInventory(inv));
+        yaml.set(PLAYER_INVENTORY_ARMOR_KEY, InventoryHelper.serializeInventory(inv.getArmorContents()));
         yaml.save(storage); // save to disk
         inv.clear(); // clear the inventory to complete the push to disk
     }
@@ -108,42 +99,18 @@ public class PlayerUtil {
             throw new InvalidConfigurationException("Stored inventory is missing required section \""
                     + PLAYER_INVENTORY_PRIMARY_KEY + "\"");
         }
-        ItemStack[] contents;
-        ItemStack[] armor = null;
-        {
-            ConfigurationSection mainInv = yaml.getConfigurationSection(PLAYER_INVENTORY_PRIMARY_KEY);
-            if (!mainInv.contains("capacity")) {
-                throw new InvalidConfigurationException("Section \"" + PLAYER_INVENTORY_PRIMARY_KEY + "\" in stored "
-                        + "inventory is missing required element \"capacity\"");
-            }
-            int capacity = mainInv.getInt("capacity");
-            contents = new ItemStack[capacity];
-            for (int i = 0; i < capacity; i++) {
-                if (mainInv.contains(Integer.toString(i))) {
-                    contents[i] = mainInv.getItemStack(Integer.toString(i));
-                }
-            }
-        }
-        {
-            if (yaml.contains("armor")) {
-                ConfigurationSection armorInv = yaml.getConfigurationSection(PLAYER_INVENTORY_ARMOR_KEY);
-                if (!armorInv.contains("capacity")) {
-                    throw new InvalidConfigurationException("Section \"" + PLAYER_INVENTORY_PRIMARY_KEY + "\" in "
-                            + "stored inventory is missing required element \"capacity\"");
-                }
-                int capacity = armorInv.getInt("capacity");
-                armor = new ItemStack[capacity];
-                for (int i = 0; i < capacity; i++) {
-                    if (armorInv.contains(Integer.toString(i))) {
-                        armor[i] = armorInv.getItemStack(Integer.toString(i));
-                    }
-                }
-            }
-        }
         player.getInventory().clear();
-        player.getInventory().setContents(contents);
-        if (armor != null) {
-            player.getInventory().setArmorContents(armor);
+        {
+            player.getInventory().setContents(
+                    InventoryHelper.deserializeInventory(yaml.getConfigurationSection(PLAYER_INVENTORY_PRIMARY_KEY))
+            );
+        }
+        {
+            if (yaml.contains(PLAYER_INVENTORY_ARMOR_KEY)) {
+                player.getInventory().setArmorContents(
+                        InventoryHelper.deserializeInventory(yaml.getConfigurationSection(PLAYER_INVENTORY_ARMOR_KEY))
+                );
+            }
         }
         //noinspection ResultOfMethodCallIgnored
         storage.delete();

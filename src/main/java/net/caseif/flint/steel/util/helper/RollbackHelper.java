@@ -1,3 +1,31 @@
+/*
+ * New BSD License (BSD-new)
+ *
+ * Copyright (c) 2015 Maxim Roncacé
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     - Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     - Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     - Neither the name of the copyright holder nor the names of its contributors
+ *       may be used to endorse or promote products derived from this software
+ *       without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package net.caseif.flint.steel.util.helper;
 
 import net.caseif.flint.steel.arena.SteelArena;
@@ -5,13 +33,20 @@ import net.caseif.flint.steel.util.io.DataFiles;
 
 import com.google.common.base.Optional;
 import org.bukkit.Location;
+import org.bukkit.block.Banner;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.CommandBlock;
+import org.bukkit.block.CreatureSpawner;
+import org.bukkit.block.Jukebox;
+import org.bukkit.block.NoteBlock;
 import org.bukkit.block.Sign;
 import org.bukkit.block.Skull;
+import org.bukkit.block.banner.Pattern;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.material.FlowerPot;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,10 +57,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Properties;
 
 /**
- * Static helper class for rollback functionality.
+ * Helper class for rollback functionality.
  *
  * @author Max Roncacé
  */
@@ -160,17 +196,56 @@ public final class RollbackHelper {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private Optional<ConfigurationSection> serializeState(BlockState state) {
+        ConfigurationSection cs = new YamlConfiguration().createSection("thank mr skeltal");
+
+        // http://minecraft.gamepedia.com/Block_entity was used as a reference for this method
+
         if (state instanceof InventoryHolder) {
-            //TODO
-        } else if (state instanceof Sign) {
-            //TODO
-        } else if (state instanceof Skull) {
-            //TODO
+            cs.set("inventory", InventoryHelper.serializeInventory(((InventoryHolder) state).getInventory()));
+        }
+
+        if (state instanceof Sign) {
+            for (int i = 0; i < ((Sign) state).getLines().length; i++) {
+                cs.set("" + i, ((Sign) state).getLine(i));
+            }
+        } else if (state instanceof Banner) {
+            cs.set("base", ((Banner) state).getBaseColor().name());
+            ConfigurationSection patternSection = cs.createSection("patterns");
+            List<Pattern> patterns = ((Banner) state).getPatterns();
+            for (int i = 0; i < patterns.size(); i++) {
+                ConfigurationSection subSection = patternSection.createSection("" + i);
+                subSection.set("color", patterns.get(i).getColor().name());
+                subSection.set("type", patterns.get(i).getPattern().name());
+            }
+        } else if (state instanceof CreatureSpawner) {
+            cs.set("type", ((CreatureSpawner) state).getSpawnedType().name());
+            cs.set("delay", ((CreatureSpawner) state).getDelay());
+        } else if (state instanceof NoteBlock) {
+            cs.set("octave", ((NoteBlock) state).getNote().getOctave());
+            cs.set("tone", ((NoteBlock) state).getNote().getTone().name());
+        } else if (state instanceof Jukebox) {
+            if (((Jukebox) state).isPlaying()) {
+                cs.set("disc", ((Jukebox) state).getPlaying());
+            }
+        }
+        else if (state instanceof Skull) {
+            cs.set("owner", ((Skull) state).getOwner());
+            cs.set("rotation", ((Skull) state).getRotation());
+        } else if (state instanceof CommandBlock) {
+            cs.set("name", ((CommandBlock) state).getName());
+            cs.set("command", ((CommandBlock) state).getCommand());
+        } else if (state instanceof FlowerPot) {
+            cs.set("type", ((FlowerPot) state).getContents().getItemType().name());
+            cs.set("data", ((FlowerPot) state).getContents().getData());
+        }
+
+        if (cs.getKeys(false).size() > 0) {
+            return Optional.of(cs);
         } else {
             return Optional.absent();
         }
-        throw new UnsupportedOperationException("Not yet implemented");
     }
 
 }
