@@ -36,21 +36,15 @@ import net.caseif.flint.steel.util.MiscUtil;
 import net.caseif.flint.steel.util.io.DataFiles;
 
 import com.google.common.base.Optional;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.block.Banner;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.CommandBlock;
-import org.bukkit.block.CreatureSpawner;
-import org.bukkit.block.Jukebox;
-import org.bukkit.block.NoteBlock;
-import org.bukkit.block.Sign;
-import org.bukkit.block.Skull;
-import org.bukkit.block.banner.Pattern;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.material.FlowerPot;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,7 +55,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -72,10 +65,12 @@ import java.util.Properties;
 public final class RollbackHelper {
 
     public static final String ROLLBACK_STORE_BLOCK_TABLE = "blocks";
-
-    public static Properties SQL_QUERIES = new Properties();
+    public static final String SQLITE_PROTOCOL = "jdbc:sqlite:";
+    public static final Properties SQL_QUERIES = new Properties();
 
     private SteelArena arena;
+    private File rollbackStore = new File(DataFiles.ARENA_STORE.getFile(getArena().getMinigame()),
+            getArena().getId().concat(".db"));
 
     static {
         try (InputStream is = RollbackHelper.class.getResourceAsStream("sql-queries.properties")) {
@@ -117,18 +112,17 @@ public final class RollbackHelper {
      *     database
      */
     public void createRollbackDatabase() throws IOException, SQLException {
-        File file = new File(DataFiles.ROLLBACK_PROFILE_DIR.getFile(arena.getMinigame()), arena.getId() + ".db");
-        if (file.exists()) {
+        if (rollbackStore.exists()) {
             return;
         }
         //noinspection ResultOfMethodCallIgnored
-        file.createNewFile();
-        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + file.getPath())) {
+        rollbackStore.createNewFile();
+        try (Connection conn = DriverManager.getConnection(SQLITE_PROTOCOL + rollbackStore.getAbsolutePath())) {
             try (
                     PreparedStatement st = conn.prepareStatement(SQL_QUERIES.getProperty("create-rollback-table")
                             .replace("{table}", ROLLBACK_STORE_BLOCK_TABLE));
             ) {
-                st.execute();
+                st.executeUpdate();
             }
         }
     }
@@ -148,8 +142,6 @@ public final class RollbackHelper {
     @SuppressWarnings("deprecation")
     public void logBlockChange(Location location, BlockState originalState)
             throws InvalidConfigurationException, IOException, SQLException {
-        File rollbackStore = new File(DataFiles.ARENA_STORE.getFile(getArena().getMinigame()), getArena().getId()
-                .concat(".db"));
         if (!rollbackStore.exists()) {
             //noinspection ResultOfMethodCallIgnored
             rollbackStore.createNewFile();
@@ -165,15 +157,16 @@ public final class RollbackHelper {
                             .replace("{z}", "" + location.getBlockZ())
             )) {
                 if (!rs.next()) { // if no results
+                    Optional<ConfigurationSection> state = BlockStateSerializer.serializeState(originalState);
                     st.executeUpdate(SQL_QUERIES.getProperty("insert-rollback-record")
                                     .replace("{world}", location.getWorld().getName())
                                     .replace("{x}", "" + location.getBlockX())
                                     .replace("{y}", "" + location.getBlockY())
                                     .replace("{z}", "" + location.getBlockZ())
                                     .replace("{type}", originalState.getType().name())
-                                    .replace("{data}", "" + originalState.getRawData()),
+                                    .replace("{data}", "" + originalState.getRawData())
+                                    .replace("{state}", "" + (state.isPresent() ? 1 : 0)),
                             Statement.RETURN_GENERATED_KEYS);
-                    Optional<ConfigurationSection> state = serializeState(originalState);
                     if (state.isPresent()) {
                         try (ResultSet gen = st.getGeneratedKeys()) {
                             if (gen.next()) {
@@ -201,54 +194,55 @@ public final class RollbackHelper {
     }
 
     @SuppressWarnings("deprecation")
-    private Optional<ConfigurationSection> serializeState(BlockState state) {
-        ConfigurationSection cs = new YamlConfiguration().createSection("thank mr skeltal");
-
-        // http://minecraft.gamepedia.com/Block_entity was used as a reference for this method
-
-        if (state instanceof InventoryHolder) {
-            cs.set("inventory", InventoryHelper.serializeInventory(((InventoryHolder) state).getInventory()));
-        }
-
-        if (state instanceof Sign) {
-            for (int i = 0; i < ((Sign) state).getLines().length; i++) {
-                cs.set("" + i, ((Sign) state).getLine(i));
+    public void popRollbacks() throws SQLException {
+        if (rollbackStore.exists()) {
+            try (
+                    Connection conn = DriverManager.getConnection(SQLITE_PROTOCOL + rollbackStore.getAbsolutePath());
+                    PreparedStatement st = conn.prepareStatement(SQL_QUERIES.getProperty("get-all-rollbacks")
+                            .replace("{table}", ROLLBACK_STORE_BLOCK_TABLE));
+                    ResultSet rs = st.executeQuery();
+            ) {
+                World w = Bukkit.getWorld(getArena().getWorld());
+                while (rs.next()) {
+                    try {
+                        int id = rs.getInt("id");
+                        String world = rs.getString("world");
+                        int x = rs.getInt("x");
+                        int y = rs.getInt("y");
+                        int z = rs.getInt("z");
+                        String type = rs.getString("type");
+                        int data = rs.getInt("data");
+                        boolean state = rs.getBoolean("state");
+                        if (world.equals(getArena().getWorld())) {
+                            Block b = w.getBlockAt(x, y, z);
+                            Material m = Material.valueOf(type);
+                            if (m != null) {
+                                b.setType(m);
+                                b.setData((byte) data);
+                                if (state) {
+                                    File stateStore = new File(
+                                            DataFiles.ROLLBACK_STATE_DIR.getFile(getArena().getMinigame()),
+                                            getArena().getId().concat(".yml"));
+                                    YamlConfiguration yaml = new YamlConfiguration();
+                                    yaml.load(stateStore);
+                                    if (yaml.isConfigurationSection("" + id)) {
+                                        BlockStateSerializer
+                                                .deserializeState(b, yaml.getConfigurationSection(getArena().getId()));
+                                        yaml.set("" + id, null); // clear state log
+                                    } //TODO: else: verbose logging
+                                }
+                            } //TODO: else: verbose logging
+                        } //TODO: else: verbose logging
+                    } catch (InvalidConfigurationException | IOException | SQLException ex) {
+                        SteelCore.logSevere("Failed to read rollback record");
+                        ex.printStackTrace();
+                    }
+                }
             }
-        } else if (state instanceof Banner) {
-            cs.set("base", ((Banner) state).getBaseColor().name());
-            ConfigurationSection patternSection = cs.createSection("patterns");
-            List<Pattern> patterns = ((Banner) state).getPatterns();
-            for (int i = 0; i < patterns.size(); i++) {
-                ConfigurationSection subSection = patternSection.createSection("" + i);
-                subSection.set("color", patterns.get(i).getColor().name());
-                subSection.set("type", patterns.get(i).getPattern().name());
-            }
-        } else if (state instanceof CreatureSpawner) {
-            cs.set("type", ((CreatureSpawner) state).getSpawnedType().name());
-            cs.set("delay", ((CreatureSpawner) state).getDelay());
-        } else if (state instanceof NoteBlock) {
-            cs.set("octave", ((NoteBlock) state).getNote().getOctave());
-            cs.set("tone", ((NoteBlock) state).getNote().getTone().name());
-        } else if (state instanceof Jukebox) {
-            if (((Jukebox) state).isPlaying()) {
-                cs.set("disc", ((Jukebox) state).getPlaying());
-            }
-        }
-        else if (state instanceof Skull) {
-            cs.set("owner", ((Skull) state).getOwner());
-            cs.set("rotation", ((Skull) state).getRotation());
-        } else if (state instanceof CommandBlock) {
-            cs.set("name", ((CommandBlock) state).getName());
-            cs.set("command", ((CommandBlock) state).getCommand());
-        } else if (state instanceof FlowerPot) {
-            cs.set("type", ((FlowerPot) state).getContents().getItemType().name());
-            cs.set("data", ((FlowerPot) state).getContents().getData());
-        }
-
-        if (cs.getKeys(false).size() > 0) {
-            return Optional.of(cs);
+            //noinspection ResultOfMethodCallIgnored
+            rollbackStore.delete();
         } else {
-            return Optional.absent();
+            throw new IllegalArgumentException("Rollback store does not exist");
         }
     }
 

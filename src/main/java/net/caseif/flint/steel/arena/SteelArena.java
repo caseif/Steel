@@ -52,6 +52,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -90,6 +91,15 @@ public class SteelArena extends CommonArena {
         Preconditions.checkArgument(parent.getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES) != null,
                 "Illegal call to no-args createRound method: default lifecycle stages are not set");
         return createRound(parent.getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES));
+    }
+
+    @Override
+    public void rollback() throws IllegalStateException {
+        try {
+            getRollbackHelper().popRollbacks();
+        } catch (SQLException ex) {
+            throw new RuntimeException("Failed to rollback arena " + getName(), ex);
+        }
     }
 
     /**
