@@ -229,12 +229,22 @@ public final class RollbackHelper {
                                         BlockStateSerializer
                                                 .deserializeState(b, yaml.getConfigurationSection(getArena().getId()));
                                         yaml.set("" + id, null); // clear state log
-                                    } //TODO: else: verbose logging
+                                    } else {
+                                        SteelCore.logVerbose("Rollback record with ID " + id + " was marked as having "
+                                                + "block entity state, but no corresponding state configuration was "
+                                                + "found");
+                                    }
                                 }
-                            } //TODO: else: verbose logging
-                        } //TODO: else: verbose logging
+                            } else {
+                                SteelCore.logWarning("Rollback record with ID " + id + " in arena " + getArena().getId()
+                                        + " cannot be matched to a Material");
+                            }
+                        } else {
+                            SteelCore.logVerbose("Rollback record with ID " + id + " in arena " + getArena().getId()
+                                    + " has a mismtching world name - refusing to roll back");
+                        }
                     } catch (InvalidConfigurationException | IOException | SQLException ex) {
-                        SteelCore.logSevere("Failed to read rollback record");
+                        SteelCore.logSevere("Failed to read rollback record in arena " + getArena().getId());
                         ex.printStackTrace();
                     }
                 }
