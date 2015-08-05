@@ -34,6 +34,7 @@ import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
 /**
@@ -48,6 +49,12 @@ public class RollbackEntityListener implements Listener {
         for (Block b : event.blockList()) {
             RollbackHelper.checkBlockChange(b.getLocation(), b.getState());
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    // covers enderman, falling blocks, and probably other stuff I'm forgetting
+    public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+        RollbackHelper.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState());
     }
 
 }

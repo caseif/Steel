@@ -114,7 +114,8 @@ public class RollbackBlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPhysics(BlockPhysicsEvent event) {
-        //TODO: lot of work to do to make this function properly
+        RollbackHelper.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState());
+        // the rest of the interaction is logged by the EntityChangeBlockEvent listener
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
