@@ -28,7 +28,7 @@
  */
 package net.caseif.flint.steel.listener.player;
 
-import net.caseif.flint.Minigame;
+import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.steel.SteelCore;

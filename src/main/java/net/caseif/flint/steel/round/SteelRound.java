@@ -28,10 +28,9 @@
  */
 package net.caseif.flint.steel.round;
 
-import net.caseif.flint.Minigame;
 import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.CommonCore;
+import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.event.challenger.CommonChallengerJoinRoundEvent;
 import net.caseif.flint.common.event.challenger.CommonChallengerLeaveRoundEvent;
 import net.caseif.flint.common.event.round.CommonRoundTimerStartEvent;
@@ -40,12 +39,15 @@ import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.event.Cancellable;
 import net.caseif.flint.exception.round.RoundJoinException;
+import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
+import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.SteelMinigame;
 import net.caseif.flint.steel.challenger.SteelChallenger;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.helper.PlayerHelper;
+import net.caseif.flint.util.physical.Location3D;
 
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.Bukkit;
@@ -101,12 +103,6 @@ public class SteelRound extends CommonRound {
         }
 
         SteelChallenger challenger = new SteelChallenger(uuid, this);
-        CommonChallengerJoinRoundEvent event = new CommonChallengerJoinRoundEvent(challenger);
-        getMinigame().getEventBus().post(event);
-        if (event.isCancelled()) {
-            throw new RoundJoinException(uuid, this, RoundJoinException.Reason.CANCELLED,
-                    "Cannot enter challenger " + bukkitPlayer.getName() + " (Event was cancelled)");
-        }
 
         try {
             PlayerHelper.pushInventory(bukkitPlayer);
@@ -129,6 +125,7 @@ public class SteelRound extends CommonRound {
         }
         bukkitPlayer.teleport(LocationHelper.convertLocation(getArena().getSpawnPoints().get(spawnIndex)));
         getChallengerMap().put(uuid, challenger);
+        getMinigame().getEventBus().post(new CommonChallengerJoinRoundEvent(challenger));
         return challenger;
     }
 
@@ -146,10 +143,26 @@ public class SteelRound extends CommonRound {
      *     disconnecting from the server
      */
     public void removeChallenger(Challenger challenger, boolean isDisconnecting) {
-        CommonChallengerLeaveRoundEvent event = new CommonChallengerLeaveRoundEvent(challenger);
-        getMinigame().getEventBus().post(event);
-        super.removeChallenger(challenger);
         Player bukkitPlayer = Bukkit.getPlayer(challenger.getUniqueId());
+        Location3D returnPoint;
+        try {
+            returnPoint = PlayerHelper.getReturnLocation(bukkitPlayer);
+        } catch (InvalidConfigurationException | IOException ex) {
+            ex.printStackTrace();
+            returnPoint = LocationHelper.convertLocation(Bukkit.getWorlds().get(0).getSpawnLocation());
+        }
+        CommonChallengerLeaveRoundEvent event = new CommonChallengerLeaveRoundEvent(challenger, returnPoint);
+        getMinigame().getEventBus().post(event);
+
+        if (!event.getReturnLocation().equals(returnPoint)) {
+            try {
+                PlayerHelper.storeLocation(bukkitPlayer, event.getReturnLocation());
+            } catch (InvalidConfigurationException | IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        super.removeChallenger(challenger);
         if (!isDisconnecting) {
             try {
                 PlayerHelper.popInventory(bukkitPlayer);
@@ -161,7 +174,7 @@ public class SteelRound extends CommonRound {
                 PlayerHelper.popLocation(bukkitPlayer);
             } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
                 ex.printStackTrace();
-                System.err.println("Could not pop location for player " + challenger.getName()
+                SteelCore.logSevere("Could not pop location for player " + challenger.getName()
                         + " from persistent storage - defaulting to world spawn");
                 bukkitPlayer.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
             }

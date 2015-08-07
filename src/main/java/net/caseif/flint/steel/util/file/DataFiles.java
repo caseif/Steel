@@ -28,7 +28,7 @@
  */
 package net.caseif.flint.steel.util.file;
 
-import net.caseif.flint.Minigame;
+import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
 
 import java.io.File;
