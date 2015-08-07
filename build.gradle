@@ -56,14 +56,13 @@ ext {
     author = 'Max Roncacé'
 
     versionSuffix = version.contains('SNAPSHOT') ? (
-        (
-            System.getenv('GIT_COMMIT') ? ('-git('
-            + (System.getenv('GIT_BRANCH').contains('/')
-                    ? System.getenv('GIT_BRANCH').split('/')[1]
-                    : System.getenv('GIT_BRANCH')) + '-'
-            + System.getenv('GIT_COMMIT').substring(0, 7) + ')') : ''
-        )
-        + (System.getenv('BUILD_NUMBER') ? '-jnks' + System.getenv('BUILD_NUMBER') : '')
+            (
+                    System.getenv('GIT_COMMIT') ? ('-git('
+                            + System.getenv('GIT_BRANCH')
+                            .substring(System.getenv('GIT_BRANCH').split('/')[0].length() + 1) + '-'
+                            + System.getenv('GIT_COMMIT').substring(0, 7) + ')') : ''
+            )
+                    + (System.getenv('BUILD_NUMBER') ? '-jnks' + System.getenv('BUILD_NUMBER') : '')
     ) : ''
 
     commonVersion = '1.0.0-SNAPSHOT'
@@ -105,7 +104,7 @@ jar.manifest.mainAttributes(
 
 processResources {
     from 'LICENSE'
-	filter { String line -> line.replace('SNAPSHOT', 'SNAPSHOT' + versionSuffix) }
+    filter { String line -> line.replace('SNAPSHOT', 'SNAPSHOT' + versionSuffix) }
 }
 
 // License header formatting
