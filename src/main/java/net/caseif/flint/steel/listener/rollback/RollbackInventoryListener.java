@@ -31,6 +31,7 @@ package net.caseif.flint.steel.listener.rollback;
 import net.caseif.flint.steel.util.helper.RollbackHelper;
 
 import org.bukkit.block.BlockState;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -48,24 +49,24 @@ public class RollbackInventoryListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInventoryClick(InventoryInteractEvent event) {
-        checkInventoryEvent(event.getInventory());
+        checkInventoryEvent(event.getInventory(), event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInventoryClick(InventoryPickupItemEvent event) {
-        checkInventoryEvent(event.getInventory());
+        checkInventoryEvent(event.getInventory(), event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onInventoryClick(InventoryMoveItemEvent event) {
-        checkInventoryEvent(event.getSource());
-        checkInventoryEvent(event.getDestination());
+        checkInventoryEvent(event.getSource(), event);
+        checkInventoryEvent(event.getDestination(), event);
     }
 
-    public void checkInventoryEvent(Inventory inventory) {
+    public void checkInventoryEvent(Inventory inventory, Event event) {
         if (inventory.getHolder() instanceof BlockState) {
             BlockState bs = ((BlockState) inventory.getHolder());
-            RollbackHelper.checkBlockChange(bs.getLocation(), bs);
+            RollbackHelper.checkBlockChange(bs.getLocation(), bs, event);
         }
     }
 

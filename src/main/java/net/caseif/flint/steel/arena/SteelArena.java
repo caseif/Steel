@@ -141,7 +141,7 @@ public class SteelArena extends CommonArena {
 
     /**
      * Stores the given {@link Metadata} recursively into the given
-     * {@link ConfigurationSection}
+     * {@link ConfigurationSection}.
      *
      * @param section The {@link ConfigurationSection} to store to
      * @param data The {@link Metadata} to store
