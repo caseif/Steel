@@ -38,8 +38,8 @@ import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.round.SteelRound;
-import net.caseif.flint.steel.util.helper.RollbackHelper;
-import net.caseif.flint.steel.util.io.DataFiles;
+import net.caseif.flint.steel.util.helper.rollback.RollbackHelper;
+import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 

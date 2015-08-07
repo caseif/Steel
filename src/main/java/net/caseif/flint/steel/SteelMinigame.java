@@ -32,7 +32,7 @@ import net.caseif.flint.Minigame;
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.CommonMinigame;
 import net.caseif.flint.steel.arena.SteelArena;
-import net.caseif.flint.steel.util.io.DataFiles;
+import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 

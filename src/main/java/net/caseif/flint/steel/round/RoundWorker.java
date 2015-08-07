@@ -32,7 +32,7 @@ import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.event.round.CommonRoundTimerTickEvent;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
-import net.caseif.flint.steel.util.MiscUtil;
+import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 
@@ -84,7 +84,7 @@ public class RoundWorker implements Runnable {
         Boundary bound = round.getArena().getBoundary();
         for (Challenger challenger : round.getChallengers()) {
             Player player = Bukkit.getPlayer(challenger.getUniqueId());
-            Location3D loc = MiscUtil.convertLocation(player.getLocation());
+            Location3D loc = LocationHelper.convertLocation(player.getLocation());
             if (!bound.contains(loc)) {
                 double x = loc.getX() > bound.getUpperBound().getX() ? bound.getUpperBound().getX()
                         : loc.getX() < bound.getLowerBound().getX() ? bound.getLowerBound().getX()

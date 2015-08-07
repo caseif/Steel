@@ -26,25 +26,57 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel.util;
-
-import net.caseif.flint.util.physical.Location3D;
-
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
+package net.caseif.flint.steel.util.file;
 
 /**
- * Miscellaneous utility classes.
+ * Represents a data file for use with Flint.
+ *
+ * @author Max Roncacé
  */
-public class MiscUtil {
+public abstract class DataFile {
 
-    public static Location3D convertLocation(Location location) {
-        return new Location3D(location.getWorld().getName(), location.getX(), location.getY(), location.getZ());
+    private String fileName;
+    private boolean directory;
+
+    /**
+     * Constructs a new {@link DataFile}.
+     *
+     * @param fileName The name of the file backing the new
+     *     {@link DataFile}
+     * @param isDirectory Whether this {@link DataFile} is a directory
+     */
+    public DataFile(String fileName, boolean isDirectory) {
+        this.fileName = fileName;
+        this.directory = isDirectory;
+        DataFiles.register(this);
     }
 
-    public static Location convertLocation(Location3D location) {
-        return new Location(location.getWorld().isPresent() ? Bukkit.getWorld(location.getWorld().get()) : null,
-                location.getX(), location.getY(), location.getZ());
+    /**
+     * Constructs a new {@link DataFile}.
+     *
+     * @param fileName The name of the file backing the new
+     *     {@link DataFile}
+     */
+    public DataFile(String fileName) {
+        this(fileName, false);
+    }
+
+    /**
+     * Returns whether this {@link CoreDataFile} is a directory.
+     *
+     * @return Whether this {@link CoreDataFile} is a directory.
+     */
+    public boolean isDirectory() {
+        return directory;
+    }
+
+    /**
+     * Returns the internal name of this {@link CoreDataFile}.
+     *
+     * @return The internal name of this {@link CoreDataFile}
+     */
+    String getFileName() {
+        return fileName;
     }
 
 }

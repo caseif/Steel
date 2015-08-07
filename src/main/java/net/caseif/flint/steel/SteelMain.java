@@ -33,7 +33,7 @@ import net.caseif.flint.steel.listener.player.PlayerWorldListener;
 import net.caseif.flint.steel.listener.rollback.RollbackBlockListener;
 import net.caseif.flint.steel.listener.rollback.RollbackEntityListener;
 import net.caseif.flint.steel.listener.rollback.RollbackInventoryListener;
-import net.caseif.flint.steel.util.io.DataFiles;
+import net.caseif.flint.steel.util.file.DataFiles;
 
 import net.gravitydevelopment.updater.Updater;
 import org.bukkit.Bukkit;

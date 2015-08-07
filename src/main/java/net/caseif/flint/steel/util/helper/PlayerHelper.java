@@ -26,10 +26,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel.util;
+package net.caseif.flint.steel.util.helper;
 
-import net.caseif.flint.steel.util.helper.InventoryHelper;
-import net.caseif.flint.steel.util.io.DataFiles;
+import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.util.physical.Location3D;
 
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -41,11 +40,11 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Utility methods regarding players.
+ * Static utility class for player-related functionality.
  *
  * @author Max Roncacé
  */
-public class PlayerUtil {
+public class PlayerHelper {
 
     private static final String PLAYER_INVENTORY_PRIMARY_KEY = "primary";
     private static final String PLAYER_INVENTORY_ARMOR_KEY = "armor";
@@ -128,7 +127,7 @@ public class PlayerUtil {
         File file = DataFiles.PLAYER_LOCATION_STORE.getFile();
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.load(file);
-        yaml.set(player.getUniqueId().toString(), MiscUtil.convertLocation(player.getLocation()).serialize());
+        yaml.set(player.getUniqueId().toString(), LocationHelper.convertLocation(player.getLocation()).serialize());
         yaml.save(file);
     }
 
@@ -156,7 +155,7 @@ public class PlayerUtil {
         if (!l3d.getWorld().isPresent()) {
             throw new IllegalArgumentException("World not present in stored location of player " + player.getName());
         }
-        player.teleport(MiscUtil.convertLocation(l3d));
+        player.teleport(LocationHelper.convertLocation(l3d));
         yaml.set(player.getUniqueId().toString(), null);
         yaml.save(file);
     }

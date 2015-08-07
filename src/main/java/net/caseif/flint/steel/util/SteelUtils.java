@@ -51,4 +51,5 @@ public class SteelUtils implements PlatformUtils {
     public File getDataFolder(Minigame minigame) {
         return ((SteelMinigame)minigame).getBukkitPlugin().getDataFolder();
     }
+
 }

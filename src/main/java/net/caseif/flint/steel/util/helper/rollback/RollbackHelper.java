@@ -26,14 +26,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel.util.helper;
+package net.caseif.flint.steel.util.helper.rollback;
 
 import net.caseif.flint.Minigame;
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
-import net.caseif.flint.steel.util.MiscUtil;
-import net.caseif.flint.steel.util.io.DataFiles;
+import net.caseif.flint.steel.util.file.DataFiles;
+import net.caseif.flint.steel.util.helper.LocationHelper;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -64,7 +64,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 /**
- * Helper class for rollback functionality.
+ * Static utility class for rollback-related functionality.
  *
  * @author Max Roncacé
  */
@@ -395,7 +395,7 @@ public final class RollbackHelper {
             for (Arena arena : mg.getArenas()) {
                 if (arena.getWorld().equals(location.getWorld().getName())) {
                     if (arena.getBoundary().contains(
-                            MiscUtil.convertLocation(location))) {
+                            LocationHelper.convertLocation(location))) {
                         return Optional.of(arena);
                     }
                 }

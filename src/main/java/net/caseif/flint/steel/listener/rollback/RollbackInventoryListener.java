@@ -28,7 +28,7 @@
  */
 package net.caseif.flint.steel.listener.rollback;
 
-import net.caseif.flint.steel.util.helper.RollbackHelper;
+import net.caseif.flint.steel.util.helper.rollback.RollbackHelper;
 
 import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;

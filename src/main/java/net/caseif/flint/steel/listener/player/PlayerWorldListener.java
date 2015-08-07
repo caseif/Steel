@@ -32,7 +32,7 @@ import net.caseif.flint.Minigame;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.steel.util.MiscUtil;
+import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Boundary;
 
 import com.google.common.base.Optional;
@@ -66,7 +66,7 @@ public class PlayerWorldListener implements Listener {
                     // check whether they're allowed to teleport, or their arena
                     // has a boundary and if so whether the player is in it
                     if (!challenger.get().getRound().getConfigValue(ConfigNode.ALLOW_TELEPORT)
-                            || (bound.contains(MiscUtil.convertLocation(event.getTo())))) {
+                            || (bound.contains(LocationHelper.convertLocation(event.getTo())))) {
                         event.setCancelled(true);
                     }
                     break;

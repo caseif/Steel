@@ -33,8 +33,8 @@ import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.round.SteelRound;
-import net.caseif.flint.steel.util.PlayerUtil;
-import net.caseif.flint.steel.util.io.DataFiles;
+import net.caseif.flint.steel.util.helper.PlayerHelper;
+import net.caseif.flint.steel.util.file.DataFiles;
 
 import com.google.common.base.Optional;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -109,14 +109,14 @@ public class PlayerConnectionListener implements Listener {
 
                     // these two try-blocks are separate so they can both run even if one fails
                     try {
-                        PlayerUtil.popInventory(event.getPlayer());
+                        PlayerHelper.popInventory(event.getPlayer());
                     } catch (InvalidConfigurationException | IOException ex) {
                         ex.printStackTrace();
                         SteelCore.logSevere("Failed to pop inventory for player " + event.getPlayer().getName());
                     }
 
                     try {
-                        PlayerUtil.popLocation(event.getPlayer());
+                        PlayerHelper.popLocation(event.getPlayer());
                     } catch (InvalidConfigurationException | IOException ex) {
                         ex.printStackTrace();
                         SteelCore.logSevere("Failed to pop inventory for player " + event.getPlayer().getName());

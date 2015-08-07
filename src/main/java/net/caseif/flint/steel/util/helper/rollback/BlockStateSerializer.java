@@ -26,9 +26,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel.util.helper;
+package net.caseif.flint.steel.util.helper.rollback;
 
 import net.caseif.flint.steel.SteelCore;
+import net.caseif.flint.steel.util.helper.InventoryHelper;
 
 import com.google.common.base.Optional;
 import org.bukkit.DyeColor;

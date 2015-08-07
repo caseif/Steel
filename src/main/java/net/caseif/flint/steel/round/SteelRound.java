@@ -44,8 +44,8 @@ import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelMinigame;
 import net.caseif.flint.steel.challenger.SteelChallenger;
-import net.caseif.flint.steel.util.MiscUtil;
-import net.caseif.flint.steel.util.PlayerUtil;
+import net.caseif.flint.steel.util.helper.LocationHelper;
+import net.caseif.flint.steel.util.helper.PlayerHelper;
 
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.Bukkit;
@@ -109,13 +109,13 @@ public class SteelRound extends CommonRound {
         }
 
         try {
-            PlayerUtil.pushInventory(bukkitPlayer);
+            PlayerHelper.pushInventory(bukkitPlayer);
         } catch (IOException ex) {
             throw new RoundJoinException(uuid, this, "Could not push inventory for player " + challenger.getName()
                     + " into persistent storage", ex);
         }
         try {
-            PlayerUtil.storeLocation(bukkitPlayer);
+            PlayerHelper.storeLocation(bukkitPlayer);
         } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
             throw new RoundJoinException(uuid, this, "Could not push location for player " + challenger.getName()
                     + " into persistent storage", ex);
@@ -127,7 +127,7 @@ public class SteelRound extends CommonRound {
         if (nextSpawn.intValue() == getArena().getSpawnPoints().size()) {
             nextSpawn.set(0);
         }
-        bukkitPlayer.teleport(MiscUtil.convertLocation(getArena().getSpawnPoints().get(spawnIndex)));
+        bukkitPlayer.teleport(LocationHelper.convertLocation(getArena().getSpawnPoints().get(spawnIndex)));
         getChallengerMap().put(uuid, challenger);
         return challenger;
     }
@@ -152,13 +152,13 @@ public class SteelRound extends CommonRound {
         Player bukkitPlayer = Bukkit.getPlayer(challenger.getUniqueId());
         if (!isDisconnecting) {
             try {
-                PlayerUtil.popInventory(bukkitPlayer);
+                PlayerHelper.popInventory(bukkitPlayer);
             } catch (InvalidConfigurationException | IOException ex) {
                 throw new RuntimeException("Could not pop inventory for player " + challenger.getName()
                         + " from persistent storage", ex);
             }
             try {
-                PlayerUtil.popLocation(bukkitPlayer);
+                PlayerHelper.popLocation(bukkitPlayer);
             } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
                 ex.printStackTrace();
                 System.err.println("Could not pop location for player " + challenger.getName()
