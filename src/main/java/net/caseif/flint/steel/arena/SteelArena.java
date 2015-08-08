@@ -140,6 +140,22 @@ public class SteelArena extends CommonArena {
     }
 
     /**
+     * Removes this arena from persistent storage.
+     *
+     * @throws InvalidConfigurationException If an exception occurs while
+     *     configuring the persistent store
+     * @throws IOException If an exception occurs while writing to the
+     *     persistent store
+     */
+    public void removeFromStore() throws InvalidConfigurationException, IOException {
+        File arenaStore = DataFiles.ARENA_STORE.getFile(getMinigame());
+        YamlConfiguration yaml = new YamlConfiguration();
+        yaml.load(arenaStore);
+        yaml.set(getId(), null);
+        yaml.save(arenaStore);
+    }
+
+    /**
      * Stores the given {@link Metadata} recursively into the given
      * {@link ConfigurationSection}.
      *
