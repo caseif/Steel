@@ -63,9 +63,6 @@ public class RoundWorker implements Runnable {
 
     private void handleTick() {
         boolean stageSwitch = round.getTime() >= round.getLifecycleStage().getDuration();
-        CommonRoundTimerTickEvent event = new CommonRoundTimerTickEvent(round, round.getTime(),
-                stageSwitch ? 0 : round.getTime() + 1);
-        round.getMinigame().getEventBus().post(event);
         if (stageSwitch) {
             Optional<LifecycleStage> nextStage = round.getNextLifecycleStage();
             if (nextStage.isPresent()) {
@@ -78,6 +75,8 @@ public class RoundWorker implements Runnable {
         } else {
             round.setTime(round.getTime() + 1, false);
         }
+        round.getMinigame().getEventBus().post(new CommonRoundTimerTickEvent(round, round.getTime(),
+                stageSwitch ? 0 : round.getTime() + 1));
     }
 
     private void checkPlayerLocations() {
@@ -88,13 +87,13 @@ public class RoundWorker implements Runnable {
             if (!bound.contains(loc)) {
                 double x = loc.getX() > bound.getUpperBound().getX() ? bound.getUpperBound().getX()
                         : loc.getX() < bound.getLowerBound().getX() ? bound.getLowerBound().getX()
-                        : loc.getX();
+                                : loc.getX();
                 double y = loc.getY() > bound.getUpperBound().getY() ? bound.getUpperBound().getY()
                         : loc.getY() < bound.getLowerBound().getY() ? bound.getLowerBound().getY()
-                        : loc.getY();
+                                : loc.getY();
                 double z = loc.getZ() > bound.getUpperBound().getZ() ? bound.getUpperBound().getZ()
                         : loc.getZ() < bound.getLowerBound().getZ() ? bound.getLowerBound().getZ()
-                        : loc.getZ();
+                                : loc.getZ();
                 player.teleport(new Location(player.getWorld(), x, y, z));
             }
         }

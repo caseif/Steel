@@ -31,13 +31,12 @@ package net.caseif.flint.steel.round;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.arena.CommonArena;
-import net.caseif.flint.common.event.round.challenger.CommonChallengerJoinRoundEvent;
-import net.caseif.flint.common.event.round.challenger.CommonChallengerLeaveRoundEvent;
 import net.caseif.flint.common.event.round.CommonRoundTimerStartEvent;
 import net.caseif.flint.common.event.round.CommonRoundTimerStopEvent;
+import net.caseif.flint.common.event.round.challenger.CommonChallengerJoinRoundEvent;
+import net.caseif.flint.common.event.round.challenger.CommonChallengerLeaveRoundEvent;
 import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.config.ConfigNode;
-import net.caseif.flint.event.Cancellable;
 import net.caseif.flint.exception.round.RoundJoinException;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.round.LifecycleStage;
@@ -151,8 +150,20 @@ public class SteelRound extends CommonRound {
             ex.printStackTrace();
             returnPoint = LocationHelper.convertLocation(Bukkit.getWorlds().get(0).getSpawnLocation());
         }
+
+        super.removeChallenger(challenger);
+
         CommonChallengerLeaveRoundEvent event = new CommonChallengerLeaveRoundEvent(challenger, returnPoint);
         getMinigame().getEventBus().post(event);
+
+        if (!isDisconnecting) {
+            try {
+                PlayerHelper.popInventory(bukkitPlayer);
+            } catch (InvalidConfigurationException | IOException ex) {
+                throw new RuntimeException("Could not pop inventory for player " + challenger.getName()
+                        + " from persistent storage", ex);
+            }
+        }
 
         if (!event.getReturnLocation().equals(returnPoint)) {
             try {
@@ -161,15 +172,7 @@ public class SteelRound extends CommonRound {
                 ex.printStackTrace();
             }
         }
-
-        super.removeChallenger(challenger);
         if (!isDisconnecting) {
-            try {
-                PlayerHelper.popInventory(bukkitPlayer);
-            } catch (InvalidConfigurationException | IOException ex) {
-                throw new RuntimeException("Could not pop inventory for player " + challenger.getName()
-                        + " from persistent storage", ex);
-            }
             try {
                 PlayerHelper.popLocation(bukkitPlayer);
             } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
@@ -189,12 +192,9 @@ public class SteelRound extends CommonRound {
     @Override
     public void setTimerTicking(boolean ticking) {
         if (ticking != isTimerTicking()) {
-            Cancellable event = ticking ? new CommonRoundTimerStartEvent(this) : new CommonRoundTimerStopEvent(this);
-            getMinigame().getEventBus().post(event);
-            if (event.isCancelled()) {
-                return;
-            }
             timerTicking = ticking;
+            getMinigame().getEventBus()
+                    .post(ticking ? new CommonRoundTimerStartEvent(this) : new CommonRoundTimerStopEvent(this));
         }
     }
 
