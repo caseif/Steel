@@ -31,6 +31,7 @@ package net.caseif.flint.steel;
 import net.caseif.flint.FlintCore;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.common.CommonCore;
+import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.SteelUtils;
 
 /**

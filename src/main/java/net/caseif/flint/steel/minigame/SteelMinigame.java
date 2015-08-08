@@ -26,11 +26,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel;
+package net.caseif.flint.steel.minigame;
 
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.arena.Arena;
-import net.caseif.flint.common.CommonMinigame;
+import net.caseif.flint.common.minigame.CommonMinigame;
+import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.util.physical.Boundary;
@@ -76,6 +77,7 @@ public class SteelMinigame extends CommonMinigame {
     @Override
     public Arena createArena(String id, String name, Location3D spawnPoint, Boundary boundary)
             throws IllegalArgumentException {
+        id = id.toLowerCase();
         if (arenas.containsKey(id)) {
             throw new IllegalArgumentException("Arena with ID \"" + id + "\" already exists");
         }
@@ -106,7 +108,7 @@ public class SteelMinigame extends CommonMinigame {
                             && arenaSection.isSet(SteelArena.PERSISTENCE_WORLD_KEY)) {
                         SteelArena arena = new SteelArena(
                                 this,
-                                key,
+                                key.toLowerCase(),
                                 arenaSection.getString(SteelArena.PERSISTENCE_NAME_KEY),
                                 new Location3D(arenaSection.getString(SteelArena.PERSISTENCE_WORLD_KEY), 0, 0, 0),
                                 new Boundary(

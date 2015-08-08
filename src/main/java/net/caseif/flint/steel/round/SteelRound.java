@@ -42,7 +42,7 @@ import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.steel.SteelMinigame;
+import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.challenger.SteelChallenger;
 import net.caseif.flint.steel.util.helper.LocationHelper;

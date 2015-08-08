@@ -29,7 +29,7 @@
 package net.caseif.flint.steel.arena;
 
 import net.caseif.flint.arena.Arena;
-import net.caseif.flint.common.CommonMinigame;
+import net.caseif.flint.common.minigame.CommonMinigame;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.metadata.Metadata;
