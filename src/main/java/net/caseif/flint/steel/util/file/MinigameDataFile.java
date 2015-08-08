@@ -59,7 +59,7 @@ public class MinigameDataFile extends DataFile {
      */
     public File getFile(Minigame minigame) {
         return new File(Bukkit.getPluginManager().getPlugin(minigame.getPlugin()).getDataFolder(),
-                DataFiles.ROOT_DATA_DIR + File.pathSeparatorChar + getFileName());
+                DataFiles.ROOT_DATA_DIR + File.separatorChar + getFileName());
     }
 
 }

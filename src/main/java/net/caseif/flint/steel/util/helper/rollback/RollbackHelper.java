@@ -122,11 +122,14 @@ public final class RollbackHelper {
      *     database
      */
     public void createRollbackDatabase() throws IOException, SQLException {
-        if (rollbackStore.exists()) {
-            return;
+        if (!rollbackStore.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            rollbackStore.createNewFile();
         }
-        //noinspection ResultOfMethodCallIgnored
-        rollbackStore.createNewFile();
+        if (!stateStore.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            stateStore.createNewFile();
+        }
         try (Connection conn = DriverManager.getConnection(SQLITE_PROTOCOL + rollbackStore.getAbsolutePath())) {
             try (
                     PreparedStatement st = conn.prepareStatement(SQL_QUERIES.getProperty("create-rollback-table")

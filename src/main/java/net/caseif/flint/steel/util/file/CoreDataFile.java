@@ -57,7 +57,7 @@ public class CoreDataFile extends DataFile {
      */
     public File getFile() {
         return new File(SteelMain.getPlugin().getDataFolder(),
-                DataFiles.ROOT_DATA_DIR + File.pathSeparatorChar + getFileName());
+                DataFiles.ROOT_DATA_DIR + File.separatorChar + getFileName());
     }
 
 }

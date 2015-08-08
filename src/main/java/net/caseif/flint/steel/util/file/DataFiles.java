@@ -75,22 +75,34 @@ public class DataFiles {
         for (DataFile df : FILES) {
             if ((minigame != null && df instanceof MinigameDataFile)
                     || (minigame == null && df instanceof CoreDataFile)) {
-                File file = minigame != null ? ((MinigameDataFile)df).getFile(minigame) : ((CoreDataFile)df).getFile();
+                File file = minigame != null
+                        ? ((MinigameDataFile) df).getFile(minigame)
+                        : ((CoreDataFile) df).getFile();
+                if (file.isDirectory() != df.isDirectory()) {
+                    //noinspection ResultOfMethodCallIgnored
+                    file.delete();
+                }
                 if (!file.exists()) {
-                    boolean result;
+                    boolean result = false;
                     try {
-                        if (file.isDirectory()) {
-                            result = file.mkdir();
-                        } else {
-                            result = file.createNewFile();
+                        boolean parent = true;
+                        if (!file.getParentFile().exists()) {
+                            parent = file.getParentFile().mkdirs();
+                        }
+                        if (parent) {
+                            if (df.isDirectory()) {
+                                result = file.mkdir();
+                            } else {
+                                result = file.createNewFile();
+                            }
                         }
                     } catch (IOException ex) {
                         ex.printStackTrace();
                         result = false;
                     }
                     if (!result) {
-                        SteelCore.logSevere("Failed to create " + ROOT_DATA_DIR + File.pathSeparatorChar
-                                + df.getFileName());
+                        SteelCore.logSevere("Failed to create " + (minigame == null ? "core" : "minigame")
+                                + " data file " + ROOT_DATA_DIR + File.separatorChar + df.getFileName());
                     }
                 }
             }

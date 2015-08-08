@@ -43,6 +43,7 @@ import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.SteelMinigame;
+import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.challenger.SteelChallenger;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.helper.PlayerHelper;
@@ -54,6 +55,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -77,6 +79,12 @@ public class SteelRound extends CommonRound {
                 0L,
                 20L
         );
+        try {
+            ((SteelArena) getArena()).getRollbackHelper().createRollbackDatabase();
+        } catch (IOException | SQLException ex) {
+            SteelCore.logSevere("Failed to create rollback store");
+            ex.printStackTrace();
+        }
     }
 
     @Override

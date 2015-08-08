@@ -60,7 +60,7 @@ public class SteelMinigame extends CommonMinigame {
         } else {
             throw new IllegalArgumentException("Plugin \"" + plugin + "\" is not loaded!");
         }
-        DataFiles.createCoreDataFiles();
+        DataFiles.createMinigameDataFiles(this);
         loadArenas();
     }
 
