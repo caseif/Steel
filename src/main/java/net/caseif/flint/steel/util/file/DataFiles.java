@@ -41,6 +41,8 @@ import java.util.List;
  */
 public class DataFiles {
 
+    static final List<DataFile> FILES = new ArrayList<>();
+
     static final String ROOT_DATA_DIR = "flint_data";
 
     public static final CoreDataFile OFFLINE_PLAYER_STORE = new CoreDataFile("offline_players.yml");
@@ -51,10 +53,8 @@ public class DataFiles {
     public static final MinigameDataFile ROLLBACK_STORE = new MinigameDataFile("rollback.db");
     public static final MinigameDataFile ROLLBACK_STATE_STORE = new MinigameDataFile("rollback_state.yml");
 
-    static final List<DataFile> files = new ArrayList<>();
-
     static void register(DataFile dataFile) {
-        files.add(dataFile);
+        FILES.add(dataFile);
     }
 
     /**
@@ -72,7 +72,7 @@ public class DataFiles {
      *     for
      */
     public static void createMinigameDataFiles(Minigame minigame) {
-        for (DataFile df : files) {
+        for (DataFile df : FILES) {
             if ((minigame != null && df instanceof MinigameDataFile)
                     || (minigame == null && df instanceof CoreDataFile)) {
                 File file = minigame != null ? ((MinigameDataFile)df).getFile(minigame) : ((CoreDataFile)df).getFile();
