@@ -88,6 +88,7 @@ public class SteelMinigame extends CommonMinigame {
             ex.printStackTrace();
             SteelCore.logSevere("Failed to save arena with ID " + arena.getId() + " to persistent storage");
         }
+        arenas.put(id, arena);
         return arena;
     }
 
@@ -147,6 +148,7 @@ public class SteelMinigame extends CommonMinigame {
                         );
                         arena.removeSpawnPoint(0);
                         arena.configure(arenaSection);
+                        arenas.put(arena.getId(), arena);
                     } else {
                         SteelCore.logWarning("Invalid configuration section \"" + key + "\"in arena store");
                     }

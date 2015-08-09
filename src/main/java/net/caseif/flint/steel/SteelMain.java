@@ -30,6 +30,7 @@ package net.caseif.flint.steel;
 
 import net.caseif.flint.steel.listener.player.PlayerConnectionListener;
 import net.caseif.flint.steel.listener.player.PlayerWorldListener;
+import net.caseif.flint.steel.listener.plugin.PluginListener;
 import net.caseif.flint.steel.listener.rollback.RollbackBlockListener;
 import net.caseif.flint.steel.listener.rollback.RollbackEntityListener;
 import net.caseif.flint.steel.listener.rollback.RollbackInventoryListener;
@@ -50,59 +51,61 @@ import java.io.IOException;
  */
 public class SteelMain extends JavaPlugin {
 
-	private static JavaPlugin plugin;
+    private static JavaPlugin plugin;
 
-	@Override
-	public void onEnable() {
-		plugin = this;
-		SteelCore.initialize();
+    @Override
+    public void onEnable() {
+        plugin = this;
+        SteelCore.initialize();
 
         Bukkit.getPluginManager().registerEvents(new PlayerConnectionListener(), getPlugin());
-		Bukkit.getPluginManager().registerEvents(new PlayerWorldListener(), getPlugin());
+        Bukkit.getPluginManager().registerEvents(new PlayerWorldListener(), getPlugin());
+
+        Bukkit.getPluginManager().registerEvents(new PluginListener(), getPlugin());
 
         Bukkit.getPluginManager().registerEvents(new RollbackBlockListener(), getPlugin());
         Bukkit.getPluginManager().registerEvents(new RollbackEntityListener(), getPlugin());
         Bukkit.getPluginManager().registerEvents(new RollbackInventoryListener(), getPlugin());
 
         saveDefaultConfig();
-		DataFiles.createCoreDataFiles();
+        DataFiles.createCoreDataFiles();
 
-		try {
-			Class.forName("org.sqlite.JDBC"); // load the SQL driver
-		} catch (ClassNotFoundException ex) {
-			getLogger().severe("Failed to load SQL driver");
-			ex.printStackTrace();
-		}
+        try {
+            Class.forName("org.sqlite.JDBC"); // load the SQL driver
+        } catch (ClassNotFoundException ex) {
+            getLogger().severe("Failed to load SQL driver");
+            ex.printStackTrace();
+        }
 
-		initMetrics();
-		//initUpdater(); //TODO
-	}
+        initMetrics();
+        //initUpdater(); //TODO
+    }
 
-	@Override
-	public void onDisable() {
-	}
+    @Override
+    public void onDisable() {
+    }
 
-	public static JavaPlugin getPlugin() {
-		return plugin;
-	}
+    public static JavaPlugin getPlugin() {
+        return plugin;
+    }
 
-	public void initMetrics() {
-		if (getConfig().getBoolean("enable-metrics")) {
-			try {
-				Metrics metrics = new Metrics(this);
-				metrics.start();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-				getLogger().severe("Failed to enable Plugin Metrics!");
-			}
-		}
-	}
+    public void initMetrics() {
+        if (getConfig().getBoolean("enable-metrics")) {
+            try {
+                Metrics metrics = new Metrics(this);
+                metrics.start();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                getLogger().severe("Failed to enable Plugin Metrics!");
+            }
+        }
+    }
 
-	public void initUpdater() {
-		if (getConfig().getBoolean("enable-updater")) {
-			new Updater(this, -1, this.getFile(), Updater.UpdateType.DEFAULT, true);
-		}
-	}
+    public void initUpdater() {
+        if (getConfig().getBoolean("enable-updater")) {
+            new Updater(this, -1, this.getFile(), Updater.UpdateType.DEFAULT, true);
+        }
+    }
 
 
 }

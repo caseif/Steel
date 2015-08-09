@@ -77,13 +77,13 @@ public final class RollbackHelper {
     private static final int RECORD_TYPE_ENTITY_CREATED = 1;
     private static final int RECORD_TYPE_ENTITY_CHANGED = 2;
 
-    private File rollbackStore = DataFiles.ROLLBACK_STORE.getFile(getArena().getMinigame());
-    private File stateStore = DataFiles.ROLLBACK_STATE_STORE.getFile(getArena().getMinigame());
+    private File rollbackStore;
+    private File stateStore;
 
     private SteelArena arena;
 
     static {
-        try (InputStream is = RollbackHelper.class.getResourceAsStream("sql-queries.properties")) {
+        try (InputStream is = RollbackHelper.class.getResourceAsStream("/sql-queries.properties")) {
             SQL_QUERIES.load(is);
         } catch (IOException ex) {
             throw new RuntimeException("Failed to load SQL query strings", ex);
@@ -99,6 +99,8 @@ public final class RollbackHelper {
      */
     public RollbackHelper(SteelArena arena) {
         this.arena = arena;
+        rollbackStore = DataFiles.ROLLBACK_STORE.getFile(arena.getMinigame());
+        stateStore = DataFiles.ROLLBACK_STATE_STORE.getFile(arena.getMinigame());
     }
 
     /**

@@ -72,23 +72,24 @@ public class SteelArena extends CommonArena {
     private final RollbackHelper rbHelper;
 
     public SteelArena(CommonMinigame parent, String id, String name, Location3D initialSpawn, Boundary boundary) {
-        super(parent, id, name, initialSpawn, boundary);
+        super(parent, id.toLowerCase(), name, initialSpawn, boundary);
         this.rbHelper = new RollbackHelper(this);
     }
 
     @Override
-    public Round createRound(ImmutableSet<LifecycleStage> stages) throws IllegalStateException {
+    public Round createRound(ImmutableSet<LifecycleStage> stages)
+            throws IllegalArgumentException, IllegalStateException {
         Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
-        Preconditions.checkState(!stages.isEmpty(), "LifecycleStage set must not be empty");
+        Preconditions.checkArgument(!stages.isEmpty(), "LifecycleStage set must not be empty");
         parent.getRoundMap().put(this, new SteelRound(this, stages));
         Preconditions.checkState(getRound().isPresent(), "Cannot get created round from arena! This is a bug.");
         return getRound().get();
     }
 
     @Override
-    public Round createRound() throws IllegalArgumentException, IllegalStateException {
+    public Round createRound() throws IllegalStateException {
         Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
-        Preconditions.checkArgument(parent.getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES) != null,
+        Preconditions.checkState(parent.getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES) != null,
                 "Illegal call to no-args createRound method: default lifecycle stages are not set");
         return createRound(parent.getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES));
     }
@@ -132,8 +133,8 @@ public class SteelArena extends CommonArena {
         for (Map.Entry<Integer, Location3D> entry : getSpawnPoints().entrySet()) {
             spawns.set(entry.getKey().toString(), entry.getValue().serialize());
         }
-        cs.set(PERSISTENCE_BOUNDS_UPPER_KEY, getBoundary().getUpperBound());
-        cs.set(PERSISTENCE_BOUNDS_LOWER_KEY, getBoundary().getLowerBound());
+        cs.set(PERSISTENCE_BOUNDS_UPPER_KEY, getBoundary().getUpperBound().serialize());
+        cs.set(PERSISTENCE_BOUNDS_LOWER_KEY, getBoundary().getLowerBound().serialize());
         ConfigurationSection metadata = cs.createSection(PERSISTENCE_METADATA_KEY);
         storeMetadata(metadata, getPersistableMetadata());
         yaml.save(arenaStore);

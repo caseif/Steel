@@ -67,7 +67,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SteelRound extends CommonRound {
 
     private int schedulerHandle = -1;
-    private boolean timerTicking = false;
+    private boolean timerTicking = true;
 
     private AtomicInteger nextSpawn = new AtomicInteger();
 
@@ -159,10 +159,10 @@ public class SteelRound extends CommonRound {
             returnPoint = LocationHelper.convertLocation(Bukkit.getWorlds().get(0).getSpawnLocation());
         }
 
-        super.removeChallenger(challenger);
-
         CommonChallengerLeaveRoundEvent event = new CommonChallengerLeaveRoundEvent(challenger, returnPoint);
         getMinigame().getEventBus().post(event);
+
+        super.removeChallenger(challenger);
 
         if (!isDisconnecting) {
             try {
@@ -210,6 +210,13 @@ public class SteelRound extends CommonRound {
     public void end(boolean rollback, boolean natural) {
         cancelTimerTask();
         super.end(rollback, natural);
+    }
+
+    @Override
+    public void broadcast(String message) {
+        for (Challenger c : getChallengers()) {
+            Bukkit.getPlayer(c.getUniqueId()).sendMessage(message);
+        }
     }
 
     public void cancelTimerTask() {
