@@ -62,7 +62,8 @@ public class RoundWorker implements Runnable {
     }
 
     private void handleTick() {
-        boolean stageSwitch = round.getTime() >= round.getLifecycleStage().getDuration();
+        boolean stageSwitch = round.getLifecycleStage().getDuration() > 0
+                && round.getTime() >= round.getLifecycleStage().getDuration();
         if (stageSwitch) {
             Optional<LifecycleStage> nextStage = round.getNextLifecycleStage();
             if (nextStage.isPresent()) {

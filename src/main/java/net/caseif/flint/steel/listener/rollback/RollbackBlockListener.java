@@ -42,7 +42,6 @@ import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockMultiPlaceEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -112,11 +111,6 @@ public class RollbackBlockListener implements Listener {
         RollbackHelper.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBlockPhysics(BlockPhysicsEvent event) {
-        RollbackHelper.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
-        // the rest of the interaction is logged by the EntityChangeBlockEvent listener
-    }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockMultiPlace(BlockMultiPlaceEvent event) {

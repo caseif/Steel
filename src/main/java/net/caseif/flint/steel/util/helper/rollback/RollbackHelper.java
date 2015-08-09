@@ -155,18 +155,18 @@ public final class RollbackHelper {
      *     rollback database
      */
     @SuppressWarnings("deprecation")
-    public void logBlockChange(Location location, BlockState originalState)
+    private void logBlockChange(Location location, BlockState originalState)
             throws InvalidConfigurationException, IOException, SQLException {
         ConfigurationSection state = BlockStateSerializer.serializeState(originalState).orNull();
         logChange(RECORD_TYPE_BLOCK_CHANGED, location, null, originalState.getType().name(), originalState.getRawData(),
                 state);
     }
 
-    public void logEntityCreation(Entity entity) throws InvalidConfigurationException, IOException, SQLException {
+    private void logEntityCreation(Entity entity) throws InvalidConfigurationException, IOException, SQLException {
         logEntitySomething(entity, true);
     }
 
-    public void logEntityChange(Entity entity) throws InvalidConfigurationException, IOException, SQLException {
+    private void logEntityChange(Entity entity) throws InvalidConfigurationException, IOException, SQLException {
         logEntitySomething(entity, false);
     }
 
@@ -263,18 +263,18 @@ public final class RollbackHelper {
                 // replace non-negotiable values
                 updateSql = updateSql
                         .replace("{table}", getArena().getId())
-                        .replace("{state}", "" + (state != null))
+                        .replace("{state}", "" + (state != null ? 1 : 0))
                         .replace("{record_type}", "" + recordType);
             }
             int id;
-            try (
-                    PreparedStatement ps = conn.prepareStatement(updateSql, Statement.RETURN_GENERATED_KEYS);
-                    ResultSet gen = ps.getGeneratedKeys();
-            ) {
-                if (gen.next()) {
-                    id = gen.getInt(1);
-                } else {
-                    throw new SQLException("Failed to get generated key from update query");
+            try (PreparedStatement ps = conn.prepareStatement(updateSql, Statement.RETURN_GENERATED_KEYS)) {
+                ps.executeUpdate();
+                try (ResultSet gen = ps.getGeneratedKeys()) {
+                    if (gen.next()) {
+                        id = gen.getInt(1);
+                    } else {
+                        throw new SQLException("Failed to get generated key from update query");
+                    }
                 }
             }
             if (state != null) {
@@ -411,7 +411,7 @@ public final class RollbackHelper {
 
     public static void checkBlockChange(Location location, BlockState state, Event event) {
         Optional<Arena> arena = checkChangeAtLocation(location);
-        if (arena.isPresent()) {
+        if (arena.isPresent() && arena.get().getRound().isPresent()) {
             try {
                 ((SteelArena) arena.get()).getRollbackHelper().logBlockChange(location, state);
             } catch (InvalidConfigurationException | IOException | SQLException ex) {
@@ -423,7 +423,7 @@ public final class RollbackHelper {
 
     public static void checkEntityChange(Entity entity, boolean newlyCreated, Event event) {
         Optional<Arena> arena = checkChangeAtLocation(entity.getLocation());
-        if (arena.isPresent()) {
+        if (arena.isPresent() && arena.get().getRound().isPresent()) {
             try {
                 if (newlyCreated) {
                     ((SteelArena) arena.get()).getRollbackHelper().logEntityCreation(entity);
