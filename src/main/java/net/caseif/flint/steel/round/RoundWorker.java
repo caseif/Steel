@@ -28,7 +28,7 @@
  */
 package net.caseif.flint.steel.round;
 
-import net.caseif.flint.challenger.Challenger;
+import net.caseif.flint.round.challenger.Challenger;
 import net.caseif.flint.common.event.round.CommonRoundTimerTickEvent;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;

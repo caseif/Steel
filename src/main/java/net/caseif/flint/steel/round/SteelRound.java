@@ -28,7 +28,7 @@
  */
 package net.caseif.flint.steel.round;
 
-import net.caseif.flint.challenger.Challenger;
+import net.caseif.flint.round.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.event.round.CommonRoundTimerStartEvent;
@@ -44,7 +44,7 @@ import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.arena.SteelArena;
-import net.caseif.flint.steel.challenger.SteelChallenger;
+import net.caseif.flint.steel.round.challenger.SteelChallenger;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.helper.PlayerHelper;
 import net.caseif.flint.util.physical.Location3D;
