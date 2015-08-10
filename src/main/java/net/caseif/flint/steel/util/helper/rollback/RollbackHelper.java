@@ -378,7 +378,11 @@ public final class RollbackHelper {
                                     EntityType entityType = EntityType.valueOf(type);
                                     if (entityType != null) {
                                         if (entities.containsKey(uuid)) {
-                                            entities.get(uuid).remove(); // clean slate
+                                            Entity e = entities.get(uuid);
+                                            // teleport to bottom of map so it doesn't conflict since it isn't removed
+                                            // until the next tick
+                                            e.teleport(e.getLocation().subtract(0, e.getLocation().getY() + 1, 0));
+                                            e.remove(); // clean slate
                                         }
                                         Entity e = w.spawnEntity(new Location(w, x, y, z), entityType);
                                         if (stateSerial != null) {
