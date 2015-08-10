@@ -298,11 +298,27 @@ public final class RollbackHelper {
     @SuppressWarnings("deprecation")
     public void popRollbacks() throws SQLException {
         if (rollbackStore.exists()) {
+            YamlConfiguration yaml;
+            ConfigurationSection arenaSection = null;
+            try {
+                yaml = new YamlConfiguration();
+                yaml.load(stateStore);
+                arenaSection = yaml.getConfigurationSection(getArena().getId());
+            } catch (InvalidConfigurationException | IOException ex) {
+                yaml = null;
+                SteelCore.logSevere("State store is corrupt - tile and entity data will not be restored");
+                ex.printStackTrace();
+                //noinspection ResultOfMethodCallIgnored
+                stateStore.delete();
+            }
+
             try (
                     Connection conn = DriverManager.getConnection(SQLITE_PROTOCOL + rollbackStore.getAbsolutePath());
-                    PreparedStatement st = conn.prepareStatement(SQL_QUERIES.getProperty("get-all-records")
+                    PreparedStatement query = conn.prepareStatement(SQL_QUERIES.getProperty("get-all-records")
                             .replace("{table}", getArena().getId()));
-                    ResultSet rs = st.executeQuery();
+                    PreparedStatement drop = conn.prepareStatement(SQL_QUERIES.getProperty("drop-table")
+                            .replace("{table}", getArena().getId()));
+                    ResultSet rs = query.executeQuery();
             ) {
                 World w = Bukkit.getWorld(getArena().getWorld());
 
@@ -328,13 +344,13 @@ public final class RollbackHelper {
                         if (world.equals(getArena().getWorld())) {
                             ConfigurationSection stateSerial = null;
                             if (state) {
-                                YamlConfiguration yaml = new YamlConfiguration();
-                                yaml.load(stateStore);
-                                if (yaml.isConfigurationSection("" + id)) {
-                                    stateSerial = yaml.getConfigurationSection(getArena().getId());
-                                } else {
-                                    SteelCore.logVerbose("Rollback record with ID " + id + " was marked as having "
-                                            + "state, but no corresponding serial was found");
+                                if (arenaSection != null) {
+                                    if (arenaSection.isConfigurationSection("" + id)) {
+                                        stateSerial = arenaSection.getConfigurationSection("" + id);
+                                    } else {
+                                        SteelCore.logVerbose("Rollback record with ID " + id + " was marked as having "
+                                                + "state, but no corresponding serial was found");
+                                    }
                                 }
                             }
 
@@ -376,21 +392,26 @@ public final class RollbackHelper {
                                 default:
                                     SteelCore.logWarning("Invalid rollback record type at ID " + id);
                             }
-
                         } else {
                             SteelCore.logVerbose("Rollback record with ID " + id + " in arena " + getArena().getId()
                                     + " has a mismtching world name - refusing to roll back");
                         }
-                    } catch (InvalidConfigurationException | IOException | SQLException ex) {
+                    } catch (SQLException ex) {
                         SteelCore.logSevere("Failed to read rollback record in arena " + getArena().getId());
                         ex.printStackTrace();
                     }
                 }
+                drop.executeUpdate();
             }
-            //noinspection ResultOfMethodCallIgnored
-            rollbackStore.delete();
-            //noinspection ResultOfMethodCallIgnored
-            stateStore.delete();
+            if (yaml != null) {
+                yaml.set(arena.getId(), null);
+                try {
+                    yaml.save(stateStore);
+                } catch (IOException ex) {
+                    SteelCore.logSevere("Failed to wipe rollback state store! This might hurt...");
+                    ex.printStackTrace();
+                }
+            }
         } else {
             throw new IllegalArgumentException("Rollback store does not exist");
         }

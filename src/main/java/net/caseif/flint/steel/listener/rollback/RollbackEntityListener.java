@@ -89,14 +89,14 @@ public class RollbackEntityListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event) {
         if (SUPPORTED_TYPES.contains(event.getEntity().getType())) {
-            RollbackHelper.checkEntityChange(event.getEntity(), true, event);
+            RollbackHelper.checkEntityChange(event.getEntity(), false, event);
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
         if (SUPPORTED_TYPES.contains(event.getRightClicked().getType())) {
-            RollbackHelper.checkEntityChange(event.getRightClicked(), true, event);
+            RollbackHelper.checkEntityChange(event.getRightClicked(), false, event);
         }
     }
 
@@ -110,7 +110,7 @@ public class RollbackEntityListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onHangingBreak(HangingBreakEvent event) {
         if (SUPPORTED_TYPES.contains(event.getEntity().getType())) {
-            RollbackHelper.checkEntityChange(event.getEntity(), true, event);
+            RollbackHelper.checkEntityChange(event.getEntity(), false, event);
         }
     }
 

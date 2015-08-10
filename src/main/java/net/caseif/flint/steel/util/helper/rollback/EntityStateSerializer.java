@@ -129,17 +129,18 @@ public class EntityStateSerializer {
         } else if (entity instanceof Hanging) {
             BlockFace facing = BlockFace.valueOf(serial.getString(HANGING_FACING));
             if (facing != null) {
-                ((Hanging) entity).setFacingDirection(facing);
+                ((Hanging) entity).setFacingDirection(facing, true);
             } else {
                 SteelCore.logVerbose("Invalid serialized BlockFace value for hanging entity with UUID "
                         + entity.getUniqueId().toString());
             }
+
             if (entity instanceof ItemFrame) {
                 ((ItemFrame) entity).setItem(serial.getItemStack(ITEM_FRAME_ITEM));
                 Rotation rotation = Rotation.valueOf(serial.getString(ITEM_FRAME_ROTATION));
-                // rotation doesn't sound like a word anymore
                 if (rotation != null) {
                     ((ItemFrame) entity).setRotation(rotation);
+                    // rotation doesn't sound like a word anymore
                 } else {
                     SteelCore.logVerbose("Invalid serialized Rotation value for item frame with UUID "
                             + entity.getUniqueId().toString());
@@ -147,7 +148,8 @@ public class EntityStateSerializer {
             } else if (entity instanceof Painting) {
                 Art art = Art.valueOf(serial.getString("art"));
                 if (art != null) {
-                    ((Painting) entity).setArt(art);
+                    ((Painting) entity).setArt(art, true);
+                    // neither does art
                 } else {
                     SteelCore.logVerbose("Invalid serialized Art value for item frame with UUID "
                             + entity.getUniqueId().toString());
