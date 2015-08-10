@@ -159,11 +159,11 @@ public class EntityStateSerializer {
     }
 
     private static String serializeEulerAngle(EulerAngle angle) {
-        return "{" + angle.getX() + "," + angle.getY() + "," + angle.getZ() + "}";
+        return "(" + angle.getX() + "," + angle.getY() + "," + angle.getZ() + ")";
     }
 
     private static EulerAngle deserializeEulerAngle(String serial) throws IllegalArgumentException {
-        if (serial.startsWith("{") && serial.endsWith("}")) {
+        if (serial.startsWith("(") && serial.endsWith(")")) {
             String[] arr = serial.substring(1, serial.length() - 1).split(",");
             if (arr.length == 3) {
                 try {

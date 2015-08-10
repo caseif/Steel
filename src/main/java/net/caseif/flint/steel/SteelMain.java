@@ -28,6 +28,7 @@
  */
 package net.caseif.flint.steel;
 
+import net.caseif.flint.common.event.FlintSubscriberExceptionHandler;
 import net.caseif.flint.steel.listener.player.PlayerConnectionListener;
 import net.caseif.flint.steel.listener.player.PlayerWorldListener;
 import net.caseif.flint.steel.listener.plugin.PluginListener;
@@ -83,6 +84,7 @@ public class SteelMain extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        FlintSubscriberExceptionHandler.deinitialize();
     }
 
     public static JavaPlugin getPlugin() {
