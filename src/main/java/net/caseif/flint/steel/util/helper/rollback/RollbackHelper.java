@@ -123,15 +123,16 @@ public final class RollbackHelper {
      * @throws SQLException If an exception occurs while manipulating the
      *     database
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void createRollbackDatabase() throws IOException, SQLException {
         if (!rollbackStore.exists()) {
-            //noinspection ResultOfMethodCallIgnored
-            rollbackStore.createNewFile();
+            rollbackStore.delete();
         }
+        rollbackStore.createNewFile();
         if (!stateStore.exists()) {
-            //noinspection ResultOfMethodCallIgnored
-            stateStore.createNewFile();
+            stateStore.delete();
         }
+        stateStore.createNewFile();
         try (Connection conn = DriverManager.getConnection(SQLITE_PROTOCOL + rollbackStore.getAbsolutePath())) {
             try (
                     PreparedStatement st = conn.prepareStatement(SQL_QUERIES.getProperty("create-rollback-table")
@@ -318,7 +319,7 @@ public final class RollbackHelper {
                         int x = rs.getInt("x");
                         int y = rs.getInt("y");
                         int z = rs.getInt("z");
-                        UUID uuid = UUID.fromString(rs.getString("uuid"));
+                        UUID uuid = rs.getString("uuid") != null ? UUID.fromString(rs.getString("uuid")) : null;
                         String type = rs.getString("type");
                         int data = rs.getInt("data");
                         boolean state = rs.getBoolean("state");
