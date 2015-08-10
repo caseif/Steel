@@ -204,7 +204,7 @@ public class SteelArena extends CommonArena {
      * Loads data recursively from the given {@link ConfigurationSection} into
      * the given {@link PersistableMetadata}.
      *
-     * <p>If <code>parent</code> is <code>null</code>, it will default to this
+     * <p>If {@code parent</code> is <code>null}, it will default to this
      * arena's global {@link PersistableMetadata}.</p>
      *
      * @param section The {@link ConfigurationSection} to load data from
