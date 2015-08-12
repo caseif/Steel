@@ -31,16 +31,20 @@ package net.caseif.flint.steel.listener.rollback;
 import net.caseif.flint.steel.util.helper.rollback.RollbackHelper;
 
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 
 import java.util.ArrayList;
@@ -81,36 +85,42 @@ public class RollbackEntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onCreatureSpawn(CreatureSpawnEvent event) {
-        if (SUPPORTED_TYPES.contains(event.getEntity().getType())) {
-            RollbackHelper.checkEntityChange(event.getEntity(), true, event);
-        }
+        handleEntityEvent(event.getEntity(), true, event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onEntityDeath(EntityDeathEvent event) {
-        if (SUPPORTED_TYPES.contains(event.getEntity().getType())) {
-            RollbackHelper.checkEntityChange(event.getEntity(), false, event);
-        }
+    public void onEntityDamage(EntityDamageEvent event) {
+        handleEntityEvent(event.getEntity(), false, event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
-        if (SUPPORTED_TYPES.contains(event.getRightClicked().getType())) {
-            RollbackHelper.checkEntityChange(event.getRightClicked(), false, event);
-        }
+        handleEntityEvent(event.getRightClicked(), false, event);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
+        handleEntityEvent(event.getRightClicked(), false, event);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
+        handleEntityEvent(event.getRightClicked(), false, event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onHangingPlace(HangingPlaceEvent event) {
-        if (SUPPORTED_TYPES.contains(event.getEntity().getType())) {
-            RollbackHelper.checkEntityChange(event.getEntity(), true, event);
-        }
+            handleEntityEvent(event.getEntity(), true, event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onHangingBreak(HangingBreakEvent event) {
-        if (SUPPORTED_TYPES.contains(event.getEntity().getType())) {
-            RollbackHelper.checkEntityChange(event.getEntity(), false, event);
+            handleEntityEvent(event.getEntity(), false, event);
+    }
+
+    private void handleEntityEvent(Entity entity, boolean newlyCreated, Event event) {
+        if (SUPPORTED_TYPES.contains(entity.getType())) {
+            RollbackHelper.checkEntityChange(entity, newlyCreated, event);
         }
     }
 

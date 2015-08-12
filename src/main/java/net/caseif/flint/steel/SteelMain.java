@@ -59,14 +59,17 @@ public class SteelMain extends JavaPlugin {
         plugin = this;
         SteelCore.initialize();
 
-        Bukkit.getPluginManager().registerEvents(new PlayerConnectionListener(), getPlugin());
-        Bukkit.getPluginManager().registerEvents(new PlayerWorldListener(), getPlugin());
+        try {
+            Bukkit.getPluginManager().registerEvents(new PlayerConnectionListener(), getPlugin());
+            Bukkit.getPluginManager().registerEvents(new PlayerWorldListener(), getPlugin());
 
-        Bukkit.getPluginManager().registerEvents(new PluginListener(), getPlugin());
+            Bukkit.getPluginManager().registerEvents(new PluginListener(), getPlugin());
 
-        Bukkit.getPluginManager().registerEvents(new RollbackBlockListener(), getPlugin());
-        Bukkit.getPluginManager().registerEvents(new RollbackEntityListener(), getPlugin());
-        Bukkit.getPluginManager().registerEvents(new RollbackInventoryListener(), getPlugin());
+            Bukkit.getPluginManager().registerEvents(new RollbackBlockListener(), getPlugin());
+            Bukkit.getPluginManager().registerEvents(new RollbackEntityListener(), getPlugin());
+            Bukkit.getPluginManager().registerEvents(new RollbackInventoryListener(), getPlugin());
+        } catch (NoClassDefFoundError ignored) { // thrown if an event is unsupported on the current server software
+        }
 
         saveDefaultConfig();
         DataFiles.createCoreDataFiles();

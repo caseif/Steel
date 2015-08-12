@@ -34,6 +34,8 @@ import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.steel.util.helper.LocationHelper;
+import net.caseif.flint.steel.util.helper.rollback.serialization.BlockStateSerializer;
+import net.caseif.flint.steel.util.helper.rollback.serialization.EntityStateSerializer;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;

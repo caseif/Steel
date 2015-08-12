@@ -26,7 +26,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel.util.helper.rollback;
+package net.caseif.flint.steel.util.helper.rollback.serialization;
 
 import net.caseif.flint.steel.SteelCore;
 
@@ -40,7 +40,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hanging;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Painting;
-import org.bukkit.util.EulerAngle;
 
 /**
  * Static utility class for serialization of entity state.
@@ -48,6 +47,9 @@ import org.bukkit.util.EulerAngle;
  * @author Max Roncacé
  */
 public class EntityStateSerializer {
+
+    private static final String PITCH = "pitch";
+    private static final String YAW = "yaw";
 
     private static final String ARMOR_STAND_HELMET = "stand.helmet";
     private static final String ARMOR_STAND_CHESTPLATE = "stand.chestplate";
@@ -75,20 +77,22 @@ public class EntityStateSerializer {
 
     public static ConfigurationSection serializeState(Entity entity) {
         ConfigurationSection cs = new YamlConfiguration().createSection("thank 4 good bones and calsium");
-
         if (entity instanceof ArmorStand) {
+            EulerAngleSerializer eas = EulerAngleSerializer.getInstance();
             ArmorStand stand = (ArmorStand) entity;
+            cs.set(PITCH, stand.getLocation().getPitch());
+            cs.set(YAW, stand.getLocation().getYaw());
             cs.set(ARMOR_STAND_HELMET, stand.getHelmet());
             cs.set(ARMOR_STAND_CHESTPLATE, stand.getChestplate());
             cs.set(ARMOR_STAND_LEGGINGS, stand.getLeggings());
             cs.set(ARMOR_STAND_BOOTS, stand.getBoots());
             cs.set(ARMOR_STAND_HAND, stand.getItemInHand());
-            cs.set(ARMOR_STAND_POSE_HEAD, serializeEulerAngle(stand.getHeadPose()));
-            cs.set(ARMOR_STAND_POSE_BODY, serializeEulerAngle(stand.getBodyPose()));
-            cs.set(ARMOR_STAND_POSE_ARM_LEFT, serializeEulerAngle(stand.getLeftArmPose()));
-            cs.set(ARMOR_STAND_POSE_ARM_RIGHT, serializeEulerAngle(stand.getRightArmPose()));
-            cs.set(ARMOR_STAND_POSE_LEG_LEFT, serializeEulerAngle(stand.getLeftLegPose()));
-            cs.set(ARMOR_STAND_POSE_LEG_RIGHT, serializeEulerAngle(stand.getRightLegPose()));
+            cs.set(ARMOR_STAND_POSE_HEAD, eas.serialize(stand.getHeadPose()));
+            cs.set(ARMOR_STAND_POSE_BODY, eas.serialize(stand.getBodyPose()));
+            cs.set(ARMOR_STAND_POSE_ARM_LEFT, eas.serialize(stand.getLeftArmPose()));
+            cs.set(ARMOR_STAND_POSE_ARM_RIGHT, eas.serialize(stand.getRightArmPose()));
+            cs.set(ARMOR_STAND_POSE_LEG_LEFT, eas.serialize(stand.getLeftLegPose()));
+            cs.set(ARMOR_STAND_POSE_LEG_RIGHT, eas.serialize(stand.getRightLegPose()));
             cs.set(ARMOR_STAND_ARMS, stand.hasArms());
             cs.set(ARMOR_STAND_BASE_PLATE, stand.hasBasePlate());
             cs.set(ARMOR_STAND_GRAVITY, stand.hasGravity());
@@ -109,18 +113,19 @@ public class EntityStateSerializer {
 
     public static void deserializeState(Entity entity, ConfigurationSection serial) {
         if (entity instanceof ArmorStand) {
+            EulerAngleSerializer eas = EulerAngleSerializer.getInstance();
             ArmorStand stand = (ArmorStand) entity;
             stand.setHelmet(serial.getItemStack(ARMOR_STAND_HELMET));
             stand.setChestplate(serial.getItemStack(ARMOR_STAND_CHESTPLATE));
             stand.setLeggings(serial.getItemStack(ARMOR_STAND_LEGGINGS));
             stand.setBoots(serial.getItemStack(ARMOR_STAND_BOOTS));
             stand.setItemInHand(serial.getItemStack(ARMOR_STAND_HAND));
-            stand.setHeadPose(deserializeEulerAngle(serial.getString(ARMOR_STAND_POSE_HEAD)));
-            stand.setBodyPose(deserializeEulerAngle(serial.getString(ARMOR_STAND_POSE_BODY)));
-            stand.setLeftArmPose(deserializeEulerAngle(serial.getString(ARMOR_STAND_POSE_ARM_LEFT)));
-            stand.setRightArmPose(deserializeEulerAngle(serial.getString(ARMOR_STAND_POSE_ARM_RIGHT)));
-            stand.setLeftLegPose(deserializeEulerAngle(serial.getString(ARMOR_STAND_POSE_LEG_LEFT)));
-            stand.setRightLegPose(deserializeEulerAngle(serial.getString(ARMOR_STAND_POSE_LEG_RIGHT)));
+            stand.setHeadPose(eas.deserialize(serial.getString(ARMOR_STAND_POSE_HEAD)));
+            stand.setBodyPose(eas.deserialize(serial.getString(ARMOR_STAND_POSE_BODY)));
+            stand.setLeftArmPose(eas.deserialize(serial.getString(ARMOR_STAND_POSE_ARM_LEFT)));
+            stand.setRightArmPose(eas.deserialize(serial.getString(ARMOR_STAND_POSE_ARM_RIGHT)));
+            stand.setLeftLegPose(eas.deserialize(serial.getString(ARMOR_STAND_POSE_LEG_LEFT)));
+            stand.setRightLegPose(eas.deserialize(serial.getString(ARMOR_STAND_POSE_LEG_RIGHT)));
             stand.setArms(serial.getBoolean(ARMOR_STAND_ARMS));
             stand.setBasePlate(serial.getBoolean(ARMOR_STAND_BASE_PLATE));
             stand.setGravity(serial.getBoolean(ARMOR_STAND_GRAVITY));
@@ -156,25 +161,6 @@ public class EntityStateSerializer {
                 }
             }
         }
-    }
-
-    private static String serializeEulerAngle(EulerAngle angle) {
-        return "(" + angle.getX() + "," + angle.getY() + "," + angle.getZ() + ")";
-    }
-
-    private static EulerAngle deserializeEulerAngle(String serial) throws IllegalArgumentException {
-        if (serial.startsWith("(") && serial.endsWith(")")) {
-            String[] arr = serial.substring(1, serial.length() - 1).split(",");
-            if (arr.length == 3) {
-                try {
-                    double x = Double.parseDouble(arr[0]);
-                    double y = Double.parseDouble(arr[0]);
-                    double z = Double.parseDouble(arr[0]);
-                    return new EulerAngle(x, y, z);
-                } catch (NumberFormatException ignored) { } // continue to the IllegalArgumentException at the bottom
-            }
-        }
-        throw new IllegalArgumentException("Invalid serial for EulerAngle");
     }
 
 }
