@@ -71,7 +71,7 @@ public class RoundWorker implements Runnable {
                 round.setTime(0);
                 round.setLifecycleStage(nextStage.get());
             } else {
-                round.end(true, true);
+                round.end(round.getConfigValue(ConfigNode.ROLLBACK_ON_END), true);
                 return;
             }
         } else {

@@ -39,6 +39,7 @@ import com.google.common.base.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -51,7 +52,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
  */
 public class PlayerWorldListener implements Listener {
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         // make sure they moved through space
         if (event.getFrom().getX() != event.getTo().getX()
@@ -77,7 +78,7 @@ public class PlayerWorldListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         for (Minigame mg : SteelCore.getMinigames().values()) {
             Optional<Challenger> challenger = mg.getChallenger(event.getPlayer().getUniqueId());
@@ -96,8 +97,9 @@ public class PlayerWorldListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        boolean cancelled = false;
         // check that both parties involved are playes
         if (event.getEntity().getType() == EntityType.PLAYER && event.getDamager().getType() == EntityType.PLAYER) {
             // begin the hunt for the challenger
@@ -110,25 +112,25 @@ public class PlayerWorldListener implements Listener {
                     if (challenger.get().getRound() == damager.get().getRound()) {
                         // check whether damage is disabled entirely
                         if (!challenger.get().getRound().getConfigValue(ConfigNode.ALLOW_DAMAGE)) {
-                            event.setCancelled(true);
-                            return;
+                            cancelled = true;
                         } else if (!challenger.get().getRound().getConfigValue(ConfigNode.ALLOW_FRIENDLY_FIRE)) {
                             // check whether friendly fire is disabled
+                            // check if they're on the same team
                             if (challenger.get().getTeam().orNull() == damager.get().getTeam().orNull()) {
-                                event.setCancelled(true); // cancel if they're on the same team
-                                return;
+                                cancelled = true; // cancel if they're on the same team
                             }
                         }
                     } else {
-                        event.setCancelled(true); // cancel if they're not in the same round
-                        return;
+                        cancelled = true; // cancel if they're not in the same round
                     }
                 } else if (challenger.isPresent() != damager.isPresent()) {
                     // cancel if one's in a round and one's not
-                    event.setCancelled(true);
-                    return;
+                    cancelled = true;
                 }
             }
+        }
+        if (cancelled) {
+            event.setCancelled(true);
         }
     }
 
