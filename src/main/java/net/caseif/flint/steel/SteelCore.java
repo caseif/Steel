@@ -50,6 +50,11 @@ public class SteelCore extends CommonCore {
     }
 
     @Override
+    public String getImplementationName0() {
+        return SteelMain.getPlugin().getName();
+    }
+
+    @Override
     protected Minigame registerPlugin0(String pluginId) throws IllegalArgumentException {
         if (minigames.containsKey(pluginId)) {
             throw new IllegalArgumentException(pluginId + " attempted to register itself more than once");
@@ -77,7 +82,7 @@ public class SteelCore extends CommonCore {
     @Override
     protected void logVerbose0(String message) {
         if (VERBOSE_LOGGING) {
-            SteelMain.getPlugin().getLogger().info("[VERBOSE] " + message);
+            logInfo0("[VERBOSE] " + message);
         }
     }
 

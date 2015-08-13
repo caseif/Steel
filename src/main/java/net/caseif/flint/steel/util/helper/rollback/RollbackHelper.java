@@ -260,7 +260,8 @@ public final class RollbackHelper {
                             .replace("{type}", type);
                     break;
                 default:
-                    throw new AssertionError("Inconsistency detected in method: recordType is in an illegal state");
+                    throw new AssertionError("Inconsistency detected in method: recordType is in an illegal state. "
+                            + "Report this immediately.");
             }
             if (updateSql != null) {
                 // replace non-negotiable values
