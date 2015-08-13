@@ -99,7 +99,8 @@ public class RoundWorker implements Runnable {
                     double z = loc.getZ() > bound.getUpperBound().getZ() ? bound.getUpperBound().getZ()
                             : loc.getZ() < bound.getLowerBound().getZ() ? bound.getLowerBound().getZ()
                                     : loc.getZ();
-                    player.teleport(new Location(player.getWorld(), x, y, z));
+                    player.teleport(new Location(player.getWorld(), x, y, z,
+                            player.getLocation().getYaw(), player.getLocation().getPitch()));
                 }
             }
         }
