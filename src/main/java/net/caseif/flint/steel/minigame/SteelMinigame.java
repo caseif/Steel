@@ -114,6 +114,12 @@ public class SteelMinigame extends CommonMinigame {
         if (arena.getMinigame() != this) {
             throw new IllegalArgumentException("Cannot remove arena with different parent minigame");
         }
+        if (arena.getRound().isPresent()) {
+            arena.getRound().get().end();
+            SteelCore.logVerbose("Minigame " + getBukkitPlugin() + " requested to remove arena " + arena.getId()
+                    + " while it still contained a round. Steel will end it automatically, but typically this behavior "
+                    + "is not ideal and the round should be ended before the arena is requested for removal.");
+        }
         arenas.remove(arena.getId());
         try {
             ((SteelArena) arena).removeFromStore();
