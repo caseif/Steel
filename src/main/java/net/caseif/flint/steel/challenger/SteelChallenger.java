@@ -26,10 +26,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel.round.challenger;
+package net.caseif.flint.steel.challenger;
 
-import net.caseif.flint.round.challenger.Challenger;
-import net.caseif.flint.common.round.challenger.CommonChallenger;
+import net.caseif.flint.challenger.Challenger;
+import net.caseif.flint.common.challenger.CommonChallenger;
 import net.caseif.flint.exception.round.RoundJoinException;
 import net.caseif.flint.steel.round.SteelRound;
 
