@@ -225,4 +225,14 @@ public class SteelRound extends CommonRound {
         Bukkit.getScheduler().cancelTask(schedulerHandle);
     }
 
+    /**
+     * Return whether this {@link SteelRound} object is orphaned.
+     *
+     * @return Whether this {@link SteelRound} object is orphaned
+     * @since 1.0
+     */
+    public boolean isOrphaned() {
+        return arena == null;
+    }
+
 }

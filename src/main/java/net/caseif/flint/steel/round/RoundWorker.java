@@ -59,7 +59,9 @@ public class RoundWorker implements Runnable {
         if (round.isTimerTicking()) {
             handleTick();
         }
-        checkPlayerLocations();
+        if (!round.isOrphaned()) {
+            checkPlayerLocations();
+        }
     }
 
     private void handleTick() {
