@@ -36,9 +36,11 @@ import net.caseif.flint.steel.listener.rollback.RollbackBlockListener;
 import net.caseif.flint.steel.listener.rollback.RollbackEntityListener;
 import net.caseif.flint.steel.listener.rollback.RollbackInventoryListener;
 import net.caseif.flint.steel.util.file.DataFiles;
+import net.caseif.flint.steel.util.helper.ConfigHelper;
 
 import net.gravitydevelopment.updater.Updater;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 
@@ -72,6 +74,12 @@ public class SteelMain extends JavaPlugin {
         }
 
         saveDefaultConfig();
+        try {
+            ConfigHelper.addMissingKeys();
+        } catch (InvalidConfigurationException | IOException ex) {
+            ex.printStackTrace();
+            SteelCore.logWarning("Failed to write missing config keys");
+        }
         DataFiles.createCoreDataFiles();
 
         try {
