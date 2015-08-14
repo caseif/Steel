@@ -45,6 +45,8 @@ import java.util.UUID;
 public class SteelChallenger extends CommonChallenger {
 
     public SteelChallenger(UUID uuid, SteelRound round) throws RoundJoinException {
+        assert uuid != null;
+        assert round != null;
         this.uuid = uuid;
         this.name = Bukkit.getPlayer(uuid).getName();
         this.round = round;

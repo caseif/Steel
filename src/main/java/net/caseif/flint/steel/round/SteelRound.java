@@ -37,14 +37,15 @@ import net.caseif.flint.common.event.round.challenger.CommonChallengerJoinRoundE
 import net.caseif.flint.common.event.round.challenger.CommonChallengerLeaveRoundEvent;
 import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.config.ConfigNode;
+import net.caseif.flint.exception.OrphanedObjectException;
 import net.caseif.flint.exception.round.RoundJoinException;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.challenger.SteelChallenger;
+import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.helper.PlayerHelper;
 import net.caseif.flint.util.physical.Location3D;
@@ -88,7 +89,7 @@ public class SteelRound extends CommonRound {
     }
 
     @Override
-    public Challenger addChallenger(UUID uuid) throws RoundJoinException {
+    public Challenger addChallenger(UUID uuid) throws RoundJoinException, OrphanedObjectException {
         Player bukkitPlayer = Bukkit.getPlayer(uuid);
         if (bukkitPlayer == null) {
             throw new RoundJoinException(uuid, this, RoundJoinException.Reason.OFFLINE,
@@ -137,7 +138,8 @@ public class SteelRound extends CommonRound {
     }
 
     @Override
-    public void removeChallenger(Challenger challenger) {
+    public void removeChallenger(Challenger challenger) throws OrphanedObjectException {
+        checkState();
         removeChallenger(challenger, false);
     }
 
@@ -149,7 +151,7 @@ public class SteelRound extends CommonRound {
      * @param isDisconnecting Whether the {@link Challenger} is currently
      *     disconnecting from the server
      */
-    public void removeChallenger(Challenger challenger, boolean isDisconnecting) {
+    public void removeChallenger(Challenger challenger, boolean isDisconnecting) throws OrphanedObjectException {
         Player bukkitPlayer = Bukkit.getPlayer(challenger.getUniqueId());
         Location3D returnPoint;
         try {
@@ -168,7 +170,7 @@ public class SteelRound extends CommonRound {
             try {
                 PlayerHelper.popInventory(bukkitPlayer);
             } catch (InvalidConfigurationException | IOException ex) {
-                throw new RuntimeException("Could not pop inventory for player " + challenger.getName()
+                throw new RuntimeException("Could not pop inventory for player " + bukkitPlayer.getName()
                         + " from persistent storage", ex);
             }
         }
@@ -185,7 +187,7 @@ public class SteelRound extends CommonRound {
                 PlayerHelper.popLocation(bukkitPlayer);
             } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
                 ex.printStackTrace();
-                SteelCore.logSevere("Could not pop location for player " + challenger.getName()
+                SteelCore.logSevere("Could not pop location for player " + bukkitPlayer.getName()
                         + " from persistent storage - defaulting to world spawn");
                 bukkitPlayer.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
             }
@@ -193,12 +195,12 @@ public class SteelRound extends CommonRound {
     }
 
     @Override
-    public boolean isTimerTicking() {
+    public boolean isTimerTicking() throws OrphanedObjectException {
         return this.timerTicking;
     }
 
     @Override
-    public void setTimerTicking(boolean ticking) {
+    public void setTimerTicking(boolean ticking) throws OrphanedObjectException {
         if (ticking != isTimerTicking()) {
             timerTicking = ticking;
             getMinigame().getEventBus()

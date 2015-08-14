@@ -29,6 +29,7 @@
 package net.caseif.flint.steel.minigame;
 
 import net.caseif.flint.arena.Arena;
+import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.minigame.CommonMinigame;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
@@ -57,6 +58,7 @@ public class SteelMinigame extends CommonMinigame {
 
     public SteelMinigame(String plugin) {
         super(); // initialize event bus in FlintCommon
+        assert plugin != null;
         if (Bukkit.getPluginManager().isPluginEnabled(plugin)) {
             this.plugin = Bukkit.getPluginManager().getPlugin(plugin);
         } else {
@@ -128,6 +130,7 @@ public class SteelMinigame extends CommonMinigame {
             SteelCore.logSevere("Failed to remove arena with ID " + arena.getId() + " from persistent store");
             ex.printStackTrace();
         }
+        ((CommonArena) arena).orphan();
     }
 
     private void loadArenas() {

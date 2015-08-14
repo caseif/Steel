@@ -29,17 +29,18 @@
 package net.caseif.flint.steel.arena;
 
 import net.caseif.flint.arena.Arena;
-import net.caseif.flint.common.minigame.CommonMinigame;
 import net.caseif.flint.common.arena.CommonArena;
+import net.caseif.flint.common.minigame.CommonMinigame;
 import net.caseif.flint.config.ConfigNode;
+import net.caseif.flint.exception.OrphanedObjectException;
 import net.caseif.flint.metadata.Metadata;
 import net.caseif.flint.metadata.persist.PersistableMetadata;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.round.SteelRound;
-import net.caseif.flint.steel.util.helper.rollback.RollbackHelper;
 import net.caseif.flint.steel.util.file.DataFiles;
+import net.caseif.flint.steel.util.helper.rollback.RollbackHelper;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 
@@ -60,6 +61,7 @@ import java.util.Map;
  *
  * @author Max Roncacé
  */
+@SuppressWarnings("ALL")
 public class SteelArena extends CommonArena {
 
     public static final String PERSISTENCE_NAME_KEY = "name";
@@ -78,7 +80,8 @@ public class SteelArena extends CommonArena {
 
     @Override
     public Round createRound(ImmutableSet<LifecycleStage> stages)
-            throws IllegalArgumentException, IllegalStateException {
+            throws IllegalArgumentException, IllegalStateException, OrphanedObjectException {
+        checkState();
         Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
         Preconditions.checkArgument(!stages.isEmpty(), "LifecycleStage set must not be empty");
         parent.getRoundMap().put(this, new SteelRound(this, stages));
@@ -87,7 +90,8 @@ public class SteelArena extends CommonArena {
     }
 
     @Override
-    public Round createRound() throws IllegalStateException {
+    public Round createRound() throws IllegalStateException, OrphanedObjectException {
+        checkState();
         Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
         Preconditions.checkState(parent.getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES) != null,
                 "Illegal call to no-args createRound method: default lifecycle stages are not set");
@@ -95,7 +99,8 @@ public class SteelArena extends CommonArena {
     }
 
     @Override
-    public void rollback() throws IllegalStateException {
+    public void rollback() throws IllegalStateException, OrphanedObjectException {
+        checkState();
         try {
             getRollbackHelper().popRollbacks();
         } catch (SQLException ex) {
@@ -121,6 +126,7 @@ public class SteelArena extends CommonArena {
      * @throws IOException If an exception occurs while writing to the
      *     persistent store
      */
+    @Override
     public void store() throws InvalidConfigurationException, IOException {
         File arenaStore = DataFiles.ARENA_STORE.getFile(getMinigame());
         YamlConfiguration yaml = new YamlConfiguration();
