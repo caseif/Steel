@@ -2,7 +2,7 @@
 
 ### What is Steel?
 
-Steel is the implementation of the [Flint](https://github.com/caseif/Flint) minigame framework for the Bukkit Minecraft
+Steel is the implementation of the [Flint](https://github.com/caseif/Flint) minigame engine for the Bukkit Minecraft
 server mod.
 
 ### Prerequisites
