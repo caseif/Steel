@@ -29,6 +29,7 @@
 package net.caseif.flint.steel.util.helper.rollback.serialization;
 
 import net.caseif.flint.steel.SteelCore;
+import net.caseif.flint.steel.util.Support;
 import net.caseif.flint.steel.util.helper.InventoryHelper;
 
 import com.google.common.base.Optional;
@@ -103,7 +104,7 @@ public class BlockStateSerializer {
 
         if (state instanceof Sign) {
             cs.set(SIGN_LINES_KEY, Arrays.asList(((Sign) state).getLines()));
-        } else if (state instanceof Banner) {
+        } else if (Support.BANNER && state instanceof Banner) {
             cs.set(BANNER_BASE_COLOR_KEY, ((Banner) state).getBaseColor().name());
             ConfigurationSection patternSection = cs.createSection(BANNER_PATTERNS_KEY);
             List<Pattern> patterns = ((Banner) state).getPatterns();
@@ -163,7 +164,7 @@ public class BlockStateSerializer {
             } else {
                 missingData = true;
             }
-        } else if (state instanceof Banner) {
+        } else if (Support.BANNER && state instanceof Banner) {
             if (serial.isSet(BANNER_BASE_COLOR_KEY)) {
                 DyeColor color = DyeColor.valueOf(serial.getString(BANNER_BASE_COLOR_KEY));
                 if (color != null) {

@@ -54,7 +54,7 @@ public class ConfigHelper {
         BufferedReader is = new BufferedReader(new InputStreamReader(
                 ConfigHelper.class.getResourceAsStream("/config.yml")
         ));
-        File configYml = new File(SteelMain.getPlugin().getDataFolder(), "config.yml");
+        File configYml = new File(SteelMain.getInstance().getDataFolder(), "config.yml");
         YamlConfiguration yml = new YamlConfiguration();
         yml.load(configYml);
         StringBuilder sb = new StringBuilder();

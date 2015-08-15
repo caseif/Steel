@@ -28,7 +28,6 @@
  */
 package net.caseif.flint.steel;
 
-import net.caseif.flint.common.event.FlintSubscriberExceptionHandler;
 import net.caseif.flint.steel.listener.misc.LobbyListener;
 import net.caseif.flint.steel.listener.player.PlayerConnectionListener;
 import net.caseif.flint.steel.listener.player.PlayerWorldListener;
@@ -36,6 +35,7 @@ import net.caseif.flint.steel.listener.plugin.PluginListener;
 import net.caseif.flint.steel.listener.rollback.RollbackBlockListener;
 import net.caseif.flint.steel.listener.rollback.RollbackEntityListener;
 import net.caseif.flint.steel.listener.rollback.RollbackInventoryListener;
+import net.caseif.flint.steel.listener.rollback.breaking.v1_8.BreakingV1_8RollbackEntityListener;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.steel.util.helper.ConfigHelper;
 
@@ -55,27 +55,14 @@ import java.io.IOException;
  */
 public class SteelMain extends JavaPlugin {
 
-    private static JavaPlugin plugin;
+    private static SteelMain instance;
 
     @Override
     public void onEnable() {
-        plugin = this;
+        instance = this;
         SteelCore.initialize();
 
-        try {
-            Bukkit.getPluginManager().registerEvents(new PlayerConnectionListener(), getPlugin());
-            Bukkit.getPluginManager().registerEvents(new PlayerWorldListener(), getPlugin());
-
-            Bukkit.getPluginManager().registerEvents(new PluginListener(), getPlugin());
-
-            Bukkit.getPluginManager().registerEvents(new RollbackBlockListener(), getPlugin());
-            Bukkit.getPluginManager().registerEvents(new RollbackEntityListener(), getPlugin());
-            Bukkit.getPluginManager().registerEvents(new RollbackInventoryListener(), getPlugin());
-
-            Bukkit.getPluginManager().registerEvents(new LobbyListener(), getPlugin());
-        } catch (NoClassDefFoundError ignored) { // thrown if an event is unsupported on the current server software
-            //TODO: this workaround is very broken and we need a better solution
-        }
+        registerEvents();
 
         saveDefaultConfig();
         try {
@@ -99,11 +86,10 @@ public class SteelMain extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        FlintSubscriberExceptionHandler.deinitialize();
     }
 
-    public static JavaPlugin getPlugin() {
-        return plugin;
+    public static SteelMain getInstance() {
+        return instance;
     }
 
     public void initMetrics() {
@@ -124,5 +110,25 @@ public class SteelMain extends JavaPlugin {
         }
     }
 
+    public void registerEvents() {
+        // standard event registration
+        Bukkit.getPluginManager().registerEvents(new PlayerConnectionListener(), getInstance());
+        Bukkit.getPluginManager().registerEvents(new PlayerWorldListener(), getInstance());
+
+        Bukkit.getPluginManager().registerEvents(new PluginListener(), getInstance());
+
+        Bukkit.getPluginManager().registerEvents(new RollbackBlockListener(), getInstance());
+        Bukkit.getPluginManager().registerEvents(new RollbackEntityListener(), getInstance());
+        Bukkit.getPluginManager().registerEvents(new RollbackInventoryListener(), getInstance());
+
+        Bukkit.getPluginManager().registerEvents(new LobbyListener(), getInstance());
+
+        // breaking event registration (for newer event types)
+        try {
+            Bukkit.getPluginManager().registerEvents(new BreakingV1_8RollbackEntityListener(), getInstance());
+        } catch (NoClassDefFoundError ex) {
+            SteelCore.logVerbose("Server does not support 1.8 events - not registering");
+        }
+    }
 
 }

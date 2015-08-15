@@ -28,6 +28,7 @@
  */
 package net.caseif.flint.steel.listener.rollback;
 
+import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.util.helper.rollback.RollbackHelper;
 
 import org.bukkit.block.Block;
@@ -43,8 +44,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 
 import java.util.ArrayList;
@@ -60,10 +59,14 @@ public class RollbackEntityListener implements Listener {
     private static final List<EntityType> SUPPORTED_TYPES = new ArrayList<EntityType>();
 
     static {
-        SUPPORTED_TYPES.add(EntityType.ARMOR_STAND);
         SUPPORTED_TYPES.add(EntityType.ITEM_FRAME);
         SUPPORTED_TYPES.add(EntityType.LEASH_HITCH);
         SUPPORTED_TYPES.add(EntityType.PAINTING);
+        try {
+            SUPPORTED_TYPES.add(EntityType.ARMOR_STAND);
+        } catch (NoSuchFieldError ex) {
+            SteelCore.logVerbose("Server does not support 1.8 entities - not registering");
+        }
     }
 
     // BLOCK ROLLBACKS
@@ -99,16 +102,6 @@ public class RollbackEntityListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
-        handleEntityEvent(event.getRightClicked(), false, event);
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
-        handleEntityEvent(event.getRightClicked(), false, event);
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onHangingPlace(HangingPlaceEvent event) {
             handleEntityEvent(event.getEntity(), true, event);
     }
@@ -118,7 +111,7 @@ public class RollbackEntityListener implements Listener {
             handleEntityEvent(event.getEntity(), false, event);
     }
 
-    private void handleEntityEvent(Entity entity, boolean newlyCreated, Event event) {
+    public static void handleEntityEvent(Entity entity, boolean newlyCreated, Event event) {
         if (SUPPORTED_TYPES.contains(entity.getType())) {
             RollbackHelper.checkEntityChange(entity, newlyCreated, event);
         }

@@ -26,64 +26,24 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel;
+package net.caseif.flint.steel.util;
 
-import net.caseif.flint.FlintCore;
-import net.caseif.flint.minigame.Minigame;
-import net.caseif.flint.common.CommonCore;
-import net.caseif.flint.steel.minigame.SteelMinigame;
-import net.caseif.flint.steel.util.SteelUtils;
+import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 
 /**
- * Implements {@link FlintCore}.
+ * Static utility class for determining server feature support.
  *
  * @author Max Roncacé
  */
-public class SteelCore extends CommonCore {
+public class Support {
 
-    private static boolean VERBOSE_LOGGING;
+    public static final boolean ARMOR_STAND;
+    public static final boolean BANNER;
 
-    static void initialize() {
-        INSTANCE = new SteelCore();
-        PLATFORM_UTILS = new SteelUtils();
-        VERBOSE_LOGGING = SteelMain.getInstance().getConfig().getBoolean("verbose-logging");
-    }
-
-    @Override
-    public String getImplementationName0() {
-        return SteelMain.getInstance().getName();
-    }
-
-    @Override
-    protected Minigame registerPlugin0(String pluginId) throws IllegalStateException {
-        if (getMinigames().containsKey(pluginId)) {
-            throw new IllegalStateException(pluginId + " attempted to register itself more than once");
-        }
-        Minigame minigame = new SteelMinigame(pluginId);
-        getMinigames().put(pluginId, minigame);
-        return minigame;
-    }
-
-    @Override
-    protected void logInfo0(String message) {
-        SteelMain.getInstance().getLogger().info(message);
-    }
-
-    @Override
-    protected void logWarning0(String message) {
-        SteelMain.getInstance().getLogger().warning(message);
-    }
-
-    @Override
-    protected void logSevere0(String message) {
-        SteelMain.getInstance().getLogger().severe(message);
-    }
-
-    @Override
-    protected void logVerbose0(String message) {
-        if (VERBOSE_LOGGING) {
-            logInfo0("[VERBOSE] " + message);
-        }
+    static {
+        ARMOR_STAND = EntityType.valueOf("ARMOR_STAND") != null;
+        BANNER = Material.valueOf("BANNER") != null;
     }
 
 }

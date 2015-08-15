@@ -63,7 +63,7 @@ public class SteelMinigame extends CommonMinigame {
     private final Plugin plugin;
 
     public SteelMinigame(String plugin) {
-        super(); // initialize event bus in FlintCommon
+        super();
         assert plugin != null;
         if (Bukkit.getPluginManager().isPluginEnabled(plugin)) {
             this.plugin = Bukkit.getPluginManager().getPlugin(plugin);

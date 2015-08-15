@@ -29,6 +29,7 @@
 package net.caseif.flint.steel.util.helper.rollback.serialization;
 
 import net.caseif.flint.steel.SteelCore;
+import net.caseif.flint.steel.util.Support;
 
 import org.bukkit.Art;
 import org.bukkit.Rotation;
@@ -77,7 +78,7 @@ public class EntityStateSerializer {
 
     public static ConfigurationSection serializeState(Entity entity) {
         ConfigurationSection cs = new YamlConfiguration().createSection("thank 4 good bones and calsium");
-        if (entity instanceof ArmorStand) {
+        if (Support.ARMOR_STAND && entity instanceof ArmorStand) {
             EulerAngleSerializer eas = EulerAngleSerializer.getInstance();
             ArmorStand stand = (ArmorStand) entity;
             cs.set(PITCH, stand.getLocation().getPitch());
@@ -112,7 +113,7 @@ public class EntityStateSerializer {
     }
 
     public static void deserializeState(Entity entity, ConfigurationSection serial) {
-        if (entity instanceof ArmorStand) {
+        if (Support.ARMOR_STAND && entity instanceof ArmorStand) {
             EulerAngleSerializer eas = EulerAngleSerializer.getInstance();
             ArmorStand stand = (ArmorStand) entity;
             stand.setHelmet(serial.getItemStack(ARMOR_STAND_HELMET));

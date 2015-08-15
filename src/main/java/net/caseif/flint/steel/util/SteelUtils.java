@@ -44,7 +44,7 @@ public class SteelUtils implements PlatformUtils {
 
     @Override
     public File getDataFolder() {
-        return SteelMain.getPlugin().getDataFolder();
+        return SteelMain.getInstance().getDataFolder();
     }
 
     @Override

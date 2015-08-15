@@ -26,38 +26,34 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel.util.file;
+package net.caseif.flint.steel.listener.rollback.breaking.v1_8;
 
-import net.caseif.flint.minigame.Minigame;
-import net.caseif.flint.steel.SteelMain;
+import net.caseif.flint.steel.listener.rollback.RollbackEntityListener;
 
-import java.io.File;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 
 /**
- * Represents a global Flint data file.
+ * Listener for entity events logged by the rollback engine introduced in
+ * Bukkit 1.8.
  *
- * @author Max Roncacé
+ * <p>These listeners are defined in a separate class because 1.8 is above the
+ * target platform version, and would break all listeners in their parent class
+ * if included. Separating them allows them to gracefully fail.</p>
  */
-public class CoreDataFile extends DataFile {
+public class BreakingV1_8RollbackEntityListener implements Listener {
 
-    public CoreDataFile(String fileName, boolean isDirectory) {
-        super(fileName, isDirectory);
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
+        RollbackEntityListener.handleEntityEvent(event.getRightClicked(), false, event);
     }
 
-    public CoreDataFile(String fileName) {
-        super(fileName);
-    }
-
-    /**
-     * Gets the {@link File} backing this {@link CoreDataFile} for the given
-     * {@link Minigame}.
-     *
-     * @return The {@link File} backing this {@link CoreDataFile} for the
-     *     given {@link Minigame}.
-     */
-    public File getFile() {
-        return new File(SteelMain.getInstance().getDataFolder(),
-                DataFiles.ROOT_DATA_DIR + File.separatorChar + getFileName());
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerArmorStandManipulate(PlayerArmorStandManipulateEvent event) {
+        RollbackEntityListener.handleEntityEvent(event.getRightClicked(), false, event);
     }
 
 }
