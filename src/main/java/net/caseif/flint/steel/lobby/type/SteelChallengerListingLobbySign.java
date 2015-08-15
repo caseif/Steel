@@ -50,6 +50,7 @@ public class SteelChallengerListingLobbySign extends SteelLobbySign implements C
 
     @Override
     public int getIndex() throws OrphanedObjectException {
+        checkState();
         return index;
     }
 
