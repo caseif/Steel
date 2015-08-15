@@ -79,10 +79,10 @@ public final class RollbackHelper {
     private static final int RECORD_TYPE_ENTITY_CREATED = 1;
     private static final int RECORD_TYPE_ENTITY_CHANGED = 2;
 
-    private File rollbackStore;
-    private File stateStore;
+    private final File rollbackStore;
+    private final File stateStore;
 
-    private SteelArena arena;
+    private final SteelArena arena;
 
     static {
         try (InputStream is = RollbackHelper.class.getResourceAsStream("/sql-queries.properties")) {

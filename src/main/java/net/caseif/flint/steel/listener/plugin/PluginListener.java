@@ -32,13 +32,11 @@ import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelCore;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableList;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginDisableEvent;
-
-import java.util.Set;
 
 /**
  * Listener for plugin-related events.
@@ -49,7 +47,7 @@ public class PluginListener implements Listener {
     public void onPluginDisable(PluginDisableEvent event) {
         Minigame mg = SteelCore.getMinigames().get(event.getPlugin().getName());
         if (mg != null) {
-            Set<Round> rounds = Sets.newHashSet(mg.getRounds());
+            ImmutableList<Round> rounds = ImmutableList.copyOf(mg.getRounds());
             for (Round round : rounds) {
                 round.end();
             }

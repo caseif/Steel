@@ -46,6 +46,7 @@ import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.lobby.SteelLobbySign;
 import net.caseif.flint.steel.lobby.type.SteelChallengerListingLobbySign;
 import net.caseif.flint.steel.lobby.type.SteelStatusLobbySign;
+import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.round.SteelRound;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.steel.util.helper.LocationHelper;
@@ -97,7 +98,7 @@ public class SteelArena extends CommonArena {
         checkState();
         Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
         checkArgument(!stages.isEmpty(), "LifecycleStage set must not be empty");
-        parent.getRoundMap().put(this, new SteelRound(this, stages));
+        ((SteelMinigame) getMinigame()).getRoundMap().put(this, new SteelRound(this, stages));
         Preconditions.checkState(getRound().isPresent(), "Cannot get created round from arena! This is a bug.");
         return getRound().get();
     }
@@ -106,9 +107,10 @@ public class SteelArena extends CommonArena {
     public Round createRound() throws IllegalStateException, OrphanedObjectException {
         checkState();
         Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
-        Preconditions.checkState(parent.getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES) != null,
+        Preconditions.checkState(((SteelMinigame) getMinigame()).getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES)
+                        != null,
                 "Illegal call to no-args createRound method: default lifecycle stages are not set");
-        return createRound(parent.getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES));
+        return createRound(((SteelMinigame) getMinigame()).getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES));
     }
 
     @Override
@@ -135,7 +137,7 @@ public class SteelArena extends CommonArena {
             throw new IllegalArgumentException("Invalid world for lobby sign location");
         }
         Block block = LocationHelper.convertLocation(location).getBlock();
-        return block.getState() instanceof Sign && !lobbies.containsKey(location);
+        return block.getState() instanceof Sign && !getLobbySignMap().containsKey(location);
     }
 
     private <T extends LobbySign> Optional<T> storeAndWrap(T sign) {
@@ -239,7 +241,7 @@ public class SteelArena extends CommonArena {
             for (String key : spawnSection.getKeys(false)) {
                 try {
                     int index = Integer.parseInt(key);
-                    spawns.put(index, Location3D.deserialize(spawnSection.getString(key)));
+                    getSpawnPointMap().put(index, Location3D.deserialize(spawnSection.getString(key)));
                 } catch (IllegalArgumentException ignored) {
                     SteelCore.logWarning("Invalid spawn at index " + key + " for arena \"" + getId() + "\"");
                 }

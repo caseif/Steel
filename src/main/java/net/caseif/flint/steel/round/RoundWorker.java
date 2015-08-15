@@ -49,7 +49,7 @@ import org.bukkit.entity.Player;
  */
 public class RoundWorker implements Runnable {
 
-    private SteelRound round;
+    private final SteelRound round;
 
     public RoundWorker(SteelRound round) {
         this.round = round;

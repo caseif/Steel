@@ -60,7 +60,7 @@ import java.io.IOException;
  */
 public class SteelMinigame extends CommonMinigame {
 
-    private Plugin plugin;
+    private final Plugin plugin;
 
     public SteelMinigame(String plugin) {
         super(); // initialize event bus in FlintCommon
@@ -89,7 +89,7 @@ public class SteelMinigame extends CommonMinigame {
     public Arena createArena(String id, String name, Location3D spawnPoint, Boundary boundary)
             throws IllegalArgumentException {
         id = id.toLowerCase();
-        if (arenas.containsKey(id)) {
+        if (getArenaMap().containsKey(id)) {
             throw new IllegalArgumentException("Arena with ID \"" + id + "\" already exists");
         }
         SteelArena arena = new SteelArena(this, id, name, spawnPoint, boundary);
@@ -99,7 +99,7 @@ public class SteelMinigame extends CommonMinigame {
             ex.printStackTrace();
             SteelCore.logSevere("Failed to save arena with ID " + arena.getId() + " to persistent storage");
         }
-        arenas.put(id, arena);
+        getArenaMap().put(id, arena);
         return arena;
     }
 
@@ -111,7 +111,7 @@ public class SteelMinigame extends CommonMinigame {
     @Override
     public void removeArena(String id) throws IllegalArgumentException {
         id = id.toLowerCase();
-        Arena arena = arenas.get(id);
+        Arena arena = getArenaMap().get(id);
         if (arena != null) {
             removeArena(arena);
         } else {
@@ -130,7 +130,7 @@ public class SteelMinigame extends CommonMinigame {
                     + " while it still contained a round. Steel will end it automatically, but typically this behavior "
                     + "is not ideal and the round should be ended before the arena is requested for removal.");
         }
-        arenas.remove(arena.getId());
+        getArenaMap().remove(arena.getId());
         try {
             ((SteelArena) arena).removeFromStore();
         } catch (InvalidConfigurationException | IOException ex) {
@@ -166,7 +166,7 @@ public class SteelMinigame extends CommonMinigame {
                         );
                         arena.removeSpawnPoint(0);
                         arena.configure(arenaSection);
-                        arenas.put(arena.getId(), arena);
+                        getArenaMap().put(arena.getId(), arena);
                     } else {
                         SteelCore.logWarning("Invalid configuration section \"" + key + "\"in arena store");
                     }

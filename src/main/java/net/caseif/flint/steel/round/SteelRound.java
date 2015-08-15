@@ -67,7 +67,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SteelRound extends CommonRound {
 
-    private int schedulerHandle = -1;
+    private final int schedulerHandle;
     private boolean timerTicking = true;
 
     private AtomicInteger nextSpawn = new AtomicInteger();
@@ -232,7 +232,7 @@ public class SteelRound extends CommonRound {
      * @since 1.0
      */
     public boolean isOrphaned() {
-        return arena == null;
+        return orphan;
     }
 
 }
