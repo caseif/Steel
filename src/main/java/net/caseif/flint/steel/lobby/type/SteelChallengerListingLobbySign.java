@@ -26,50 +26,31 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel.util.helper.rollback.serialization;
+package net.caseif.flint.steel.lobby.type;
 
-import net.caseif.flint.serialization.Serializer;
-
-import org.bukkit.util.EulerAngle;
+import net.caseif.flint.common.arena.CommonArena;
+import net.caseif.flint.exception.OrphanedObjectException;
+import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
+import net.caseif.flint.steel.lobby.SteelLobbySign;
+import net.caseif.flint.util.physical.Location3D;
 
 /**
- * {@link Serializer} for {@link EulerAngle} objects.
+ * Implements {@link ChallengerListingLobbySign}.
  *
  * @author Max Roncacé
- * @since 1.0
  */
-public class EulerAngleSerializer implements Serializer<EulerAngle> {
+public class SteelChallengerListingLobbySign extends SteelLobbySign implements ChallengerListingLobbySign {
 
-    private static EulerAngleSerializer instance;
+    private final int index;
 
-    private EulerAngleSerializer() {
-    }
-
-    public static EulerAngleSerializer getInstance() {
-        return instance != null ? instance : (instance = new EulerAngleSerializer());
-    }
-
-
-
-    @Override
-    public String serialize(EulerAngle angle) {
-        return "(" + angle.getX() + "," + angle.getY() + "," + angle.getZ() + ")";
+    public SteelChallengerListingLobbySign(Location3D location, CommonArena arena, int index) {
+        super(location, arena);
+        this.index = index;
     }
 
     @Override
-    public EulerAngle deserialize(String serial) throws IllegalArgumentException {
-        if (serial.startsWith("(") && serial.endsWith(")")) {
-            String[] arr = serial.substring(1, serial.length() - 1).split(",");
-            if (arr.length == 3) {
-                try {
-                    double x = Double.parseDouble(arr[0]);
-                    double y = Double.parseDouble(arr[0]);
-                    double z = Double.parseDouble(arr[0]);
-                    return new EulerAngle(x, y, z);
-                } catch (NumberFormatException ignored) { } // continue to the IllegalArgumentException at the bottom
-            }
-        }
-        throw new IllegalArgumentException("Invalid serial for EulerAngle");
+    public int getIndex() throws OrphanedObjectException {
+        return index;
     }
 
 }

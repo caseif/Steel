@@ -71,8 +71,7 @@ public class ConfigHelper {
                     try {
                         equal = NumberFormat.getInstance().parse(value)
                                 .equals(NumberFormat.getInstance().parse(newValue));
-                    }
-                    catch (ParseException ex) {
+                    } catch (ParseException ex) {
                         equal = value.equals(newValue);
                     }
                     if (!equal) {

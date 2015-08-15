@@ -28,9 +28,9 @@
  */
 package net.caseif.flint.steel.listener.player;
 
-import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.config.ConfigNode;
+import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Boundary;

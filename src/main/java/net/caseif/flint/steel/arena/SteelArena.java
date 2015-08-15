@@ -28,18 +28,27 @@
  */
 package net.caseif.flint.steel.arena;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.minigame.CommonMinigame;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.exception.OrphanedObjectException;
+import net.caseif.flint.lobby.LobbySign;
+import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
+import net.caseif.flint.lobby.type.StatusLobbySign;
 import net.caseif.flint.metadata.Metadata;
 import net.caseif.flint.metadata.persist.PersistableMetadata;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelCore;
+import net.caseif.flint.steel.lobby.SteelLobbySign;
+import net.caseif.flint.steel.lobby.type.SteelChallengerListingLobbySign;
+import net.caseif.flint.steel.lobby.type.SteelStatusLobbySign;
 import net.caseif.flint.steel.round.SteelRound;
 import net.caseif.flint.steel.util.file.DataFiles;
+import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.helper.rollback.RollbackHelper;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
@@ -47,6 +56,10 @@ import net.caseif.flint.util.physical.Location3D;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -83,7 +96,7 @@ public class SteelArena extends CommonArena {
             throws IllegalArgumentException, IllegalStateException, OrphanedObjectException {
         checkState();
         Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
-        Preconditions.checkArgument(!stages.isEmpty(), "LifecycleStage set must not be empty");
+        checkArgument(!stages.isEmpty(), "LifecycleStage set must not be empty");
         parent.getRoundMap().put(this, new SteelRound(this, stages));
         Preconditions.checkState(getRound().isPresent(), "Cannot get created round from arena! This is a bug.");
         return getRound().get();
@@ -96,6 +109,38 @@ public class SteelArena extends CommonArena {
         Preconditions.checkState(parent.getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES) != null,
                 "Illegal call to no-args createRound method: default lifecycle stages are not set");
         return createRound(parent.getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES));
+    }
+
+    @Override
+    public Optional<StatusLobbySign> createStatusLobbySign(Location3D location) throws IllegalArgumentException {
+        if (checkLocationForLobbySign(location)) {
+            return storeAndWrap((StatusLobbySign) new SteelStatusLobbySign(location, this));
+        }
+        return Optional.absent();
+    }
+
+    @Override
+    public Optional<ChallengerListingLobbySign> createChallengerListingLobbySign(Location3D location, int index) {
+        if (checkLocationForLobbySign(location)) {
+            return storeAndWrap((ChallengerListingLobbySign)
+                    new SteelChallengerListingLobbySign(location, this, index));
+        }
+        return Optional.absent();
+    }
+
+    private boolean checkLocationForLobbySign(Location3D location) throws IllegalArgumentException {
+        checkArgument(location.getWorld().isPresent(), "Location for lobby sign must contain world");
+        World world = Bukkit.getWorld(location.getWorld().get());
+        if (world == null) {
+            throw new IllegalArgumentException("Invalid world for lobby sign location");
+        }
+        Block block = LocationHelper.convertLocation(location).getBlock();
+        return block.getState() instanceof Sign && !lobbies.containsKey(location);
+    }
+
+    private <T extends LobbySign> Optional<T> storeAndWrap(T sign) {
+        ((SteelLobbySign) sign).store();
+        return Optional.of(sign);
     }
 
     @Override

@@ -50,6 +50,7 @@ public class DataFiles {
     public static final CoreDataFile PLAYER_LOCATION_STORE = new CoreDataFile("locs.yml");
 
     public static final MinigameDataFile ARENA_STORE = new MinigameDataFile("arenas.yml");
+    public static final MinigameDataFile LOBBY_STORE = new MinigameDataFile("lobbies.yml");
     public static final MinigameDataFile ROLLBACK_STORE = new MinigameDataFile("rollback.db");
     public static final MinigameDataFile ROLLBACK_STATE_STORE = new MinigameDataFile("rollback_state.yml");
 

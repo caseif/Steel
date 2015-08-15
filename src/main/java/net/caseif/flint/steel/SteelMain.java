@@ -29,6 +29,7 @@
 package net.caseif.flint.steel;
 
 import net.caseif.flint.common.event.FlintSubscriberExceptionHandler;
+import net.caseif.flint.steel.listener.misc.LobbyListener;
 import net.caseif.flint.steel.listener.player.PlayerConnectionListener;
 import net.caseif.flint.steel.listener.player.PlayerWorldListener;
 import net.caseif.flint.steel.listener.plugin.PluginListener;
@@ -70,7 +71,10 @@ public class SteelMain extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(new RollbackBlockListener(), getPlugin());
             Bukkit.getPluginManager().registerEvents(new RollbackEntityListener(), getPlugin());
             Bukkit.getPluginManager().registerEvents(new RollbackInventoryListener(), getPlugin());
+
+            Bukkit.getPluginManager().registerEvents(new LobbyListener(), getPlugin());
         } catch (NoClassDefFoundError ignored) { // thrown if an event is unsupported on the current server software
+            //TODO: this workaround is very broken and we need a better solution
         }
 
         saveDefaultConfig();

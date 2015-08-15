@@ -31,14 +31,20 @@ package net.caseif.flint.steel.minigame;
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.minigame.CommonMinigame;
+import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
+import net.caseif.flint.steel.lobby.SteelLobbySign;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 
+import com.google.common.base.Optional;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -67,6 +73,7 @@ public class SteelMinigame extends CommonMinigame {
         SteelCore.logInfo(this.plugin + " has successfully hooked Steel");
         DataFiles.createMinigameDataFiles(this);
         loadArenas();
+        loadLobbySigns();
     }
 
     @Override
@@ -168,6 +175,70 @@ public class SteelMinigame extends CommonMinigame {
         } catch (InvalidConfigurationException | IOException ex) {
             ex.printStackTrace();
             SteelCore.logSevere("Failed to load existing arenas from disk");
+        }
+    }
+
+    public void loadLobbySigns() {
+        try {
+            YamlConfiguration yaml = new YamlConfiguration();
+            File f = DataFiles.LOBBY_STORE.getFile(this);
+            yaml.load(f);
+            for (String arenaKey : yaml.getKeys(false)) {
+                if (yaml.isConfigurationSection(arenaKey)) {
+                    Optional<Arena> arena = getArena(arenaKey);
+                    if (arena.isPresent()) {
+                        ConfigurationSection arenaSection = yaml.getConfigurationSection(arenaKey);
+                        for (String coordKey : arenaSection.getKeys(false)) {
+                            if (arenaSection.isConfigurationSection(coordKey)) {
+                                try {
+                                    Location3D loc = Location3D.deserialize(coordKey);
+                                    if (loc.getWorld().isPresent()) {
+                                        World w = Bukkit.getWorld(loc.getWorld().get());
+                                        if (w != null) {
+                                            Block block = w.getBlockAt(
+                                                    (int) Math.floor(loc.getX()),
+                                                    (int) Math.floor(loc.getY()),
+                                                    (int) Math.floor(loc.getZ())
+                                            );
+                                            if (block.getState() instanceof Sign) {
+                                                try {
+                                                    LobbySign sign = SteelLobbySign.of(loc, (SteelArena) arena.get(),
+                                                            arenaSection.getConfigurationSection(coordKey));
+                                                    ((SteelArena) arena.get()).getLobbySignMap().put(loc, sign);
+                                                } catch (IllegalArgumentException ex) {
+                                                    SteelCore.logWarning("Found lobby sign in store with invalid "
+                                                            + "configuration. Removing...");
+                                                    arenaSection.set(coordKey, null);
+                                                }
+                                            } else {
+                                                SteelCore.logWarning("Found lobby sign with location not containing a "
+                                                        + "sign block. Removing...");
+                                                arenaSection.set(coordKey, null);
+                                            }
+                                        } else {
+                                            SteelCore.logVerbose("Cannot load world \"" + loc.getWorld().get()
+                                                    + "\" - not loading contained lobby sign");
+                                        }
+                                        continue;
+                                    }
+                                } catch (IllegalArgumentException ignored) {
+                                }
+                            }
+                            // never executes unless the serial is invalid in some way
+                            SteelCore.logWarning("Found lobby sign in store with invalid location serial."
+                                    + "Removing...");
+                            arenaSection.set(coordKey, null);
+                        }
+                    } else {
+                        SteelCore.logWarning("Found orphaned lobby sign group (arena \"" + arenaKey
+                                + "\" - not loading");
+                    }
+                }
+            }
+            yaml.save(f);
+        } catch (InvalidConfigurationException | IOException ex) {
+            SteelCore.logSevere("Failed to load lobby signs for minigame " + getPlugin());
+            ex.printStackTrace();
         }
     }
 
