@@ -89,7 +89,9 @@ public class SteelRound extends CommonRound {
     }
 
     @Override
-    public Challenger addChallenger(UUID uuid) throws RoundJoinException, OrphanedObjectException {
+    @SuppressWarnings("DuplicateThrows")
+    public Challenger addChallenger(UUID uuid) throws IllegalStateException, RoundJoinException,
+            OrphanedObjectException {
         Player bukkitPlayer = Bukkit.getPlayer(uuid);
         if (bukkitPlayer == null) {
             throw new RoundJoinException(uuid, this, RoundJoinException.Reason.OFFLINE,

@@ -164,7 +164,7 @@ public class SteelMinigame extends CommonMinigame {
                                         )
                                 )
                         );
-                        arena.removeSpawnPoint(0);
+                        arena.getSpawnPointMap().remove(0); // remove initial placeholder spawn
                         arena.configure(arenaSection);
                         getArenaMap().put(arena.getId(), arena);
                     } else {

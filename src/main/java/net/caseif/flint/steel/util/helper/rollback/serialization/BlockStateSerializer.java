@@ -155,6 +155,7 @@ public class BlockStateSerializer {
             }
         }
 
+        boolean recognizedState = true;
         if (state instanceof Sign) {
             if (serial.isList(SIGN_LINES_KEY)) {
                 List<String> lines = serial.getStringList(SIGN_LINES_KEY);
@@ -265,7 +266,13 @@ public class BlockStateSerializer {
         } else if (!(state instanceof InventoryHolder)) {
             SteelCore.logWarning("Failed to deserialize state data for rollback record for block at {"
                     + block.getX() + ", " + block.getY() + ", " + block.getZ() + "}");
+            recognizedState = false;
         }
+
+        if (recognizedState) {
+            state.update(true);
+        }
+
         if (missingData) {
             SteelCore.logVerbose("Block with type " + block.getType().name() + " at {" + block.getX() + ", "
                     + block.getY() + ", " + block.getZ() + "} is missing important state data");

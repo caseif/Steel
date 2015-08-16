@@ -35,7 +35,8 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryInteractEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.Inventory;
@@ -48,17 +49,22 @@ import org.bukkit.inventory.Inventory;
 public class RollbackInventoryListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onInventoryClick(InventoryInteractEvent event) {
+    public void onInventoryClick(InventoryClickEvent event) {
         checkInventoryEvent(event.getInventory(), event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onInventoryClick(InventoryPickupItemEvent event) {
+    public void onInventoryDrag(InventoryDragEvent event) {
         checkInventoryEvent(event.getInventory(), event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onInventoryClick(InventoryMoveItemEvent event) {
+    public void onInventoryPickupItem(InventoryPickupItemEvent event) {
+        checkInventoryEvent(event.getInventory(), event);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onInventoryMoveItem(InventoryMoveItemEvent event) {
         checkInventoryEvent(event.getSource(), event);
         checkInventoryEvent(event.getDestination(), event);
     }
