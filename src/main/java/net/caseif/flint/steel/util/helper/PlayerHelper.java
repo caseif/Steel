@@ -28,6 +28,7 @@
  */
 package net.caseif.flint.steel.util.helper;
 
+import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.util.physical.Location3D;
 
@@ -53,18 +54,21 @@ public class PlayerHelper {
      * Pushes the inventory of the given player into persistent storage.
      *
      * @param player The {@link Player} to push the inventory of
-     * @throws IllegalStateException If the inventory of the given
-     *     {@link Player} is already present in persistent storage
      * @throws IOException If an exception occurs while saving into persistent
      *     storage
      */
-    public static void pushInventory(Player player) throws IllegalStateException, IOException {
+    public static void pushInventory(Player player) throws IOException {
         PlayerInventory inv = player.getInventory();
         // the file to store the inventory in
         File storage = new File(DataFiles.PLAYER_INVENTORY_DIR.getFile(), player.getUniqueId() + ".yml");
         if (storage.exists()) { // verify file isn't already present on disk (meaning it wasn't popped the last time)
-            throw new IllegalStateException("Inventory push requested for player " + player.getName() + ", but "
-                    + "inventory was already present in persistent storage!");
+            SteelCore.logVerbose("Inventory push requested for player " + player.getName() + ", but "
+                    + "inventory was already present in persistent storage. Popping stored inventory first.");
+            try {
+                popInventory(player);
+            } catch (InvalidConfigurationException ex) {
+                throw new IOException(ex); // this is probably a bad thing of me to do but it's for a fringe case anyway
+            }
         }
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.set(PLAYER_INVENTORY_PRIMARY_KEY, InventoryHelper.serializeInventory(inv));
@@ -89,7 +93,7 @@ public class PlayerHelper {
         // the file to load the inventory from
         File storage = new File(DataFiles.PLAYER_INVENTORY_DIR.getFile(), player.getUniqueId() + ".yml");
         if (!storage.exists()) { // verify file is present on disk
-            throw new IllegalStateException("Inventory pop requested for player " + player.getName() + ", but "
+            throw new IllegalArgumentException("Inventory pop requested for player " + player.getName() + ", but "
                     + "inventory was not present in persistent storage!");
         }
         YamlConfiguration yaml = new YamlConfiguration();
@@ -175,6 +179,7 @@ public class PlayerHelper {
      * @return The stored {@link Location3D}
      * @throws IllegalArgumentException If the player's location is not present
      *     in the persistent store or if an error occurs during deserialization
+     *     of the stored location
      * @throws InvalidConfigurationException If an exception occurs while
      *     loading from disk
      * @throws IOException If an exception occurs while saving to disk

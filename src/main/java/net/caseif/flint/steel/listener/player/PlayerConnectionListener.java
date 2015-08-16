@@ -28,17 +28,18 @@
  */
 package net.caseif.flint.steel.listener.player;
 
-import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
+import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.round.SteelRound;
-import net.caseif.flint.steel.util.helper.PlayerHelper;
 import net.caseif.flint.steel.util.file.DataFiles;
+import net.caseif.flint.steel.util.helper.PlayerHelper;
 
 import com.google.common.base.Optional;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -96,7 +97,31 @@ public class PlayerConnectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        UUID uuid = event.getPlayer().getUniqueId();
+        tryReset(event.getPlayer());
+
+        // the rest of the method is insurance against a catastrophic failure
+        // of the server while players are still in a round
+        try {
+            PlayerHelper.popInventory(event.getPlayer());
+        } catch (IllegalArgumentException ignored) { // don't need to pop, so we can ignore it
+        } catch (InvalidConfigurationException | IOException ex) {
+            // inventory was present but Something Happened™
+            SteelCore.logSevere("Failed to pop inventory for player " + event.getPlayer().getName());
+            ex.printStackTrace();
+        }
+
+        try {
+            PlayerHelper.popLocation(event.getPlayer());
+        } catch (IllegalArgumentException ignored) { // don't need to pop, so we can ignore it
+        } catch (InvalidConfigurationException | IOException ex) {
+            // location was present but Something Happened™
+            SteelCore.logSevere("Failed to pop location for player " + event.getPlayer().getName());
+            ex.printStackTrace();
+        }
+    }
+
+    private void tryReset(Player player) {
+        UUID uuid = player.getUniqueId();
         try {
             File offlinePlayers = DataFiles.OFFLINE_PLAYER_STORE.getFile();
             YamlConfiguration yaml = new YamlConfiguration();
@@ -109,17 +134,17 @@ public class PlayerConnectionListener implements Listener {
 
                     // these two try-blocks are separate so they can both run even if one fails
                     try {
-                        PlayerHelper.popInventory(event.getPlayer());
+                        PlayerHelper.popInventory(player);
                     } catch (InvalidConfigurationException | IOException ex) {
                         ex.printStackTrace();
-                        SteelCore.logSevere("Failed to pop inventory for player " + event.getPlayer().getName());
+                        SteelCore.logSevere("Failed to pop inventory for player " + player.getName());
                     }
 
                     try {
-                        PlayerHelper.popLocation(event.getPlayer());
+                        PlayerHelper.popLocation(player);
                     } catch (InvalidConfigurationException | IOException ex) {
                         ex.printStackTrace();
-                        SteelCore.logSevere("Failed to pop inventory for player " + event.getPlayer().getName());
+                        SteelCore.logSevere("Failed to pop inventory for player " + player.getName());
                     }
 
                     players.remove(uuid.toString());
