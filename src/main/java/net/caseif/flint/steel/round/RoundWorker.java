@@ -86,7 +86,7 @@ public class RoundWorker implements Runnable {
         } else {
             round.setTime(round.getTime() + 1, false);
         }
-        round.getMinigame().getEventBus().post(new CommonRoundTimerTickEvent(round, round.getTime(),
+        round.getArena().getMinigame().getEventBus().post(new CommonRoundTimerTickEvent(round, round.getTime(),
                 stageSwitch ? 0 : round.getTime() + 1));
     }
 

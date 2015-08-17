@@ -45,10 +45,10 @@ import org.bukkit.block.Sign;
  */
 public class SteelStatusLobbySign extends SteelLobbySign implements StatusLobbySign {
 
-    private static ChatColor ARENA_COLOR = ChatColor.GREEN;
+    private static ChatColor ARENA_COLOR = ChatColor.DARK_AQUA;
     private static ChatColor LIFECYCLE_STAGE_COLOR = ChatColor.DARK_PURPLE;
-    private static ChatColor TIMER_COLOR = ChatColor.DARK_BLUE;
-    private static ChatColor PLAYER_COUNT_COLOR = ChatColor.GOLD;
+    private static ChatColor TIMER_COLOR = ChatColor.DARK_PURPLE;
+    private static ChatColor PLAYER_COUNT_COLOR = ChatColor.DARK_BLUE;
 
     public SteelStatusLobbySign(Location3D location, CommonArena arena) {
         super(location, arena);

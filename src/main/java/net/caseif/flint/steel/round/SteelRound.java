@@ -37,7 +37,7 @@ import net.caseif.flint.common.event.round.challenger.CommonChallengerJoinRoundE
 import net.caseif.flint.common.event.round.challenger.CommonChallengerLeaveRoundEvent;
 import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.config.ConfigNode;
-import net.caseif.flint.exception.OrphanedObjectException;
+import net.caseif.flint.component.exception.OrphanedComponentException;
 import net.caseif.flint.exception.round.RoundJoinException;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.minigame.Minigame;
@@ -76,7 +76,7 @@ public class SteelRound extends CommonRound {
     public SteelRound(CommonArena arena, ImmutableSet<LifecycleStage> stages) {
         super(arena, stages);
         schedulerHandle = Bukkit.getScheduler().scheduleSyncRepeatingTask(
-                ((SteelMinigame) getMinigame()).getBukkitPlugin(),
+                ((SteelMinigame) getArena().getMinigame()).getBukkitPlugin(),
                 new RoundWorker(this),
                 0L,
                 20L
@@ -92,7 +92,7 @@ public class SteelRound extends CommonRound {
     @Override
     @SuppressWarnings("DuplicateThrows")
     public Challenger addChallenger(UUID uuid) throws IllegalStateException, RoundJoinException,
-            OrphanedObjectException {
+            OrphanedComponentException {
         Player bukkitPlayer = Bukkit.getPlayer(uuid);
         if (bukkitPlayer == null) {
             throw new RoundJoinException(uuid, this, RoundJoinException.Reason.OFFLINE,
@@ -142,19 +142,19 @@ public class SteelRound extends CommonRound {
             sign.update();
         }
 
-        getMinigame().getEventBus().post(new CommonChallengerJoinRoundEvent(challenger));
+        getArena().getMinigame().getEventBus().post(new CommonChallengerJoinRoundEvent(challenger));
         return challenger;
     }
 
     @Override
-    public void removeChallenger(Challenger challenger) throws OrphanedObjectException {
+    public void removeChallenger(Challenger challenger) throws OrphanedComponentException {
         checkState();
         removeChallenger(challenger, false, true);
     }
 
     @Override // overridden from CommonRound
     public void removeChallenger(Challenger challenger, boolean isDisconnecting, boolean updateSigns)
-            throws OrphanedObjectException {
+            throws OrphanedComponentException {
         Player bukkitPlayer = Bukkit.getPlayer(challenger.getUniqueId());
         Location3D returnPoint;
         try {
@@ -165,7 +165,7 @@ public class SteelRound extends CommonRound {
         }
 
         CommonChallengerLeaveRoundEvent event = new CommonChallengerLeaveRoundEvent(challenger, returnPoint);
-        getMinigame().getEventBus().post(event);
+        getArena().getMinigame().getEventBus().post(event);
 
         super.removeChallenger(challenger, isDisconnecting, updateSigns);
 
@@ -204,15 +204,15 @@ public class SteelRound extends CommonRound {
     }
 
     @Override
-    public boolean isTimerTicking() throws OrphanedObjectException {
+    public boolean isTimerTicking() throws OrphanedComponentException {
         return this.timerTicking;
     }
 
     @Override
-    public void setTimerTicking(boolean ticking) throws OrphanedObjectException {
+    public void setTimerTicking(boolean ticking) throws OrphanedComponentException {
         if (ticking != isTimerTicking()) {
             timerTicking = ticking;
-            getMinigame().getEventBus()
+            getArena().getMinigame().getEventBus()
                     .post(ticking ? new CommonRoundTimerStartEvent(this) : new CommonRoundTimerStopEvent(this));
         }
     }

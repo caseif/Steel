@@ -107,7 +107,7 @@ class WizardPlayer implements IWizardPlayer {
         }
         switch (stage) {
             case GET_ARENA: {
-                Optional<Arena> arena = getParent().getMinigame().getArena(input);
+                Optional<Arena> arena = getParent().getOwner().getArena(input);
                 if (arena.isPresent()) {
                     data.setArena(input);
                     stage = WizardStage.GET_TYPE;
@@ -155,7 +155,7 @@ class WizardPlayer implements IWizardPlayer {
             }
             case CONFIRMATION: {
                 if (input.equalsIgnoreCase("yes")) {
-                    Optional<Arena> arena = getParent().getMinigame().getArena(data.getArena());
+                    Optional<Arena> arena = getParent().getOwner().getArena(data.getArena());
                     if (arena.isPresent()) {
                             switch (data.getSignType()) {
                                 case STATUS: {

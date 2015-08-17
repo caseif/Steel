@@ -28,8 +28,9 @@
  */
 package net.caseif.flint.steel.lobby.wizard;
 
+import net.caseif.flint.component.Component;
 import net.caseif.flint.minigame.Minigame;
-import net.caseif.flint.util.MinigameElement;
+import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.util.physical.Location3D;
 
 import org.bukkit.Bukkit;
@@ -41,9 +42,9 @@ import java.util.UUID;
 /**
  * Manager for the integrated lobby wizard.
  */
-public class WizardManager implements MinigameElement {
+public class WizardManager implements Component<SteelMinigame> {
 
-    private Minigame minigame;
+    private SteelMinigame minigame;
 
     private final HashMap<UUID, IWizardPlayer> wizardPlayers = new HashMap<>();
 
@@ -53,17 +54,12 @@ public class WizardManager implements MinigameElement {
      * @param minigame The {@link Minigame} to back the new {@link WizardManager}
      */
     public WizardManager(Minigame minigame) {
-        this.minigame = minigame;
+        this.minigame = (SteelMinigame) minigame;
     }
 
     @Override
-    public Minigame getMinigame() {
+    public SteelMinigame getOwner() {
         return minigame;
-    }
-
-    @Override
-    public String getPlugin() {
-        return getMinigame().getPlugin();
     }
 
     /**

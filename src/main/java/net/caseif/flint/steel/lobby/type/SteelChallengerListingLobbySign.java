@@ -29,7 +29,7 @@
 package net.caseif.flint.steel.lobby.type;
 
 import net.caseif.flint.common.arena.CommonArena;
-import net.caseif.flint.exception.OrphanedObjectException;
+import net.caseif.flint.component.exception.OrphanedComponentException;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
 import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.lobby.SteelLobbySign;
@@ -83,7 +83,7 @@ public class SteelChallengerListingLobbySign extends SteelLobbySign implements C
     }
 
     @Override
-    public int getIndex() throws OrphanedObjectException {
+    public int getIndex() throws OrphanedComponentException {
         checkState();
         return index;
     }

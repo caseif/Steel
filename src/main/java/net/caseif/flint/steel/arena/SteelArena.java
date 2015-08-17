@@ -34,7 +34,7 @@ import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.minigame.CommonMinigame;
 import net.caseif.flint.config.ConfigNode;
-import net.caseif.flint.exception.OrphanedObjectException;
+import net.caseif.flint.component.exception.OrphanedComponentException;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
 import net.caseif.flint.lobby.type.StatusLobbySign;
@@ -94,7 +94,7 @@ public class SteelArena extends CommonArena {
 
     @Override
     public Round createRound(ImmutableSet<LifecycleStage> stages)
-            throws IllegalArgumentException, IllegalStateException, OrphanedObjectException {
+            throws IllegalArgumentException, IllegalStateException, OrphanedComponentException {
         checkState();
         Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
         checkArgument(!stages.isEmpty(), "LifecycleStage set must not be empty");
@@ -104,7 +104,7 @@ public class SteelArena extends CommonArena {
     }
 
     @Override
-    public Round createRound() throws IllegalStateException, OrphanedObjectException {
+    public Round createRound() throws IllegalStateException, OrphanedComponentException {
         checkState();
         Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
         Preconditions.checkState(((SteelMinigame) getMinigame()).getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES)
@@ -147,7 +147,7 @@ public class SteelArena extends CommonArena {
     }
 
     @Override
-    public void rollback() throws IllegalStateException, OrphanedObjectException {
+    public void rollback() throws IllegalStateException, OrphanedComponentException {
         checkState();
         try {
             getRollbackHelper().popRollbacks();

@@ -118,7 +118,7 @@ public abstract class SteelLobbySign extends CommonLobbySign {
     private void store(boolean remove) {
         try {
             YamlConfiguration yaml = new YamlConfiguration();
-            File f = DataFiles.LOBBY_STORE.getFile(getMinigame());
+            File f = DataFiles.LOBBY_STORE.getFile(getArena().getMinigame());
             yaml.load(f);
             ConfigurationSection arenaSection = yaml.getConfigurationSection(getArena().getId());
             if (arenaSection == null) {

@@ -35,7 +35,7 @@ import org.bukkit.ChatColor;
  */
 public class WizardMessages {
 
-    static final ChatColor INFO_COLOR = ChatColor.DARK_PURPLE;
+    static final ChatColor INFO_COLOR = ChatColor.DARK_AQUA;
     static final ChatColor ERROR_COLOR = ChatColor.RED;
     static final ChatColor EM_COLOR = ChatColor.GOLD;
 
