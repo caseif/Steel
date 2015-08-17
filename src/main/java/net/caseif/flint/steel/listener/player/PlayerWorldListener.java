@@ -40,12 +40,15 @@ import net.caseif.flint.util.physical.Boundary;
 import com.google.common.base.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+
+import java.util.Iterator;
 
 /**
  * Listener for events relating to players in the world.
@@ -108,6 +111,16 @@ public class PlayerWorldListener implements Listener {
                             event.getRecipients().remove(Bukkit.getPlayer(c.getUniqueId()));
                         }
                     }
+                }
+            }
+
+            Iterator<Player> it = event.getRecipients().iterator();
+            while (it.hasNext()) {
+                Player recip = it.next();
+                if (((SteelMinigame) mg).getLobbyWizardManager().isWizardPlayer(recip.getUniqueId())) {
+                    ((SteelMinigame) mg).getLobbyWizardManager().withholdMessage(recip.getUniqueId(),
+                                    event.getPlayer().getDisplayName(), event.getMessage());
+                    it.remove();
                 }
             }
         }

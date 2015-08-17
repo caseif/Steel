@@ -70,4 +70,13 @@ interface IWizardPlayer {
      */
     String[] accept(String input);
 
+    /**
+     * Marks the given message as withheld and to be played back when the player
+     * exits the wizard.
+     *
+     * @param sender The sender of the message
+     * @param message The message
+     */
+    void withholdMessage(String sender, String message);
+
 }

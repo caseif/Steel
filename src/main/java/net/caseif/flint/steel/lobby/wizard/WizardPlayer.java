@@ -36,11 +36,15 @@ import net.caseif.flint.arena.Arena;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
 import net.caseif.flint.lobby.type.StatusLobbySign;
+import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.util.physical.Location3D;
 
 import com.google.common.base.Optional;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -56,6 +60,8 @@ class WizardPlayer implements IWizardPlayer {
 
     private WizardStage stage;
     private WizardCollectedData data;
+
+    private List<String[]> withheldMessages = new ArrayList<>();
 
     /**
      * Creates a new {@link WizardPlayer} with the given {@link UUID} for the
@@ -90,10 +96,13 @@ class WizardPlayer implements IWizardPlayer {
         return manager;
     }
 
+
+
     @Override
     public String[] accept(String input) {
         if (input.equalsIgnoreCase("cancel")) {
             getParent().removePlayer(getUniqueId());
+            playbackWithheldMessages();
             return new String[]{WizardMessages.CANCELLED};
         }
         switch (stage) {
@@ -155,6 +164,7 @@ class WizardPlayer implements IWizardPlayer {
                                                 = arena.get().createStatusLobbySign(getLocation());
                                         if (sign.isPresent()) {
                                             getParent().removePlayer(getUniqueId());
+                                            playbackWithheldMessages();
                                             return new String[]{WizardMessages.DIVIDER, WizardMessages.FINISH};
                                         } else {
                                             return new String[]{WizardMessages.DIVIDER, WizardMessages.GENERIC_ERROR};
@@ -170,6 +180,7 @@ class WizardPlayer implements IWizardPlayer {
                                             .createChallengerListingLobbySign(getLocation(), data.getIndex());
                                     if (sign.isPresent()) {
                                         getParent().removePlayer(getUniqueId());
+                                        playbackWithheldMessages();
                                         return new String[]{WizardMessages.DIVIDER, WizardMessages.FINISH};
                                     } else {
                                         return new String[]{WizardMessages.DIVIDER, WizardMessages.GENERIC_ERROR};
@@ -182,11 +193,13 @@ class WizardPlayer implements IWizardPlayer {
                             }
                     } else {
                         getParent().removePlayer(getUniqueId());
+                        playbackWithheldMessages();
                         return new String[]{WizardMessages.DIVIDER, WizardMessages.ARENA_REMOVED};
                     }
                 } else if (input.equalsIgnoreCase("no")) {
                     stage = WizardStage.GET_ARENA;
-                    return new String[]{WizardMessages.DIVIDER, WizardMessages.RESET, WizardMessages.GET_ARENA};
+                    return new String[]{WizardMessages.DIVIDER, WizardMessages.RESET, WizardMessages.DIVIDER,
+                            WizardMessages.GET_ARENA};
                 } else {
                     return new String[]{WizardMessages.BAD_CONFIRMATION};
                 }
@@ -195,6 +208,24 @@ class WizardPlayer implements IWizardPlayer {
                 throw new AssertionError("Cannot process input for wizard player. Report this immediately.");
             }
         }
+    }
+
+    public void withholdMessage(String sender, String message) {
+        withheldMessages.add(new String[]{sender, message});
+    }
+
+    private void playbackWithheldMessages() {
+        Bukkit.getScheduler().runTask(SteelMain.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                Player player = Bukkit.getPlayer(uuid);
+                player.sendMessage(INFO_COLOR
+                        + WizardMessages.MESSAGE_PLAYBACK);
+                for (String[] msg : withheldMessages) {
+                    player.sendMessage("<" + msg[0] + "> " + msg[1]);
+                }
+            }
+        });
     }
 
     private String[] constructConfirmation() {

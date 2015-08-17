@@ -32,6 +32,7 @@ import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
+import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.round.SteelRound;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.steel.util.helper.PlayerHelper;
@@ -90,7 +91,10 @@ public class PlayerConnectionListener implements Listener {
                     SteelCore.logSevere("Failed to store data for disconnecting challenger "
                             + event.getPlayer().getName());
                 }
+            }
 
+            if (((SteelMinigame) mg).getLobbyWizardManager().isWizardPlayer(event.getPlayer().getUniqueId())) {
+                ((SteelMinigame) mg).getLobbyWizardManager().removePlayer(event.getPlayer().getUniqueId());
             }
         }
     }

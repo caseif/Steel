@@ -90,7 +90,8 @@ public class WizardManager implements MinigameElement {
         if (player == null) {
             throw new AssertionError("Cannot get Bukkit player from UUID in wizard manager. Report this immediately.");
         }
-        player.sendMessage(new String[]{WizardMessages.WELCOME, WizardMessages.GET_ARENA});
+        player.sendMessage(new String[]{WizardMessages.WELCOME, WizardMessages.CHAT_WITHHOLDING, WizardMessages.DIVIDER,
+                WizardMessages.GET_ARENA});
     }
 
     /**
@@ -110,13 +111,21 @@ public class WizardManager implements MinigameElement {
         }
     }
 
+    public void withholdMessage(UUID uuid,  String sender, String message) {
+        if (wizardPlayers.containsKey(uuid)) {
+            wizardPlayers.get(uuid).withholdMessage(sender, message);
+        } else {
+            throw new IllegalArgumentException("Player with UUID " + uuid.toString() + " is not engaged in a wizard");
+        }
+    }
+
     /**
      * Removes the player with the given {@link UUID} from this
      * {@link WizardManager}.
      *
      * @param uuid The {@link UUID} of the player to remove
      */
-    void removePlayer(UUID uuid) {
+    public void removePlayer(UUID uuid) {
         wizardPlayers.remove(uuid);
     }
 
