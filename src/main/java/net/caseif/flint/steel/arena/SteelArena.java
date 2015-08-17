@@ -142,6 +142,7 @@ public class SteelArena extends CommonArena {
 
     private <T extends LobbySign> Optional<T> storeAndWrap(T sign) {
         ((SteelLobbySign) sign).store();
+        getLobbySignMap().put(sign.getLocation(), sign);
         return Optional.of(sign);
     }
 

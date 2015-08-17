@@ -26,26 +26,57 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel.challenger;
+package net.caseif.flint.steel.lobby.wizard;
 
-import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.common.challenger.CommonChallenger;
-import net.caseif.flint.exception.round.RoundJoinException;
-import net.caseif.flint.steel.round.SteelRound;
-
-import org.bukkit.Bukkit;
-
-import java.util.UUID;
+import net.caseif.flint.lobby.LobbySign;
 
 /**
- * Implements {@link Challenger}.
+ * Represents a set of data collected from a lobby wizard.
  *
  * @author Max Roncacé
  */
-public class SteelChallenger extends CommonChallenger {
+interface IWizardCollectedData {
 
-    public SteelChallenger(UUID uuid, SteelRound round) throws RoundJoinException {
-        super(uuid, Bukkit.getPlayer(uuid).getName(), round);
-    }
+    /**
+     * Gets the name of the arena associated with this data.
+     *
+     * @return The name of the arena associated with this data
+     */
+    String getArena();
+
+    /**
+     * Sets the name of the arena associated with this data.
+     *
+     * @param arena The name of the arena associated with this data
+     */
+    void setArena(String arena);
+
+    /**
+     * Gets the type of lobby sign associated with this data.
+     *
+     * @return The type of lobby sign associated with this data
+     */
+    LobbySign.Type getSignType();
+
+    /**
+     * Sets the type of lobby sign associated with this data.
+     *
+     * @param type The type of lobby sign associated with this data
+     */
+    void setSignType(LobbySign.Type type);
+
+    /**
+     * Gets the sign index associated with this data, if applicable.
+     *
+     * @return The sign index associated with this data, if applicable
+     */
+    int getIndex();
+
+    /**
+     * Sets the sign index associated with this data, if applicable.
+     *
+     * @param index The sign index associated with this data, if applicable
+     */
+    void setIndex(int index);
 
 }

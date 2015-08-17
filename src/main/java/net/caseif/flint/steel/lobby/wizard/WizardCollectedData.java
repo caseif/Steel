@@ -26,26 +26,49 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel.challenger;
+package net.caseif.flint.steel.lobby.wizard;
 
-import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.common.challenger.CommonChallenger;
-import net.caseif.flint.exception.round.RoundJoinException;
-import net.caseif.flint.steel.round.SteelRound;
-
-import org.bukkit.Bukkit;
-
-import java.util.UUID;
+import net.caseif.flint.lobby.LobbySign;
 
 /**
- * Implements {@link Challenger}.
+ * Implements {@link IWizardCollectedData}.
  *
  * @author Max Roncacé
  */
-public class SteelChallenger extends CommonChallenger {
+public class WizardCollectedData implements IWizardCollectedData {
 
-    public SteelChallenger(UUID uuid, SteelRound round) throws RoundJoinException {
-        super(uuid, Bukkit.getPlayer(uuid).getName(), round);
+    private String arena;
+    private LobbySign.Type type;
+    private int index;
+
+    @Override
+    public String getArena() {
+        return arena;
+    }
+
+    @Override
+    public void setArena(String arena) {
+        this.arena = arena;
+    }
+
+    @Override
+    public LobbySign.Type getSignType() {
+        return type;
+    }
+
+    @Override
+    public void setSignType(LobbySign.Type type) {
+        this.type = type;
+    }
+
+    @Override
+    public int getIndex() {
+        return index;
+    }
+
+    @Override
+    public void setIndex(int index) {
+        this.index = index;
     }
 
 }

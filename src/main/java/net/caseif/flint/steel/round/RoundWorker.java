@@ -28,9 +28,10 @@
  */
 package net.caseif.flint.steel.round;
 
-import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.event.round.CommonRoundTimerTickEvent;
+import net.caseif.flint.config.ConfigNode;
+import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.util.helper.LocationHelper;
@@ -61,6 +62,12 @@ public class RoundWorker implements Runnable {
         }
         if (!round.isOrphaned()) {
             checkPlayerLocations();
+
+            for (LobbySign sign : round.getArena().getLobbySigns()) {
+                if (sign.getType() == LobbySign.Type.STATUS) {
+                    sign.update();
+                }
+            }
         }
     }
 

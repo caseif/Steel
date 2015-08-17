@@ -31,8 +31,13 @@ package net.caseif.flint.steel.lobby.type;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.exception.OrphanedObjectException;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
+import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.lobby.SteelLobbySign;
 import net.caseif.flint.util.physical.Location3D;
+
+import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 
 /**
  * Implements {@link ChallengerListingLobbySign}.
@@ -46,6 +51,35 @@ public class SteelChallengerListingLobbySign extends SteelLobbySign implements C
     public SteelChallengerListingLobbySign(Location3D location, CommonArena arena, int index) {
         super(location, arena);
         this.index = index;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.CHALLENGER_LISTING;
+    }
+
+    @Override
+    public void update() {
+        Block b = getBlock();
+        if (!(b.getState() instanceof Sign)) {
+            // hehe, illegal "state"
+            throw new IllegalStateException("Cannot update lobby sign: not a sign. Removing...");
+        }
+        final Sign sign = (Sign) b.getState();
+        int startIndex = getIndex() * sign.getLines().length;
+        boolean round = getArena().getRound().isPresent();
+        for (int i = 0; i < sign.getLines().length; i++) {
+            if (round && startIndex + i < getArena().getRound().get().getChallengers().size()) {
+                sign.setLine(i, getArena().getRound().get().getChallengers().get(startIndex + i).getName());
+            } else {
+                sign.setLine(i, "");
+            }
+        }
+        Bukkit.getScheduler().runTask(SteelMain.getInstance(), new Runnable() {
+            public void run() {
+                sign.update(true);
+            }
+        });
     }
 
     @Override

@@ -26,26 +26,48 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel.challenger;
+package net.caseif.flint.steel.lobby.wizard;
 
-import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.common.challenger.CommonChallenger;
-import net.caseif.flint.exception.round.RoundJoinException;
-import net.caseif.flint.steel.round.SteelRound;
-
-import org.bukkit.Bukkit;
+import net.caseif.flint.util.physical.Location3D;
 
 import java.util.UUID;
 
 /**
- * Implements {@link Challenger}.
+ * Represents a player currently in the lobby wizard.
  *
  * @author Max Roncacé
  */
-public class SteelChallenger extends CommonChallenger {
+interface IWizardPlayer {
 
-    public SteelChallenger(UUID uuid, SteelRound round) throws RoundJoinException {
-        super(uuid, Bukkit.getPlayer(uuid).getName(), round);
-    }
+    /**
+     * Gets the {@link UUID} of this {@link IWizardPlayer}.
+     *
+     * @return The {@link UUID} of this {@link IWizardPlayer}
+     */
+    UUID getUniqueId();
+
+    /**
+     * Gets the {@link Location3D location} that is the target of this
+     * {@link IWizardPlayer}.
+     *
+     * @return The {@link Location3D location} that is the target of this
+     * {@link IWizardPlayer}.
+     */
+    Location3D getLocation();
+
+    /**
+     * Gets the parent {@link WizardManager} of this {@link IWizardPlayer}.
+     *
+     * @return The parent {@link WizardManager} of this {@link IWizardPlayer}
+     */
+    WizardManager getParent();
+
+    /**
+     * Accepts the given string as input and returns a response string.
+     *
+     * @param input The input to consider
+     * @return The response to the given input
+     */
+    String[] accept(String input);
 
 }

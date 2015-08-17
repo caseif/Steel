@@ -34,6 +34,7 @@ import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
 import net.caseif.flint.lobby.type.StatusLobbySign;
 import net.caseif.flint.steel.SteelCore;
+import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.lobby.type.SteelChallengerListingLobbySign;
 import net.caseif.flint.steel.lobby.type.SteelStatusLobbySign;
@@ -57,7 +58,7 @@ import java.io.IOException;
  *
  * @author Max Roncacé
  */
-public class SteelLobbySign extends CommonLobbySign {
+public abstract class SteelLobbySign extends CommonLobbySign {
 
     private static final String PERSIST_TYPE_KEY = "type";
     private static final String PERSIST_TYPE_STATUS = "status";
@@ -67,6 +68,13 @@ public class SteelLobbySign extends CommonLobbySign {
 
     public SteelLobbySign(Location3D location, CommonArena arena) {
         super(location, arena);
+        final LobbySign sign = this;
+        Bukkit.getScheduler().runTask(SteelMain.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                sign.update();
+            }
+        });
     }
 
     @Override
@@ -85,6 +93,7 @@ public class SteelLobbySign extends CommonLobbySign {
         } else {
             SteelCore.logWarning("Cannot blank unregistered lobby sign: not a sign");
         }
+        orphan();
     }
 
     @Override
@@ -95,6 +104,15 @@ public class SteelLobbySign extends CommonLobbySign {
     @Override
     public void unstore() {
         store(true);
+    }
+
+    public Block getBlock() {
+        World world = Bukkit.getWorld(getLocation().getWorld().get());
+        if (world == null) {
+            throw new IllegalStateException("Cannot get world \"" + getLocation().getWorld().get()
+                    + "\" for lobby sign");
+        }
+        return world.getBlockAt((int) getLocation().getX(), (int) getLocation().getY(), (int) getLocation().getZ());
     }
 
     private void store(boolean remove) {

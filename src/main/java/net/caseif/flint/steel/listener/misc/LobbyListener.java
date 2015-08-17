@@ -34,16 +34,22 @@ import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.event.lobby.PlayerClickLobbySignEvent;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
+import net.caseif.flint.steel.lobby.wizard.WizardManager;
+import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Location3D;
 
+import org.bukkit.ChatColor;
 import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+
+import java.util.Map;
 
 /**
  * Listener for lobby-related events.
@@ -75,22 +81,46 @@ public class LobbyListener implements Listener {
                             if (event.getAction() == Action.LEFT_CLICK_BLOCK
                                     && (event.getPlayer().isSneaking()
                                     || !mg.getConfigValue(ConfigNode.REQUIRE_SNEAK_TO_DESTROY_LOBBY))) {
-                                if (event.getPlayer().hasPermission(mg.getPlugin() + ".lobby.destroy")) {
+                                if (event.getPlayer().hasPermission(mg.getPlugin() + ".lobby.destroy")
+                                        || event.getPlayer().hasPermission(mg.getPlugin() + ".lobby.*")) {
                                     arena.getLobbySignAt(loc).get().unregister();
                                     return;
                                 }
-                                mg.getEventBus().post(new CommonPlayerClickLobbySignEvent(
-                                        event.getPlayer().getUniqueId(),
-                                        arena.getLobbySignAt(loc).get(),
-                                        event.getAction() == Action.LEFT_CLICK_BLOCK
-                                                ? PlayerClickLobbySignEvent.ClickType.LEFT
-                                                : PlayerClickLobbySignEvent.ClickType.RIGHT
-                                ));
                             }
+                            mg.getEventBus().post(new CommonPlayerClickLobbySignEvent(
+                                    event.getPlayer().getUniqueId(),
+                                    arena.getLobbySignAt(loc).get(),
+                                    event.getAction() == Action.LEFT_CLICK_BLOCK
+                                            ? PlayerClickLobbySignEvent.ClickType.LEFT
+                                            : PlayerClickLobbySignEvent.ClickType.RIGHT
+                            ));
                         }
                     }
                 }
             }
         }
     }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onSignChange(SignChangeEvent event) {
+        for (Map.Entry<String, Minigame> e : SteelCore.getMinigames().entrySet()) {
+            if (event.getLine(0).equalsIgnoreCase("[" + e.getKey() + "]")) {
+                if (e.getValue().getConfigValue(ConfigNode.ENABLE_LOBBY_WIZARD)) {
+                    if (event.getPlayer().hasPermission(e.getKey() + ".lobby.create")
+                            || event.getPlayer().hasPermission(e.getKey() + ".lobby.*")) {
+                        WizardManager wm = ((SteelMinigame) e.getValue()).getLobbyWizardManager();
+                        if (!wm.isWizardPlayer(event.getPlayer().getUniqueId())) {
+                            wm.addWizardPlayer(event.getPlayer().getUniqueId(),
+                                    LocationHelper.convertLocation(event.getBlock().getLocation()));
+                        } else {
+                            event.getPlayer().sendMessage(ChatColor.RED + "You are already in a lobby sign wizard");
+                        }
+                    } else {
+                        event.getPlayer().sendMessage(ChatColor.RED + "You do not have permission to do this");
+                    }
+                }
+            }
+        }
+    }
+
 }

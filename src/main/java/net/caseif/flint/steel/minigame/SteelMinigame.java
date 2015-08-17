@@ -36,6 +36,7 @@ import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.lobby.SteelLobbySign;
+import net.caseif.flint.steel.lobby.wizard.WizardManager;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
@@ -62,6 +63,8 @@ public class SteelMinigame extends CommonMinigame {
 
     private final Plugin plugin;
 
+    private final WizardManager wizardManager;
+
     public SteelMinigame(String plugin) {
         super();
         assert plugin != null;
@@ -71,6 +74,7 @@ public class SteelMinigame extends CommonMinigame {
             throw new IllegalArgumentException("Plugin \"" + plugin + "\" is not loaded!");
         }
         SteelCore.logInfo(this.plugin + " has successfully hooked Steel");
+        wizardManager = new WizardManager(this);
         DataFiles.createMinigameDataFiles(this);
         loadArenas();
         loadLobbySigns();
@@ -138,6 +142,10 @@ public class SteelMinigame extends CommonMinigame {
             ex.printStackTrace();
         }
         ((CommonArena) arena).orphan();
+    }
+
+    public WizardManager getLobbyWizardManager() {
+        return wizardManager;
     }
 
     private void loadArenas() {
@@ -220,10 +228,11 @@ public class SteelMinigame extends CommonMinigame {
                                                     + "\" - not loading contained lobby sign");
                                         }
                                         continue;
-                                    }
-                                } catch (IllegalArgumentException ignored) {
+                                    } // else: continue to invalid warning
+                                } catch (IllegalArgumentException ignored) { // continue to invalid warning
+                                    ignored.printStackTrace();
                                 }
-                            }
+                            } // else: continue to invalid warning
                             // never executes unless the serial is invalid in some way
                             SteelCore.logWarning("Found lobby sign in store with invalid location serial."
                                     + "Removing...");

@@ -39,6 +39,7 @@ import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.exception.OrphanedObjectException;
 import net.caseif.flint.exception.round.RoundJoinException;
+import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
@@ -134,7 +135,13 @@ public class SteelRound extends CommonRound {
             nextSpawn.set(0);
         }
         bukkitPlayer.teleport(LocationHelper.convertLocation(getArena().getSpawnPoints().get(spawnIndex)));
+
         getChallengerMap().put(uuid, challenger);
+
+        for (LobbySign sign : getArena().getLobbySigns()) {
+            sign.update();
+        }
+
         getMinigame().getEventBus().post(new CommonChallengerJoinRoundEvent(challenger));
         return challenger;
     }
@@ -142,18 +149,12 @@ public class SteelRound extends CommonRound {
     @Override
     public void removeChallenger(Challenger challenger) throws OrphanedObjectException {
         checkState();
-        removeChallenger(challenger, false);
+        removeChallenger(challenger, false, true);
     }
 
-    /**
-     * Removes the given {@link Challenger} from this {@link SteelRound}, taking
-     * note as to whether they are currently disconnecting from the server.
-     *
-     * @param challenger The {@link Challenger} to remove
-     * @param isDisconnecting Whether the {@link Challenger} is currently
-     *     disconnecting from the server
-     */
-    public void removeChallenger(Challenger challenger, boolean isDisconnecting) throws OrphanedObjectException {
+    @Override // overridden from CommonRound
+    public void removeChallenger(Challenger challenger, boolean isDisconnecting, boolean updateSigns)
+            throws OrphanedObjectException {
         Player bukkitPlayer = Bukkit.getPlayer(challenger.getUniqueId());
         Location3D returnPoint;
         try {
@@ -166,7 +167,13 @@ public class SteelRound extends CommonRound {
         CommonChallengerLeaveRoundEvent event = new CommonChallengerLeaveRoundEvent(challenger, returnPoint);
         getMinigame().getEventBus().post(event);
 
-        super.removeChallenger(challenger);
+        super.removeChallenger(challenger, isDisconnecting, updateSigns);
+
+        if (updateSigns) {
+            for (LobbySign sign : getArena().getLobbySigns()) {
+                sign.update();
+            }
+        }
 
         if (!isDisconnecting) {
             try {
@@ -214,6 +221,10 @@ public class SteelRound extends CommonRound {
     public void end(boolean rollback, boolean natural) {
         cancelTimerTask();
         super.end(rollback, natural);
+        for (LobbySign ls : getArena().getLobbySigns()) {
+            ls.update();
+        }
+        this.orphan();
     }
 
     @Override

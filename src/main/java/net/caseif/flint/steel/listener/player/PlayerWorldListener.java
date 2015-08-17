@@ -32,6 +32,8 @@ import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
+import net.caseif.flint.steel.lobby.wizard.WizardManager;
+import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Boundary;
 
@@ -78,9 +80,23 @@ public class PlayerWorldListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
+        // iterate minigames
         for (Minigame mg : SteelCore.getMinigames().values()) {
+            // get the wizard manager for the minigame
+            WizardManager wm = ((SteelMinigame) mg).getLobbyWizardManager();
+            // check if the player is in a wizard
+            if (wm.isWizardPlayer(event.getPlayer().getUniqueId())) {
+                event.setCancelled(true); // cancel the event
+                // send the original message for reference
+                event.getPlayer().sendMessage("<" + event.getPlayer().getDisplayName() + "> " + event.getMessage());
+                // feed the message to the wizard manager and get the response
+                String[] response = wm.accept(event.getPlayer().getUniqueId(), event.getMessage());
+                event.getPlayer().sendMessage(response); // pass the response on to the player
+                return; // no need to do any more checks for the event
+            }
+
             Optional<Challenger> challenger = mg.getChallenger(event.getPlayer().getUniqueId());
             // check whether the player is in a round for this minigame
             if (challenger.isPresent()) {
