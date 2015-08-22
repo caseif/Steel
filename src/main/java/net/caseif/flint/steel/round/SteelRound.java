@@ -35,9 +35,10 @@ import net.caseif.flint.common.event.round.CommonRoundTimerStartEvent;
 import net.caseif.flint.common.event.round.CommonRoundTimerStopEvent;
 import net.caseif.flint.common.event.round.challenger.CommonChallengerJoinRoundEvent;
 import net.caseif.flint.common.event.round.challenger.CommonChallengerLeaveRoundEvent;
+import net.caseif.flint.common.exception.round.CommonRoundJoinException;
 import net.caseif.flint.common.round.CommonRound;
-import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.component.exception.OrphanedComponentException;
+import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.exception.round.RoundJoinException;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.minigame.Minigame;
@@ -95,19 +96,19 @@ public class SteelRound extends CommonRound {
             OrphanedComponentException {
         Player bukkitPlayer = Bukkit.getPlayer(uuid);
         if (bukkitPlayer == null) {
-            throw new RoundJoinException(uuid, this, RoundJoinException.Reason.OFFLINE,
+            throw new CommonRoundJoinException(uuid, this, RoundJoinException.Reason.OFFLINE,
                     "Cannot enter challenger with UUID " + uuid.toString() + "(Player is offline)");
         }
 
         if (getChallengers().size() >= getConfigValue(ConfigNode.MAX_PLAYERS)) {
-            throw new RoundJoinException(uuid, this, RoundJoinException.Reason.FULL,
+            throw new CommonRoundJoinException(uuid, this, RoundJoinException.Reason.FULL,
                     "Cannot enter challenger " + bukkitPlayer.getName() + " (Round is full)");
         }
 
         for (Minigame mg : CommonCore.getMinigames().values()) {
             for (Challenger c : mg.getChallengers()) {
                 if (c.getUniqueId().equals(uuid)) {
-                    throw new RoundJoinException(uuid, this, RoundJoinException.Reason.ALREADY_ENTERED,
+                    throw new CommonRoundJoinException(uuid, this, RoundJoinException.Reason.ALREADY_ENTERED,
                             "Cannot enter challenger " + bukkitPlayer.getName() + " (Already in a round)");
                 }
             }
@@ -118,14 +119,14 @@ public class SteelRound extends CommonRound {
         try {
             PlayerHelper.pushInventory(bukkitPlayer);
         } catch (IOException ex) {
-            throw new RoundJoinException(uuid, this, "Could not push inventory for player " + challenger.getName()
-                    + " into persistent storage", ex);
+            throw new CommonRoundJoinException(uuid, this, ex, "Could not push inventory for player "
+                    + challenger.getName() + " into persistent storage");
         }
         try {
             PlayerHelper.storeLocation(bukkitPlayer);
         } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
-            throw new RoundJoinException(uuid, this, "Could not push location for player " + challenger.getName()
-                    + " into persistent storage", ex);
+            throw new CommonRoundJoinException(uuid, this, ex, "Could not push location for player "
+                    + challenger.getName() + " into persistent storage");
         }
 
         int spawnIndex = getConfigValue(ConfigNode.RANDOM_SPAWNING)

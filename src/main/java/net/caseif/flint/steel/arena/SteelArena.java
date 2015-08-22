@@ -39,7 +39,7 @@ import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
 import net.caseif.flint.lobby.type.StatusLobbySign;
 import net.caseif.flint.metadata.Metadata;
-import net.caseif.flint.metadata.persist.PersistableMetadata;
+import net.caseif.flint.metadata.persist.PersistentMetadata;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelCore;
@@ -217,15 +217,15 @@ public class SteelArena extends CommonArena {
      * @param section The {@link ConfigurationSection} to store to
      * @param data The {@link Metadata} to store
      */
-    private void storeMetadata(ConfigurationSection section, PersistableMetadata data) {
+    private void storeMetadata(ConfigurationSection section, PersistentMetadata data) {
         for (String key : data.getAllKeys()) {
             Optional<?> value = getPersistableMetadata().get(key);
             Preconditions.checkState(value.isPresent(), "Value for key " + key + " is not present");
 
             if (value.get() instanceof String) {
                 section.set(key, value.get());
-            } else if (value.get() instanceof PersistableMetadata) {
-                storeMetadata(section.createSection(key), (PersistableMetadata)value.get());
+            } else if (value.get() instanceof PersistentMetadata) {
+                storeMetadata(section.createSection(key), (PersistentMetadata)value.get());
             }
         }
     }
@@ -256,15 +256,15 @@ public class SteelArena extends CommonArena {
 
     /**
      * Loads data recursively from the given {@link ConfigurationSection} into
-     * the given {@link PersistableMetadata}.
+     * the given {@link PersistentMetadata}.
      *
      * <p>If {@code parent} is {@code null}, it will default to this arena's
-     * global {@link PersistableMetadata}.</p>
+     * global {@link PersistentMetadata}.</p>
      *
      * @param section The {@link ConfigurationSection} to load data from
-     * @param parent The {@link PersistableMetadata} object ot load data into
+     * @param parent The {@link PersistentMetadata} object ot load data into
      */
-    private void loadMetadata(ConfigurationSection section, PersistableMetadata parent) {
+    private void loadMetadata(ConfigurationSection section, PersistentMetadata parent) {
         if (parent == null) {
             parent = getPersistableMetadata();
         }

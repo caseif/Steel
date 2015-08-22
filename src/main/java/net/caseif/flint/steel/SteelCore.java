@@ -50,7 +50,7 @@ public class SteelCore extends CommonCore {
     }
 
     @Override
-    public String getImplementationName0() {
+    protected String getImplementationName0() {
         return SteelMain.getInstance().getName();
     }
 

@@ -30,7 +30,6 @@ package net.caseif.flint.steel.challenger;
 
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.challenger.CommonChallenger;
-import net.caseif.flint.exception.round.RoundJoinException;
 import net.caseif.flint.steel.round.SteelRound;
 
 import org.bukkit.Bukkit;
@@ -44,7 +43,7 @@ import java.util.UUID;
  */
 public class SteelChallenger extends CommonChallenger {
 
-    public SteelChallenger(UUID uuid, SteelRound round) throws RoundJoinException {
+    public SteelChallenger(UUID uuid, SteelRound round) {
         super(uuid, Bukkit.getPlayer(uuid).getName(), round);
     }
 
