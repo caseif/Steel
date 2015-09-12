@@ -94,7 +94,11 @@ public class SteelMinigame extends CommonMinigame {
             throws IllegalArgumentException {
         id = id.toLowerCase();
         if (getArenaMap().containsKey(id)) {
-            throw new IllegalArgumentException("Arena with ID \"" + id + "\" already exists");
+            throw new IllegalArgumentException("Cannot create arena: arena with ID \"" + id + "\" already exists");
+        }
+        if (id.contains(".")) {
+            //TODO: document
+            throw new IllegalArgumentException("Cannot create arena: ID \"" + id + "\" contains illegal characters");
         }
         SteelArena arena = new SteelArena(this, id, name, spawnPoint, boundary);
         try {

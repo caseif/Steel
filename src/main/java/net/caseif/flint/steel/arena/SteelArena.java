@@ -89,6 +89,7 @@ public class SteelArena extends CommonArena {
 
     public SteelArena(CommonMinigame parent, String id, String name, Location3D initialSpawn, Boundary boundary) {
         super(parent, id.toLowerCase(), name, initialSpawn, boundary);
+        assert !id.contains(".");
         this.rbHelper = new RollbackHelper(this);
     }
 
