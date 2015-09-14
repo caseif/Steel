@@ -29,9 +29,9 @@
 package net.caseif.flint.steel.util.helper;
 
 import net.caseif.flint.util.physical.Location3D;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.WorldCreator;
 
 /**
  * Static utility class for location-related functionality.
@@ -45,7 +45,9 @@ public class LocationHelper {
     }
 
     public static Location convertLocation(Location3D location) {
-        return new Location(location.getWorld().isPresent() ? Bukkit.getWorld(location.getWorld().get()) : null,
+        return new Location(location.getWorld().isPresent()
+                ? Bukkit.createWorld(new WorldCreator(location.getWorld().get()))
+                : null,
                 location.getX(), location.getY(), location.getZ());
     }
 

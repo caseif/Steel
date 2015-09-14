@@ -209,14 +209,14 @@ public final class RollbackHelper {
             switch (recordType) {
                 case RECORD_TYPE_BLOCK_CHANGED:
                     querySql = SQL_QUERIES.getProperty("query-by-location")
-                            .replace("{world}", location.getWorld().getName())
+                            .replace("{world}", "\"" + location.getWorld().getName() + "\"")
                             .replace("{x}", "" + location.getBlockX())
                             .replace("{y}", "" + location.getBlockY())
                             .replace("{z}", "" + location.getBlockZ());
                     break;
                 case RECORD_TYPE_ENTITY_CHANGED:
                     querySql = SQL_QUERIES.getProperty("query-by-uuid")
-                            .replace("{uuid}", uuid.toString());
+                            .replace("{uuid}", "\"" + uuid.toString() + "\"");
                     break;
                 default:
                     querySql = null;

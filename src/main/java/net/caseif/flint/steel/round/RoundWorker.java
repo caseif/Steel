@@ -32,13 +32,10 @@ import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.event.round.CommonRoundTimerTickEvent;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.lobby.LobbySign;
-import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
-
-import com.google.common.base.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -75,10 +72,8 @@ public class RoundWorker implements Runnable {
         boolean stageSwitch = round.getLifecycleStage().getDuration() > 0
                 && round.getTime() >= round.getLifecycleStage().getDuration();
         if (stageSwitch) {
-            Optional<LifecycleStage> nextStage = round.getNextLifecycleStage();
-            if (nextStage.isPresent()) {
-                round.setTime(0);
-                round.setLifecycleStage(nextStage.get());
+            if (round.getNextLifecycleStage().isPresent()) {
+                round.nextLifecycleStage();
             } else {
                 round.end(round.getConfigValue(ConfigNode.ROLLBACK_ON_END), true);
                 return;

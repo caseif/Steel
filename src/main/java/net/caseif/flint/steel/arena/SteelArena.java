@@ -28,13 +28,14 @@
  */
 package net.caseif.flint.steel.arena;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.minigame.CommonMinigame;
-import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.component.exception.OrphanedComponentException;
+import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
 import net.caseif.flint.lobby.type.StatusLobbySign;
@@ -53,10 +54,6 @@ import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.helper.rollback.RollbackHelper;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -69,6 +66,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Implements {@link Arena}.
@@ -98,7 +97,7 @@ public class SteelArena extends CommonArena {
             throws IllegalArgumentException, IllegalStateException, OrphanedComponentException {
         checkState();
         Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
-        checkArgument(!stages.isEmpty(), "LifecycleStage set must not be empty");
+        checkArgument(stages != null && !stages.isEmpty(), "LifecycleStage set must not be null or empty");
         ((SteelMinigame) getMinigame()).getRoundMap().put(this, new SteelRound(this, stages));
         Preconditions.checkState(getRound().isPresent(), "Cannot get created round from arena! This is a bug.");
         return getRound().get();
@@ -108,9 +107,10 @@ public class SteelArena extends CommonArena {
     public Round createRound() throws IllegalStateException, OrphanedComponentException {
         checkState();
         Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
-        Preconditions.checkState(((SteelMinigame) getMinigame()).getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES)
-                        != null,
-                "Illegal call to no-args createRound method: default lifecycle stages are not set");
+        ImmutableSet<LifecycleStage> stages
+                = ((SteelMinigame) getMinigame()).getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES);
+        Preconditions.checkState(stages != null && !stages.isEmpty(),
+                "Illegal call to nullary createRound method: default lifecycle stages are not set");
         return createRound(((SteelMinigame) getMinigame()).getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES));
     }
 
