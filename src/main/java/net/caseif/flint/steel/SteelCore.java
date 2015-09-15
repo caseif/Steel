@@ -29,10 +29,13 @@
 package net.caseif.flint.steel;
 
 import net.caseif.flint.FlintCore;
-import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.common.CommonCore;
+import net.caseif.flint.common.component.CommonComponent;
+import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.SteelUtils;
+
+import org.bukkit.Bukkit;
 
 /**
  * Implements {@link FlintCore}.
@@ -84,6 +87,15 @@ public class SteelCore extends CommonCore {
         if (VERBOSE_LOGGING) {
             logInfo0("[VERBOSE] " + message);
         }
+    }
+
+    @Override
+    protected void orphan0(final CommonComponent<?> component) {
+        Bukkit.getScheduler().runTask(SteelMain.getInstance(), new Runnable() {
+            public void run() {
+                component.setOrphanFlag();
+            }
+        });
     }
 
 }
