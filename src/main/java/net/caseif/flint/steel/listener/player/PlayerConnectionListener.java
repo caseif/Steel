@@ -139,16 +139,16 @@ public class PlayerConnectionListener implements Listener {
                     // these two try-blocks are separate so they can both run even if one fails
                     try {
                         PlayerHelper.popInventory(player);
-                    } catch (InvalidConfigurationException | IOException ex) {
-                        ex.printStackTrace();
+                    } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
                         SteelCore.logSevere("Failed to pop inventory for player " + player.getName());
+                        ex.printStackTrace();
                     }
 
                     try {
                         PlayerHelper.popLocation(player);
-                    } catch (InvalidConfigurationException | IOException ex) {
+                    } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
+                        SteelCore.logSevere("Failed to pop location for player " + player.getName());
                         ex.printStackTrace();
-                        SteelCore.logSevere("Failed to pop inventory for player " + player.getName());
                     }
 
                     players.remove(uuid.toString());

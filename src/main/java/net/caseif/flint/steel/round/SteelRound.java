@@ -196,9 +196,9 @@ public class SteelRound extends CommonRound {
             try {
                 PlayerHelper.popLocation(bukkitPlayer);
             } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
-                ex.printStackTrace();
                 SteelCore.logSevere("Could not pop location for player " + bukkitPlayer.getName()
                         + " from persistent storage - defaulting to world spawn");
+                ex.printStackTrace();
                 bukkitPlayer.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
             }
         }

@@ -101,6 +101,25 @@ public class PlayerWorldListener implements Listener {
             }
 
             Optional<Challenger> challenger = mg.getChallenger(event.getPlayer().getUniqueId());
+
+            Iterator<Player> it = event.getRecipients().iterator();
+            while (it.hasNext()) {
+                Player recip = it.next();
+                Optional<Challenger> rChal = mg.getChallenger(recip.getUniqueId());
+
+                // check if they're not in the same round
+                if (challenger.isPresent() != rChal.isPresent()
+                        || ((challenger.isPresent() && rChal.isPresent())
+                        && challenger.get().getRound() != rChal.get().getRound())) {
+                    it.remove();
+                }
+                else if (((SteelMinigame) mg).getLobbyWizardManager().isWizardPlayer(recip.getUniqueId())) {
+                    ((SteelMinigame) mg).getLobbyWizardManager().withholdMessage(recip.getUniqueId(),
+                            event.getPlayer().getDisplayName(), event.getMessage());
+                    it.remove();
+                }
+            }
+
             // check whether the player is in a round for this minigame
             if (challenger.isPresent()) {
                 // check if separate team chats are configured
@@ -111,16 +130,6 @@ public class PlayerWorldListener implements Listener {
                             event.getRecipients().remove(Bukkit.getPlayer(c.getUniqueId()));
                         }
                     }
-                }
-            }
-
-            Iterator<Player> it = event.getRecipients().iterator();
-            while (it.hasNext()) {
-                Player recip = it.next();
-                if (((SteelMinigame) mg).getLobbyWizardManager().isWizardPlayer(recip.getUniqueId())) {
-                    ((SteelMinigame) mg).getLobbyWizardManager().withholdMessage(recip.getUniqueId(),
-                                    event.getPlayer().getDisplayName(), event.getMessage());
-                    it.remove();
                 }
             }
         }
