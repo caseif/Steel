@@ -43,8 +43,8 @@ public class WizardMessages {
     static final String WELCOME = INFO_COLOR + "Welcome to the lobby sign wizard!";
     static final String CHAT_WITHHOLDING = INFO_COLOR + "Chat messages will be withheld until the wizard is complete.";
     static final String GET_ARENA = INFO_COLOR + "To start, please type "
-            + "the name of the arena you would like to create a lobby sign for. (You may type " + EM_COLOR
-            + " cancel " + ChatColor.DARK_PURPLE + " at any time to exit the wizard.";
+            + "the name of the arena you would like to create a lobby sign for. (You may type " + EM_COLOR + " cancel "
+            + INFO_COLOR + " at any time to exit the wizard.";
     static final String GET_TYPE = INFO_COLOR + "Next, please select the type of lobby sign you would like "
             + "to create from the list below (type a number):";
     static final String GET_TYPE_STATUS = EM_COLOR + "1) " + INFO_COLOR + "Status - Status signs display "
