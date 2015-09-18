@@ -31,6 +31,7 @@ package net.caseif.flint.steel.round;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.arena.CommonArena;
+import net.caseif.flint.common.challenger.CommonChallenger;
 import net.caseif.flint.common.event.round.CommonRoundTimerStartEvent;
 import net.caseif.flint.common.event.round.CommonRoundTimerStopEvent;
 import net.caseif.flint.common.event.round.challenger.CommonChallengerJoinRoundEvent;
@@ -156,6 +157,8 @@ public class SteelRound extends CommonRound {
     @Override // overridden from CommonRound
     public void removeChallenger(Challenger challenger, boolean isDisconnecting, boolean updateSigns, boolean orphan)
             throws OrphanedComponentException {
+        super.removeChallenger(challenger, isDisconnecting, updateSigns, orphan);
+
         Player bukkitPlayer = Bukkit.getPlayer(challenger.getUniqueId());
         Location3D returnPoint;
         try {
@@ -165,24 +168,26 @@ public class SteelRound extends CommonRound {
             returnPoint = LocationHelper.convertLocation(Bukkit.getWorlds().get(0).getSpawnLocation());
         }
 
-        CommonChallengerLeaveRoundEvent event = new CommonChallengerLeaveRoundEvent(challenger, returnPoint);
-        getArena().getMinigame().getEventBus().post(event);
-
-        super.removeChallenger(challenger, isDisconnecting, updateSigns, orphan);
-
-        if (updateSigns) {
-            for (LobbySign sign : getArena().getLobbySigns()) {
-                sign.update();
-            }
-        }
-
+        RuntimeException rte = null;
         if (!isDisconnecting) {
             try {
                 PlayerHelper.popInventory(bukkitPlayer);
             } catch (InvalidConfigurationException | IOException ex) {
-                throw new RuntimeException("Could not pop inventory for player " + bukkitPlayer.getName()
+                // save the exception for later so it doesn't ruin everything
+                rte = new RuntimeException("Could not pop inventory for player " + bukkitPlayer.getName()
                         + " from persistent storage", ex);
             }
+        }
+
+        CommonChallengerLeaveRoundEvent event = new CommonChallengerLeaveRoundEvent(challenger, returnPoint);
+        getArena().getMinigame().getEventBus().post(event);
+
+        if (orphan) {
+            ((CommonChallenger) challenger).orphan();
+        }
+
+        if (rte != null) {
+            throw rte;
         }
 
         if (!event.getReturnLocation().equals(returnPoint)) {
@@ -202,7 +207,6 @@ public class SteelRound extends CommonRound {
                 bukkitPlayer.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
             }
         }
-        challenger.setSpectating(false);
     }
 
     @Override
