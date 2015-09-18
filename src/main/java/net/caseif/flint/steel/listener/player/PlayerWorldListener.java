@@ -39,20 +39,23 @@ import net.caseif.flint.util.physical.Boundary;
 
 import com.google.common.base.Optional;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.InventoryHolder;
 
 import java.util.Iterator;
 
@@ -202,8 +205,9 @@ public class PlayerWorldListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getClickedBlock() == null || (event.getClickedBlock().getType() != Material.CHEST
-                && event.getClickedBlock().getType() != Material.TRAPPED_CHEST)) {
+        if (event.getClickedBlock() == null
+                || !(event.getAction() == Action.RIGHT_CLICK_BLOCK
+                && event.getClickedBlock().getState() instanceof InventoryHolder)) {
             processEvent(event, event.getPlayer());
         }
     }
@@ -212,6 +216,13 @@ public class PlayerWorldListener implements Listener {
     public void onHangingBreakByEntity(HangingBreakByEntityEvent event) {
         if (event.getEntity().getType() == EntityType.PLAYER) {
             processEvent(event, (Player) event.getEntity());
+        }
+    }
+
+    @EventHandler
+    public void onInventoryInteract(InventoryInteractEvent event) {
+        if (event.getInventory().getHolder() instanceof Block) {
+            processEvent(event, (Player) event.getWhoClicked());
         }
     }
 
