@@ -28,8 +28,8 @@
  */
 package net.caseif.flint.steel.util.helper.rollback;
 
-import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.arena.Arena;
+import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.util.file.DataFiles;
@@ -51,6 +51,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.InventoryHolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -362,6 +363,10 @@ public final class RollbackHelper {
                                     Block b = w.getBlockAt(x, y, z);
                                     Material m = Material.valueOf(type);
                                     if (m != null) {
+                                        if (b.getState() instanceof InventoryHolder) {
+                                            // Bukkit drops the items if they aren't cleared
+                                            ((InventoryHolder) b.getState()).getInventory().clear();
+                                        }
                                         b.setType(m);
                                         b.setData((byte) data);
                                         if (stateSerial != null) {

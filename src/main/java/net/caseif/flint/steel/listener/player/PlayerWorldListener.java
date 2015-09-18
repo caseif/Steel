@@ -202,8 +202,8 @@ public class PlayerWorldListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getClickedBlock().getType() != Material.CHEST
-                && event.getClickedBlock().getType() != Material.TRAPPED_CHEST) {
+        if (event.getClickedBlock() == null || (event.getClickedBlock().getType() != Material.CHEST
+                && event.getClickedBlock().getType() != Material.TRAPPED_CHEST)) {
             processEvent(event, event.getPlayer());
         }
     }
