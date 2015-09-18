@@ -32,6 +32,7 @@ import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.util.physical.Location3D;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -39,6 +40,10 @@ import org.bukkit.inventory.PlayerInventory;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Static utility class for player-related functionality.
@@ -49,6 +54,21 @@ public class PlayerHelper {
 
     private static final String PLAYER_INVENTORY_PRIMARY_KEY = "primary";
     private static final String PLAYER_INVENTORY_ARMOR_KEY = "armor";
+
+    private static Method getOnlinePlayers;
+    public static boolean newOnlinePlayersMethod = false;
+
+    static {
+        try {
+            getOnlinePlayers = Bukkit.class.getMethod("getOnlinePlayers");
+            if (getOnlinePlayers.getReturnType() == Collection.class) {
+                newOnlinePlayersMethod = true;
+            }
+        } catch (NoSuchMethodException ex) {
+            SteelCore.logSevere("Failed to get getOnlinePlayers method!");
+            ex.printStackTrace();
+        }
+    }
 
     /**
      * Pushes the inventory of the given player into persistent storage.
@@ -198,6 +218,25 @@ public class PlayerHelper {
             throw new IllegalArgumentException("World not present in stored location of player " + player.getName());
         }
         return l3d;
+    }
+
+    /**
+     * Version-independent getOnlinePlayers() method.
+     *
+     * @return a list of online players
+     * @since 0.4.0
+     */
+    @SuppressWarnings("unchecked")
+    public static Collection<? extends Player> getOnlinePlayers() {
+        try {
+            if (newOnlinePlayersMethod) {
+                return (Collection<? extends Player>) getOnlinePlayers.invoke(null);
+            } else {
+                return Arrays.asList((Player[]) getOnlinePlayers.invoke(null));
+            }
+        } catch (IllegalAccessException | InvocationTargetException ex) {
+            throw new RuntimeException("Failed to invoke getOnlinePlayers method!", ex);
+        }
     }
 
 }

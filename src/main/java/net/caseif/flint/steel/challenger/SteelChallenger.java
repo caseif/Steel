@@ -30,10 +30,16 @@ package net.caseif.flint.steel.challenger;
 
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.challenger.CommonChallenger;
+import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.round.SteelRound;
+import net.caseif.flint.steel.util.helper.PlayerHelper;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -43,8 +49,55 @@ import java.util.UUID;
  */
 public class SteelChallenger extends CommonChallenger {
 
+    private GameMode prevGameMode;
+    private boolean hadFlight;
+    private List<UUID> alreadyInvisibleTo = new ArrayList<>();
+
     public SteelChallenger(UUID uuid, SteelRound round) {
         super(uuid, Bukkit.getPlayer(uuid).getName(), round);
+    }
+
+    @Override
+    public void setSpectating(boolean spectating) {
+        super.setSpectating(spectating);
+        Player pl = Bukkit.getPlayer(getUniqueId());
+        assert pl != null;
+        if (spectating) {
+            prevGameMode = pl.getGameMode();
+            if (SteelCore.SPECTATOR_SUPPORT) {
+                pl.setGameMode(GameMode.SPECTATOR);
+            } else {
+                pl.setGameMode(GameMode.ADVENTURE);
+                for (Player p : PlayerHelper.getOnlinePlayers()) {
+                    tryHide(pl, p);
+                }
+                hadFlight = pl.getAllowFlight();
+                pl.setAllowFlight(true);
+            }
+        } else {
+            if (prevGameMode != null) {
+                pl.setGameMode(prevGameMode);
+                prevGameMode = null;
+            }
+            if (!SteelCore.SPECTATOR_SUPPORT) {
+                for (Player p : PlayerHelper.getOnlinePlayers()) {
+                    if (!alreadyInvisibleTo.contains(p.getUniqueId())) {
+                        p.showPlayer(pl);
+                    }
+                    alreadyInvisibleTo.clear();
+                }
+                pl.setAllowFlight(hadFlight);
+                hadFlight = false;
+            }
+        }
+    }
+
+    public void tryHide(Player hidden, Player viewer) {
+        if (viewer.canSee(hidden)) {
+            viewer.hidePlayer(hidden);
+        } else {
+            alreadyInvisibleTo.add(viewer.getUniqueId());
+        }
     }
 
 }

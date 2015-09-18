@@ -36,6 +36,7 @@ import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.SteelUtils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 
 /**
  * Implements {@link FlintCore}.
@@ -43,6 +44,8 @@ import org.bukkit.Bukkit;
  * @author Max Roncacé
  */
 public class SteelCore extends CommonCore {
+
+    public static final boolean SPECTATOR_SUPPORT = GameMode.valueOf("SPECTATOR") != null;
 
     private static boolean VERBOSE_LOGGING;
 

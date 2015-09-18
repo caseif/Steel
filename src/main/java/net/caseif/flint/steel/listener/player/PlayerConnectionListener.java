@@ -32,12 +32,14 @@ import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
+import net.caseif.flint.steel.challenger.SteelChallenger;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.round.SteelRound;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.steel.util.helper.PlayerHelper;
 
 import com.google.common.base.Optional;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -101,6 +103,16 @@ public class PlayerConnectionListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
+        if (!SteelCore.SPECTATOR_SUPPORT) {
+            for (Minigame mg : SteelCore.getMinigames().values()) {
+                for (Challenger ch : mg.getChallengers()) {
+                    if (ch.isSpectating()) {
+                        ((SteelChallenger) ch).tryHide(Bukkit.getPlayer(ch.getUniqueId()), event.getPlayer());
+                    }
+                }
+            }
+        }
+
         tryReset(event.getPlayer());
 
         // the rest of the method is insurance against a catastrophic failure

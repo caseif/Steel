@@ -202,6 +202,7 @@ public class SteelRound extends CommonRound {
                 bukkitPlayer.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
             }
         }
+        challenger.setSpectating(false);
     }
 
     @Override
