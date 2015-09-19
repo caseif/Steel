@@ -45,9 +45,19 @@ import org.bukkit.GameMode;
  */
 public class SteelCore extends CommonCore {
 
-    public static final boolean SPECTATOR_SUPPORT = GameMode.valueOf("SPECTATOR") != null;
+    public static final boolean SPECTATOR_SUPPORT;
 
     private static boolean VERBOSE_LOGGING;
+
+    static {
+        boolean javacIsStupid = false;
+        try {
+            GameMode.valueOf("SPECTATOR");
+            javacIsStupid = true;
+        } catch (IllegalArgumentException ignored) {
+        }
+        SPECTATOR_SUPPORT = javacIsStupid;
+    }
 
     static void initialize() {
         INSTANCE = new SteelCore();

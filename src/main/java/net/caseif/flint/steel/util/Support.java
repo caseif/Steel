@@ -42,8 +42,21 @@ public class Support {
     public static final boolean BANNER;
 
     static {
-        ARMOR_STAND = EntityType.valueOf("ARMOR_STAND") != null;
-        BANNER = Material.valueOf("BANNER") != null;
+        boolean temp = false;
+        try {
+            EntityType.valueOf("ARMOR_STAND");
+            temp = true;
+        } catch (IllegalArgumentException ignored) {
+        }
+        ARMOR_STAND = temp;
+
+        temp = false;
+        try {
+            Material.valueOf("BANNER");
+            temp = true;
+        } catch (IllegalArgumentException ignored) {
+        }
+        BANNER = temp;
     }
 
 }
