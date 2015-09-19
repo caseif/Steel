@@ -81,8 +81,8 @@ public class SteelStatusLobbySign extends SteelLobbySign implements StatusLobbyS
             String players = getArena().getRound().get().getChallengers().size() + "/"
                     + (maxPlayers > 0 ? maxPlayers : "∞");
             // add label to player count (shortened version used if the full one won't fit)
-            players += players.length() <= 6 ? " players" : "plyrs";
-            sign.setLine(3, PLAYER_COUNT_COLOR + players + players);
+            players += players.length() <= 5 ? " players" : (players.length() <= 7 ? " plyrs" : "");
+            sign.setLine(3, PLAYER_COUNT_COLOR + players);
         } else {
             for (int i = 1; i < 4; i++) {
                 sign.setLine(i, "");
