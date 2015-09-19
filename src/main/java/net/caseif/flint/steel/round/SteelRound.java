@@ -223,8 +223,9 @@ public class SteelRound extends CommonRound {
         }
     }
 
+    @SuppressWarnings("DuplicateThrows")
     @Override
-    public void end(boolean rollback, boolean natural) {
+    public void end(boolean rollback, boolean natural) throws IllegalStateException, OrphanedComponentException {
         cancelTimerTask();
         super.end(rollback, natural);
         for (LobbySign ls : getArena().getLobbySigns()) {

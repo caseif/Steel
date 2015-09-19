@@ -162,18 +162,21 @@ public class SteelMinigame extends CommonMinigame {
                     ConfigurationSection arenaSection = yaml.getConfigurationSection(key);
                     if (arenaSection.isSet(SteelArena.PERSISTENCE_NAME_KEY)
                             && arenaSection.isSet(SteelArena.PERSISTENCE_WORLD_KEY)) {
+                        Location3D upperBound = Location3D.deserialize(
+                                arenaSection.getString(SteelArena.PERSISTENCE_BOUNDS_UPPER_KEY)
+                        );
+                        Location3D lowerBound = Location3D.deserialize(
+                                arenaSection.getString(SteelArena.PERSISTENCE_BOUNDS_LOWER_KEY)
+                        );
                         SteelArena arena = new SteelArena(
                                 this,
                                 key.toLowerCase(),
                                 arenaSection.getString(SteelArena.PERSISTENCE_NAME_KEY),
-                                new Location3D(arenaSection.getString(SteelArena.PERSISTENCE_WORLD_KEY), 0, 0, 0),
+                                new Location3D(arenaSection.getString(SteelArena.PERSISTENCE_WORLD_KEY),
+                                        lowerBound.getX(), lowerBound.getY(), lowerBound.getZ()),
                                 new Boundary(
-                                        Location3D.deserialize(
-                                                arenaSection.getString(SteelArena.PERSISTENCE_BOUNDS_UPPER_KEY)
-                                        ),
-                                        Location3D.deserialize(
-                                                arenaSection.getString(SteelArena.PERSISTENCE_BOUNDS_LOWER_KEY)
-                                        )
+                                        upperBound,
+                                        lowerBound
                                 )
                         );
                         arena.getSpawnPointMap().remove(0); // remove initial placeholder spawn
