@@ -148,16 +148,10 @@ public class SteelRound extends CommonRound {
         return challenger;
     }
 
-    @Override
-    public void removeChallenger(Challenger challenger) throws OrphanedComponentException {
-        checkState();
-        removeChallenger(challenger, false, true, true);
-    }
-
     @Override // overridden from CommonRound
-    public void removeChallenger(Challenger challenger, boolean isDisconnecting, boolean updateSigns, boolean orphan)
-            throws OrphanedComponentException {
-        super.removeChallenger(challenger, isDisconnecting, updateSigns, orphan);
+    public void removeChallenger(Challenger challenger, boolean isDisconnecting, boolean updateSigns,
+            boolean roundEnding) throws OrphanedComponentException {
+        super.removeChallenger(challenger, isDisconnecting, updateSigns, roundEnding);
 
         Player bukkitPlayer = Bukkit.getPlayer(challenger.getUniqueId());
         Location3D returnPoint;
@@ -182,7 +176,7 @@ public class SteelRound extends CommonRound {
         CommonChallengerLeaveRoundEvent event = new CommonChallengerLeaveRoundEvent(challenger, returnPoint);
         getArena().getMinigame().getEventBus().post(event);
 
-        if (orphan) {
+        if (!roundEnding) {
             ((CommonChallenger) challenger).orphan();
         }
 
