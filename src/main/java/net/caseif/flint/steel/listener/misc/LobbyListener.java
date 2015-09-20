@@ -119,6 +119,7 @@ public class LobbyListener implements Listener {
                         event.getPlayer().sendMessage(ChatColor.RED + "You do not have permission to do this");
                     }
                 }
+                return;
             }
         }
     }
