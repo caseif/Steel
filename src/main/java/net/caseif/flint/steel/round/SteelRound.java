@@ -130,13 +130,17 @@ public class SteelRound extends CommonRound {
                     + challenger.getName() + " into persistent storage");
         }
 
-        int spawnIndex = getConfigValue(ConfigNode.RANDOM_SPAWNING)
-                ? (int)Math.floor(Math.random() * getArena().getSpawnPoints().size())
-                : nextSpawn.getAndIncrement();
-        if (nextSpawn.intValue() == getArena().getSpawnPoints().size()) {
-            nextSpawn.set(0);
+        int spawnIndex;
+        if (getConfigValue(ConfigNode.RANDOM_SPAWNING)) {
+            spawnIndex = (int) Math.floor(Math.random() * getArena().getSpawnPoints().size());
+        } else {
+            spawnIndex = nextSpawn.getAndIncrement();
+            if (nextSpawn.intValue() == getArena().getSpawnPoints().size()) {
+                nextSpawn.set(0);
+            }
         }
-        bukkitPlayer.teleport(LocationHelper.convertLocation(getArena().getSpawnPoints().get(spawnIndex)));
+        Location3D spawn = getArena().getSpawnPoints().values().asList().get(spawnIndex);
+        bukkitPlayer.teleport(LocationHelper.convertLocation(spawn));
 
         getChallengerMap().put(uuid, challenger);
 

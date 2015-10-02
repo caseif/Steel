@@ -31,11 +31,11 @@ package net.caseif.flint.steel.util.helper;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.util.physical.Location3D;
-
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.io.File;
@@ -95,6 +95,7 @@ public class PlayerHelper {
         yaml.set(PLAYER_INVENTORY_ARMOR_KEY, InventoryHelper.serializeInventory(inv.getArmorContents()));
         yaml.save(storage); // save to disk
         inv.clear(); // clear the inventory to complete the push to disk
+        inv.setArmorContents(new ItemStack[inv.getArmorContents().length]);
     }
 
     /**
