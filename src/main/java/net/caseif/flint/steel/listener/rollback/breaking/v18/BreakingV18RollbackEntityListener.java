@@ -26,7 +26,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.caseif.flint.steel.listener.rollback.breaking.v1_8;
+package net.caseif.flint.steel.listener.rollback.breaking.v18;
 
 import net.caseif.flint.steel.listener.rollback.RollbackEntityListener;
 
@@ -44,7 +44,7 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
  * target platform version, and would break all listeners in their parent class
  * if included. Separating them allows them to gracefully fail.</p>
  */
-public class BreakingV1_8RollbackEntityListener implements Listener {
+public class BreakingV18RollbackEntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
