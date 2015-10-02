@@ -155,7 +155,7 @@ public class PlayerConnectionListener implements Listener {
                         SteelCore.logSevere("Failed to pop inventory for player " + player.getName());
                         ex.printStackTrace();
                     }
-                    
+
                     players.remove(uuid.toString());
                     yaml.set(OFFLINE_PLAYER_LIST_KEY, players);
                     yaml.save(offlinePlayers);

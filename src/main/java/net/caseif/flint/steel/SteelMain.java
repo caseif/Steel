@@ -81,7 +81,7 @@ public class SteelMain extends JavaPlugin {
         }
 
         initMetrics();
-        //initUpdater(); //TODO
+        initUpdater();
     }
 
     @Override
@@ -106,7 +106,7 @@ public class SteelMain extends JavaPlugin {
 
     public void initUpdater() {
         if (getConfig().getBoolean("enable-updater")) {
-            new Updater(this, -1, this.getFile(), Updater.UpdateType.DEFAULT, true);
+            new Updater(this, 37669, this.getFile(), Updater.UpdateType.DEFAULT, true);
         }
     }
 
