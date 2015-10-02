@@ -118,12 +118,6 @@ public class SteelRound extends CommonRound {
         SteelChallenger challenger = new SteelChallenger(uuid, this);
 
         try {
-            PlayerHelper.pushInventory(bukkitPlayer);
-        } catch (IOException ex) {
-            throw new CommonRoundJoinException(uuid, this, ex, "Could not push inventory for player "
-                    + challenger.getName() + " into persistent storage");
-        }
-        try {
             PlayerHelper.storeLocation(bukkitPlayer);
         } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
             throw new CommonRoundJoinException(uuid, this, ex, "Could not push location for player "
@@ -146,6 +140,13 @@ public class SteelRound extends CommonRound {
 
         for (LobbySign sign : getArena().getLobbySigns()) {
             sign.update();
+        }
+
+        try {
+            PlayerHelper.pushInventory(bukkitPlayer);
+        } catch (IOException ex) {
+            throw new CommonRoundJoinException(uuid, this, ex, "Could not push inventory for player "
+                    + challenger.getName() + " into persistent storage");
         }
 
         getArena().getMinigame().getEventBus().post(new CommonChallengerJoinRoundEvent(challenger));
