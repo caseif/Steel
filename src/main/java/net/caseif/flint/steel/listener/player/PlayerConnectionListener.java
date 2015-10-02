@@ -155,17 +155,16 @@ public class PlayerConnectionListener implements Listener {
                         SteelCore.logSevere("Failed to pop inventory for player " + player.getName());
                         ex.printStackTrace();
                     }
-
+                    
+                    players.remove(uuid.toString());
+                    yaml.set(OFFLINE_PLAYER_LIST_KEY, players);
+                    yaml.save(offlinePlayers);
                     try {
                         PlayerHelper.popLocation(player);
                     } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
                         SteelCore.logSevere("Failed to pop location for player " + player.getName());
                         ex.printStackTrace();
                     }
-
-                    players.remove(uuid.toString());
-                    yaml.set(OFFLINE_PLAYER_LIST_KEY, players);
-                    yaml.save(offlinePlayers);
                 }
             }
         } catch (InvalidConfigurationException | IOException ex) {
