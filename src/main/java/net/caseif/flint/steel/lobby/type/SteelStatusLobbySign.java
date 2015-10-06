@@ -63,6 +63,7 @@ public class SteelStatusLobbySign extends SteelLobbySign implements StatusLobbyS
     public void update() {
         Block b = getBlock();
         if (!(b.getState() instanceof Sign)) {
+            unregister();
             throw new IllegalStateException("Cannot update lobby sign: not a sign. Removing...");
         }
         final Sign sign = (Sign) b.getState();

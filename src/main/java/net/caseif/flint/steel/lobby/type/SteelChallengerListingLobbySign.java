@@ -63,6 +63,7 @@ public class SteelChallengerListingLobbySign extends SteelLobbySign implements C
         Block b = getBlock();
         if (!(b.getState() instanceof Sign)) {
             // hehe, illegal "state"
+            unregister();
             throw new IllegalStateException("Cannot update lobby sign: not a sign. Removing...");
         }
         final Sign sign = (Sign) b.getState();
