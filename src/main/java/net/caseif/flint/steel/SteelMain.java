@@ -55,6 +55,8 @@ import java.io.IOException;
  */
 public class SteelMain extends JavaPlugin {
 
+    private static final int CURSEFORGE_PROJECT_ID = 95203;
+
     private static SteelMain instance;
 
     @Override
@@ -106,7 +108,7 @@ public class SteelMain extends JavaPlugin {
 
     public void initUpdater() {
         if (getConfig().getBoolean("enable-updater")) {
-            new Updater(this, 37669, this.getFile(), Updater.UpdateType.DEFAULT, true);
+            new Updater(this, CURSEFORGE_PROJECT_ID, this.getFile(), Updater.UpdateType.DEFAULT, true);
         }
     }
 
