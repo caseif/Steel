@@ -167,14 +167,13 @@ public class SteelRound extends CommonRound {
             returnPoint = LocationHelper.convertLocation(Bukkit.getWorlds().get(0).getSpawnLocation());
         }
 
-        RuntimeException rte = null;
         if (!isDisconnecting) {
             try {
                 PlayerHelper.popInventory(bukkitPlayer);
             } catch (InvalidConfigurationException | IOException ex) {
                 // save the exception for later so it doesn't ruin everything
-                rte = new RuntimeException("Could not pop inventory for player " + bukkitPlayer.getName()
-                        + " from persistent storage", ex);
+                new RuntimeException("Could not pop inventory for player " + bukkitPlayer.getName()
+                        + " from persistent storage", ex).printStackTrace();
             }
         }
 
@@ -183,10 +182,6 @@ public class SteelRound extends CommonRound {
 
         if (!roundEnding) {
             ((CommonChallenger) challenger).orphan();
-        }
-
-        if (rte != null) {
-            throw rte;
         }
 
         if (!event.getReturnLocation().equals(returnPoint)) {

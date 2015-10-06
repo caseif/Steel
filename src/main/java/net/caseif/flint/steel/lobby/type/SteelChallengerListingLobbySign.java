@@ -31,6 +31,7 @@ package net.caseif.flint.steel.lobby.type;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.component.exception.OrphanedComponentException;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
+import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.lobby.SteelLobbySign;
 import net.caseif.flint.util.physical.Location3D;
@@ -64,7 +65,9 @@ public class SteelChallengerListingLobbySign extends SteelLobbySign implements C
         if (!(b.getState() instanceof Sign)) {
             // hehe, illegal "state"
             unregister();
-            throw new IllegalStateException("Cannot update lobby sign: not a sign. Removing...");
+            SteelCore.logWarning("Cannot update lobby sign at ("
+                    + "\"" + b.getWorld().getName() + "\", " + b.getX() + ", " + b.getY() + ", " + b.getZ()
+                    + "): not a sign. Removing...");
         }
         final Sign sign = (Sign) b.getState();
         int startIndex = getIndex() * sign.getLines().length;
