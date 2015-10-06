@@ -36,11 +36,16 @@ import net.caseif.flint.arena.Arena;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
 import net.caseif.flint.lobby.type.StatusLobbySign;
+import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.SteelMain;
+import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Location3D;
 
 import com.google.common.base.Optional;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -56,6 +61,8 @@ class WizardPlayer implements IWizardPlayer {
 
     private UUID uuid;
     private Location3D location;
+    private Material origMaterial;
+    private byte origData;
     private WizardManager manager;
 
     private WizardStage stage;
@@ -72,9 +79,13 @@ class WizardPlayer implements IWizardPlayer {
      * @param manager The parent {@link WizardManager} of the new
      *     {@link WizardManager}
      */
+    @SuppressWarnings("deprecation")
     WizardPlayer(UUID uuid, Location3D location, WizardManager manager) {
+        assert LocationHelper.convertLocation(location).getBlock().getState() instanceof Sign;
         this.uuid = uuid;
         this.location = location;
+        this.origMaterial = LocationHelper.convertLocation(location).getBlock().getType();
+        this.origData = LocationHelper.convertLocation(location).getBlock().getState().getRawData();
         this.manager = manager;
 
         this.stage = WizardStage.GET_ARENA;
@@ -99,6 +110,7 @@ class WizardPlayer implements IWizardPlayer {
 
 
     @Override
+    @SuppressWarnings("deprecation")
     public String[] accept(String input) {
         if (input.equalsIgnoreCase("cancel")) {
             getParent().removePlayer(getUniqueId());
@@ -157,40 +169,44 @@ class WizardPlayer implements IWizardPlayer {
                 if (input.equalsIgnoreCase("yes")) {
                     Optional<Arena> arena = getParent().getOwner().getArena(data.getArena());
                     if (arena.isPresent()) {
-                            switch (data.getSignType()) {
-                                case STATUS: {
-                                    try {
-                                        Optional<StatusLobbySign> sign
-                                                = arena.get().createStatusLobbySign(getLocation());
-                                        if (sign.isPresent()) {
-                                            getParent().removePlayer(getUniqueId());
-                                            playbackWithheldMessages();
-                                            return new String[]{WizardMessages.DIVIDER, WizardMessages.FINISH};
-                                        } else {
-                                            return new String[]{WizardMessages.DIVIDER, WizardMessages.GENERIC_ERROR};
-                                        }
-                                    } catch (Exception ex) {
-                                        ex.printStackTrace();
-                                        return new String[]{WizardMessages.DIVIDER, WizardMessages.GENERIC_ERROR,
-                                                ERROR_COLOR + ex.getMessage()};
-                                    }
-                                }
-                                case CHALLENGER_LISTING: {
-                                    Optional<ChallengerListingLobbySign> sign = arena.get()
-                                            .createChallengerListingLobbySign(getLocation(), data.getIndex());
+                        Block b = LocationHelper.convertLocation(getLocation()).getBlock();
+                        b.setType(origMaterial);
+                        b.setData(origData);
+                        switch (data.getSignType()) {
+                            case STATUS: {
+                                try {
+                                    Optional<StatusLobbySign> sign
+                                            = arena.get().createStatusLobbySign(getLocation());
                                     if (sign.isPresent()) {
                                         getParent().removePlayer(getUniqueId());
                                         playbackWithheldMessages();
                                         return new String[]{WizardMessages.DIVIDER, WizardMessages.FINISH};
                                     } else {
+                                        SteelCore.logSevere("Failed to register lobby sign via wizard");
                                         return new String[]{WizardMessages.DIVIDER, WizardMessages.GENERIC_ERROR};
                                     }
-                                }
-                                default: {
-                                    throw new AssertionError("Invalid sign type in wizard data. "
-                                            + "Report this immediately.");
+                                } catch (Exception ex) {
+                                    ex.printStackTrace();
+                                    return new String[]{WizardMessages.DIVIDER, WizardMessages.GENERIC_ERROR,
+                                            ERROR_COLOR + ex.getMessage()};
                                 }
                             }
+                            case CHALLENGER_LISTING: {
+                                Optional<ChallengerListingLobbySign> sign = arena.get()
+                                        .createChallengerListingLobbySign(getLocation(), data.getIndex());
+                                if (sign.isPresent()) {
+                                    getParent().removePlayer(getUniqueId());
+                                    playbackWithheldMessages();
+                                    return new String[]{WizardMessages.DIVIDER, WizardMessages.FINISH};
+                                } else {
+                                    return new String[]{WizardMessages.DIVIDER, WizardMessages.GENERIC_ERROR};
+                                }
+                            }
+                            default: {
+                                throw new AssertionError("Invalid sign type in wizard data. "
+                                        + "Report this immediately.");
+                            }
+                        }
                     } else {
                         getParent().removePlayer(getUniqueId());
                         playbackWithheldMessages();
