@@ -39,6 +39,7 @@ import net.caseif.flint.util.physical.Boundary;
 
 import com.google.common.base.Optional;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -53,11 +54,13 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.InventoryHolder;
 
 import java.util.Iterator;
+import java.util.UUID;
 
 /**
  * Listener for events relating to players in the world.
@@ -223,6 +226,30 @@ public class PlayerWorldListener implements Listener {
     public void onInventoryInteract(InventoryInteractEvent event) {
         if (event.getInventory().getHolder() instanceof Block) {
             processEvent(event, (Player) event.getWhoClicked());
+        }
+    }
+
+    @EventHandler
+    public void onPlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent event) {
+        if (event.getMessage().startsWith("/suicide") || event.getMessage().startsWith("/kill")) {
+            UUID uuid;
+            @SuppressWarnings("deprecation")
+            Player pl = event.getMessage().startsWith("/kill ")
+                    ? Bukkit.getPlayer(event.getMessage().split(" ")[1])
+                    : event.getPlayer();
+            if (pl == null) {
+                return;
+            } else {
+                uuid = pl.getUniqueId();
+            }
+            for (Minigame mg : SteelCore.getMinigames().values()) {
+                if (mg.getChallenger(uuid).isPresent()) {
+                    //TODO: figure out a better way to solve this than by disabling it
+                    event.setCancelled(true);
+                    event.getPlayer().sendMessage(ChatColor.RED
+                            + "You may not run this command while in a minigame round");
+                }
+            }
         }
     }
 
