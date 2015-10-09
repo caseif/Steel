@@ -95,7 +95,7 @@ public class PlayerWorldListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         // iterate minigames
         for (Minigame mg : SteelCore.getMinigames().values()) {
@@ -120,11 +120,11 @@ public class PlayerWorldListener implements Listener {
                 Optional<Challenger> rChal = mg.getChallenger(recip.getUniqueId());
 
                 if (challenger.isPresent() != rChal.isPresent() // one's in a round, one's not
-                        || ((challenger.isPresent() && rChal.isPresent()) // both in a round
-                        && challenger.get().getRound() != rChal.get().getRound())) { // but not the same round
+                        || ((challenger.isPresent() && rChal.isPresent())            // both in a round...
+                        && challenger.get().getRound() != rChal.get().getRound())) { // ...but not the same round
                     it.remove();
-                } else if (challenger.isPresent() && challenger.get().isSpectating() != rChal.get().isSpectating()) {
-                    // one's spectating, one's not. don't allow the message to go through.
+                } else if (challenger.isPresent() && challenger.get().isSpectating() && !rChal.get().isSpectating()) {
+                    // sender's a spectator, recipient's not - don't allow the message to go through
                     it.remove();
                 } else if (((SteelMinigame) mg).getLobbyWizardManager().isWizardPlayer(recip.getUniqueId())) {
                     ((SteelMinigame) mg).getLobbyWizardManager().withholdMessage(recip.getUniqueId(),
