@@ -271,6 +271,19 @@ public class PlayerWorldListener implements Listener {
                     event.setCancelled(true);
                     event.getPlayer().sendMessage(ChatColor.RED
                             + "You may not run this command while in a minigame round");
+                    return;
+                }
+            }
+        }
+
+        for (Minigame mg : SteelCore.getMinigames().values()) {
+            Optional<Challenger> ch = mg.getChallenger(event.getPlayer().getUniqueId());
+            if (ch.isPresent()) {
+                if (ch.get().getRound().getConfigValue(ConfigNode.FORBIDDEN_COMMANDS)
+                        .contains(event.getMessage().substring(1))) {
+                    event.setCancelled(true);
+                    event.getPlayer().sendMessage(ChatColor.RED
+                            + "You may not run this command while in a minigame round");
                 }
             }
         }
