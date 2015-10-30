@@ -119,17 +119,40 @@ public class PlayerWorldListener implements Listener {
                 Player recip = it.next();
                 Optional<Challenger> rChal = mg.getChallenger(recip.getUniqueId());
 
-                if (challenger.isPresent() != rChal.isPresent() // one's in a round, one's not
-                        || ((challenger.isPresent() && rChal.isPresent())            // both in a round...
-                        && challenger.get().getRound() != rChal.get().getRound())) { // ...but not the same round
-                    it.remove();
-                } else if (challenger.isPresent() && challenger.get().isSpectating() && !rChal.get().isSpectating()) {
-                    // sender's a spectator, recipient's not - don't allow the message to go through
-                    it.remove();
-                } else if (((SteelMinigame) mg).getLobbyWizardManager().isWizardPlayer(recip.getUniqueId())) {
+                if (((SteelMinigame) mg).getLobbyWizardManager().isWizardPlayer(recip.getUniqueId())) {
                     ((SteelMinigame) mg).getLobbyWizardManager().withholdMessage(recip.getUniqueId(),
                             event.getPlayer().getDisplayName(), event.getMessage());
                     it.remove();
+                    continue;
+                }
+
+                // here be dragons
+
+                // in all seriousness I commented this section best I could, but the logic can be really confusing
+
+                // checks for separating round chats
+                if (challenger.get().getRound().getConfigValue(ConfigNode.SEPARATE_ROUND_CHATS)) {
+                    if (challenger.isPresent() != rChal.isPresent()) { // one's in a round, one's not
+                        it.remove();
+                        continue;
+                    } else if (challenger.isPresent() && rChal.isPresent() // redundant rChal check for clarity
+                            && challenger.get().getRound() != rChal.get().getRound()) { // they're in different rounds
+                        it.remove();
+                        continue;
+                    }
+                }
+
+                // checks for separating spectator chat
+                if (challenger.get().getRound().getConfigValue(ConfigNode.WITHHOLD_SPECTATOR_CHAT)) {
+                    if (challenger.isPresent() && challenger.get().isSpectating()) {
+                        // this is an anti-conditional: if any of the checks fail, the message is withheld
+                        if (!(rChal.isPresent() // must be in A round to receive
+                                && rChal.get().getRound() == challenger.get().getRound()) // must be in same round
+                                && rChal.get().isSpectating()) { // must be spectating to receive message
+                            // if we're here, one of the checks failed and the message must be withheld
+                            it.remove();
+                        }
+                    }
                 }
             }
 
