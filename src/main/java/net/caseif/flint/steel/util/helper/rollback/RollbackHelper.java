@@ -159,7 +159,7 @@ public final class RollbackHelper {
      *     rollback database
      */
     @SuppressWarnings("deprecation")
-    private void logBlockChange(Location location, BlockState originalState)
+    public void logBlockChange(Location location, BlockState originalState)
             throws InvalidConfigurationException, IOException, SQLException {
         ConfigurationSection state = BlockStateSerializer.serializeState(originalState).orNull();
         logChange(RECORD_TYPE_BLOCK_CHANGED, location, null, originalState.getType().name(), originalState.getRawData(),

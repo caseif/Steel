@@ -32,8 +32,8 @@ ext.description = 'The implementation of Flint minigame framework for the Bukkit
 ext.inceptionYear = '2015'
 ext.packaging = 'jar'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
 
 configurations {
     shadow

@@ -61,7 +61,6 @@ import org.bukkit.entity.Player;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Implements {@link Round}.
@@ -72,8 +71,6 @@ public class SteelRound extends CommonRound {
 
     private final int schedulerHandle;
     private boolean timerTicking = true;
-
-    private AtomicInteger nextSpawn = new AtomicInteger();
 
     public SteelRound(CommonArena arena, ImmutableSet<LifecycleStage> stages) {
         super(arena, stages);
@@ -124,17 +121,8 @@ public class SteelRound extends CommonRound {
                     + challenger.getName() + " into persistent storage");
         }
 
-        int spawnIndex;
-        if (getConfigValue(ConfigNode.RANDOM_SPAWNING)) {
-            spawnIndex = (int) Math.floor(Math.random() * getArena().getSpawnPoints().size());
-        } else {
-            spawnIndex = nextSpawn.getAndIncrement();
-            if (nextSpawn.intValue() == getArena().getSpawnPoints().size()) {
-                nextSpawn.set(0);
-            }
-        }
-        Location3D spawn = getArena().getSpawnPoints().values().asList().get(spawnIndex);
-        bukkitPlayer.teleport(LocationHelper.convertLocation(spawn));
+
+        bukkitPlayer.teleport(LocationHelper.convertLocation(nextSpawnPoint()));
 
         getChallengerMap().put(uuid, challenger);
 

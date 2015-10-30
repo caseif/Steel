@@ -35,6 +35,7 @@ import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.minigame.CommonMinigame;
 import net.caseif.flint.component.exception.OrphanedComponentException;
 import net.caseif.flint.config.ConfigNode;
+import net.caseif.flint.exception.rollback.RollbackException;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
 import net.caseif.flint.lobby.type.StatusLobbySign;
@@ -58,6 +59,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -108,11 +110,20 @@ public class SteelArena extends CommonArena {
     public Round createRound() throws IllegalStateException, OrphanedComponentException {
         checkState();
         Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
-        ImmutableSet<LifecycleStage> stages
-                = ((SteelMinigame) getMinigame()).getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES);
+        ImmutableSet<LifecycleStage> stages = getMinigame().getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES);
         Preconditions.checkState(stages != null && !stages.isEmpty(),
                 "Illegal call to nullary createRound method: default lifecycle stages are not set");
-        return createRound(((SteelMinigame) getMinigame()).getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES));
+        return createRound(getMinigame().getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES));
+    }
+
+    @Override
+    public Round getOrCreateRound(ImmutableSet<LifecycleStage> stages) {
+        return getRound().isPresent() ? getRound().get() : createRound(stages);
+    }
+
+    @Override
+    public Round getOrCreateRound() {
+        return getRound().isPresent() ? getRound().get() : createRound();
     }
 
     @Override
@@ -158,6 +169,19 @@ public class SteelArena extends CommonArena {
         }
     }
 
+    @Override
+    public void markForRollback(Location3D location) throws IllegalArgumentException, RollbackException {
+        checkArgument(getBoundary().contains(location),
+                "Cannot mark block for rollback in arena " + getId() + " - not within boundary");
+
+        Location loc = LocationHelper.convertLocation(location);
+        try {
+            getRollbackHelper().logBlockChange(loc, loc.getBlock().getState());
+        } catch (InvalidConfigurationException | IOException | SQLException ex) {
+            throw new RollbackException(ex);
+        }
+    }
+
     /**
      * Gets the {@link RollbackHelper} associated with this {@link SteelArena}.
      *
@@ -192,7 +216,7 @@ public class SteelArena extends CommonArena {
         cs.set(PERSISTENCE_BOUNDS_UPPER_KEY, getBoundary().getUpperBound().serialize());
         cs.set(PERSISTENCE_BOUNDS_LOWER_KEY, getBoundary().getLowerBound().serialize());
         ConfigurationSection metadata = cs.createSection(PERSISTENCE_METADATA_KEY);
-        storeMetadata(metadata, getPersistableMetadata());
+        storeMetadata(metadata, getPersistentMetadata());
         yaml.save(arenaStore);
     }
 
@@ -221,7 +245,7 @@ public class SteelArena extends CommonArena {
      */
     private void storeMetadata(ConfigurationSection section, PersistentMetadata data) {
         for (String key : data.getAllKeys()) {
-            Optional<?> value = getPersistableMetadata().get(key);
+            Optional<?> value = getPersistentMetadata().get(key);
             Preconditions.checkState(value.isPresent(), "Value for key " + key + " is not present");
 
             if (value.get() instanceof String) {
@@ -268,7 +292,7 @@ public class SteelArena extends CommonArena {
      */
     private void loadMetadata(ConfigurationSection section, PersistentMetadata parent) {
         if (parent == null) {
-            parent = getPersistableMetadata();
+            parent = getPersistentMetadata();
         }
 
         for (String key : section.getKeys(false)) {
