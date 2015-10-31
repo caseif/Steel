@@ -141,6 +141,7 @@ shadowJar {
     configurations = [project.configurations.shadow]
     dependencies {
         exclude dependency('com.google.guava:guava')
+        exclude dependency('com.google.code.gson:gson')
         exclude dependency('org.bukkit:bukkit')
     }
     classifier = ''
