@@ -130,29 +130,41 @@ public class PlayerWorldListener implements Listener {
 
                 // in all seriousness I commented this section best I could, but the logic can be really confusing
 
-                // checks for separating round chats
-                if (challenger.get().getRound().getConfigValue(ConfigNode.SEPARATE_ROUND_CHATS)) {
-                    if (challenger.isPresent() != rChal.isPresent()) { // one's in a round, one's not
-                        it.remove();
-                        continue;
-                    } else if (challenger.isPresent() && rChal.isPresent() // redundant rChal check for clarity
-                            && challenger.get().getRound() != rChal.get().getRound()) { // they're in different rounds
-                        it.remove();
-                        continue;
+                boolean withhold = false;
+
+                // round barrier
+                if ((challenger.isPresent()
+                        && challenger.get().getRound().getConfigValue(ConfigNode.SEPARATE_ROUND_CHATS))
+                        || (rChal.isPresent()
+                        && rChal.get().getRound().getConfigValue(ConfigNode.SEPARATE_ROUND_CHATS))) {
+                    // message is withheld if at least one is in a round with SEPARATE_ROUND_CHATS set
+                    withhold = true;
+                }
+
+                // team barrier
+                if (challenger.isPresent() && rChal.isPresent() // both in round
+                        && challenger.get().getRound() == rChal.get().getRound() // in same round
+                        && !challenger.get().getTeam().equals(rChal.get().getTeam())) { // on different teams
+                    // message is withheld if they're in the same round but on different teams
+                    withhold = true;
+                }
+
+                // spectator barrier
+                if (challenger.isPresent() && challenger.get().isSpectating()
+                        && challenger.get().getRound().getConfigValue(ConfigNode.WITHHOLD_SPECTATOR_CHAT)) {
+                    if (!(rChal.isPresent() && rChal.get().getRound() != challenger.get().getRound()
+                            && rChal.get().isSpectating())) {
+                        // if the player is spectating in a round with WITHHOLD_SPECTATOR_CHAT set
+                        // and any of these checks fail, the message will be withheld
+                        // for the message to be sent:
+                        // rChal must be in the same round as the player and also spectating
+                        // otherwise, it will be withheld
+                        withhold = true;
                     }
                 }
 
-                // checks for separating spectator chat
-                if (challenger.get().getRound().getConfigValue(ConfigNode.WITHHOLD_SPECTATOR_CHAT)) {
-                    if (challenger.isPresent() && challenger.get().isSpectating()) {
-                        // this is an anti-conditional: if any of the checks fail, the message is withheld
-                        if (!(rChal.isPresent() // must be in A round to receive
-                                && rChal.get().getRound() == challenger.get().getRound()) // must be in same round
-                                && rChal.get().isSpectating()) { // must be spectating to receive message
-                            // if we're here, one of the checks failed and the message must be withheld
-                            it.remove();
-                        }
-                    }
+                if (withhold) {
+                    it.remove();
                 }
             }
 

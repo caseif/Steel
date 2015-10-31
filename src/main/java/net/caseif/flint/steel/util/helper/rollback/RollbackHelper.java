@@ -109,7 +109,7 @@ public final class RollbackHelper extends CommonRollbackHelper {
 
     public static void checkBlockChange(Location location, BlockState state, Event event) {
         Optional<Arena> arena = checkChangeAtLocation(LocationHelper.convertLocation(location));
-        if (arena.isPresent() && arena.get().getRound().isPresent()) {
+        if (arena.isPresent()) {
             try {
                 ((SteelArena) arena.get()).getRollbackHelper().logBlockChange(location, state);
             } catch (IOException | SQLException ex) {
@@ -121,7 +121,7 @@ public final class RollbackHelper extends CommonRollbackHelper {
 
     public static void checkEntityChange(Entity entity, boolean newlyCreated, Event event) {
         Optional<Arena> arena = checkChangeAtLocation(LocationHelper.convertLocation(entity.getLocation()));
-        if (arena.isPresent() && arena.get().getRound().isPresent()) {
+        if (arena.isPresent()) {
             try {
                 if (newlyCreated) {
                     ((SteelArena) arena.get()).getRollbackHelper().logEntityCreation(entity);

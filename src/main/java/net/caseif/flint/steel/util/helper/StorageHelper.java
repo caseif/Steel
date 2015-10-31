@@ -34,8 +34,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -56,16 +60,14 @@ public class StorageHelper {
         for (String key : cs.getKeys(false)) {
             if (cs.isConfigurationSection(key)) {
                 json.add(key, yamlToJson(cs.getConfigurationSection(key)));
-            } else {
-                if (cs.isList(key)) {
-                    JsonArray arr = new JsonArray();
-                    for (Object obj : cs.getList(key)) {
-                        arr.add(objToJsonPrim(obj));
-                    }
-                    json.add(key, arr);
-                } else {
-                    json.add(key, objToJsonPrim(cs.get(key)));
+            } else if (cs.isList(key)) {
+                JsonArray arr = new JsonArray();
+                for (Object obj : cs.getList(key)) {
+                    arr.add(objToJsonElement(obj));
                 }
+                json.add(key, arr);
+            } else {
+                json.add(key, objToJsonElement(cs.get(key)));
             }
         }
         return json;
@@ -88,24 +90,12 @@ public class StorageHelper {
             cs = cs.createSection("squid kid");
         }
         for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
-            if (entry.getValue().isJsonObject()) {
-                cs.set(entry.getKey(), jsonToYaml((JsonObject) entry.getValue(), false));
-            } else if (entry.getValue().isJsonArray()) {
-                List<Object> list = new ArrayList<>();
-                for (JsonElement je : entry.getValue().getAsJsonArray()) {
-                    if (je.isJsonPrimitive()) {
-                        list.add(jsonPrimToObj(je.getAsJsonPrimitive()));
-                    }
-                }
-                cs.set(entry.getKey(), list);
-            } else if (entry.getValue() instanceof JsonPrimitive) {
-                cs.set(entry.getKey(), jsonPrimToObj(entry.getValue().getAsJsonPrimitive()));
-            }
+            cs.set(entry.getKey(), jsonElementToObj(entry.getValue()));
         }
         return cs;
     }
 
-    private static JsonPrimitive objToJsonPrim(Object obj) {
+    private static JsonElement objToJsonElement(Object obj) {
         if (obj instanceof Boolean) {
             return new JsonPrimitive((Boolean) obj);
         } else if (obj instanceof Character) {
@@ -114,8 +104,16 @@ public class StorageHelper {
             return new JsonPrimitive((Number) obj);
         } else if (obj instanceof String) {
             return new JsonPrimitive((String) obj);
+        } else if (obj instanceof ConfigurationSerializable) {
+            Map<String, Object> serial = ((ConfigurationSerializable) obj).serialize();
+            JsonObject json = new JsonObject();
+            json.addProperty("==", obj.getClass().getName());
+            for (Map.Entry<String, Object> entry : serial.entrySet()) {
+                json.add(entry.getKey(), objToJsonElement(entry.getValue()));
+            }
+            return json;
         } else {
-            throw new UnsupportedOperationException("BLEH");
+            throw new UnsupportedOperationException("Unsupported object for JSON encoding");
         }
     }
 
@@ -124,12 +122,52 @@ public class StorageHelper {
             return prim.getAsBoolean();
         } else if (prim.isNumber()) {
             if (prim.getAsDouble() % 1 == 0) {
-                return prim.getAsLong();
+                return prim.getAsLong() != prim.getAsInt() ? prim.getAsLong() : prim.getAsInt();
             } else {
                 return prim.getAsNumber();
             }
         } else if (prim.isString()) {
             return prim.getAsString();
+        }
+        return null;
+    }
+
+    private static Object jsonSerialToObj(JsonObject json) {
+        assert json.has("==");
+        Map<String, Object> serial = new HashMap<>();
+        for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
+            serial.put(entry.getKey(), jsonElementToObj(entry.getValue()));
+        }
+        try {
+            Class<?> clazz = Class.forName(json.get("==").getAsString());
+            for (Method method : clazz.getMethods()) {
+                if (method.getName().equals("deserialize")) {
+                    return method.invoke(null, serial);
+                }
+            }
+        } catch (ClassNotFoundException | InvocationTargetException | IllegalAccessException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    private static Object jsonElementToObj(JsonElement json) {
+        if (json.isJsonObject()) {
+            if (json.getAsJsonObject().has("==")) {
+                return jsonSerialToObj(json.getAsJsonObject());
+            } else {
+                return jsonToYaml((JsonObject) json, false);
+            }
+        } else if (json.isJsonArray()) {
+            List<Object> list = new ArrayList<>();
+            for (JsonElement je : json.getAsJsonArray()) {
+                if (je.isJsonPrimitive()) {
+                    list.add(jsonPrimToObj(je.getAsJsonPrimitive()));
+                }
+            }
+            return list;
+        } else if (json.isJsonPrimitive()) {
+            return jsonPrimToObj(json.getAsJsonPrimitive());
         }
         return null;
     }
