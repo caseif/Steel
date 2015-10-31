@@ -139,38 +139,6 @@ public class SteelRound extends CommonRound {
         return new CommonJoinResult(challenger);
     }
 
-    @SuppressWarnings({"DuplicateThrows", "deprecation"})
-    @Override
-    public Challenger _INVALID_addChallenger(UUID uuid) throws IllegalStateException, RoundJoinException,
-            OrphanedComponentException {
-        JoinResult result = addChallenger(uuid);
-        RoundJoinException.Reason reason;
-        switch (result.getStatus()) {
-            case SUCCESS: {
-                return result.getChallenger();
-            }
-            case INTERNAL_ERROR: {
-                throw new CommonRoundJoinException(uuid, this, result.getThrowable());
-            }
-            case ALREADY_IN_ROUND: {
-                reason = RoundJoinException.Reason.ALREADY_ENTERED;
-                break;
-            }
-            case PLAYER_OFFLINE: {
-                reason = RoundJoinException.Reason.OFFLINE;
-                break;
-            }
-            case ROUND_FULL: {
-                reason = RoundJoinException.Reason.FULL;
-                break;
-            }
-            default: {
-                throw new AssertionError();
-            }
-        }
-        throw new CommonRoundJoinException(uuid, this, reason);
-    }
-
     @Override // overridden from CommonRound
     public void removeChallenger(Challenger challenger, boolean isDisconnecting, boolean updateSigns,
             boolean roundEnding) throws OrphanedComponentException {
