@@ -87,12 +87,10 @@ public class SteelArena extends CommonArena {
     public static final String PERSISTENCE_BOUNDS_LOWER_KEY = "bound.lower";
     public static final String PERSISTENCE_METADATA_KEY = "metadata";
 
-    private final RollbackHelper rbHelper;
-
     public SteelArena(CommonMinigame parent, String id, String name, Location3D initialSpawn, Boundary boundary) {
         super(parent, id.toLowerCase(), name, initialSpawn, boundary);
         assert !id.contains(".");
-        this.rbHelper = new RollbackHelper(this);
+        rbHelper = new RollbackHelper(this);
     }
 
     @Override
@@ -143,6 +141,24 @@ public class SteelArena extends CommonArena {
         return Optional.absent();
     }
 
+    @Override
+    public void markForRollback(Location3D location) throws IllegalArgumentException, RollbackException {
+        checkArgument(getBoundary().contains(location),
+                "Cannot mark block for rollback in arena " + getId() + " - not within boundary");
+
+        try {
+            Location loc = LocationHelper.convertLocation(location);
+            getRollbackHelper().logBlockChange(loc, loc.getBlock().getState());
+        } catch (IOException | SQLException ex) {
+            throw new RollbackException(ex);
+        }
+    }
+
+    @Override
+    public RollbackHelper getRollbackHelper() {
+        return (RollbackHelper) super.getRollbackHelper();
+    }
+
     private boolean checkLocationForLobbySign(Location3D location) throws IllegalArgumentException {
         checkArgument(location.getWorld().isPresent(), "Location for lobby sign must contain world");
         World world = Bukkit.getWorld(location.getWorld().get());
@@ -157,39 +173,6 @@ public class SteelArena extends CommonArena {
         ((SteelLobbySign) sign).store();
         getLobbySignMap().put(sign.getLocation(), sign);
         return Optional.of(sign);
-    }
-
-    @Override
-    public void rollback() throws IllegalStateException, OrphanedComponentException {
-        checkState();
-        try {
-            getRollbackHelper().popRollbacks();
-        } catch (SQLException ex) {
-            throw new RuntimeException("Failed to rollback arena " + getName(), ex);
-        }
-    }
-
-    @Override
-    public void markForRollback(Location3D location) throws IllegalArgumentException, RollbackException {
-        checkArgument(getBoundary().contains(location),
-                "Cannot mark block for rollback in arena " + getId() + " - not within boundary");
-
-        Location loc = LocationHelper.convertLocation(location);
-        try {
-            getRollbackHelper().logBlockChange(loc, loc.getBlock().getState());
-        } catch (InvalidConfigurationException | IOException | SQLException ex) {
-            throw new RollbackException(ex);
-        }
-    }
-
-    /**
-     * Gets the {@link RollbackHelper} associated with this {@link SteelArena}.
-     *
-     * @return The {@link RollbackHelper} associated with this
-     *     {@link SteelArena}
-     */
-    public RollbackHelper getRollbackHelper() {
-        return rbHelper;
     }
 
     /**

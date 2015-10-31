@@ -29,64 +29,80 @@
 package net.caseif.flint.steel.util.helper;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Static utility class for inventory-related functionality.
- *
- * @author Max Roncacé
+ * Static utility class for storage-related functionality.
  */
-public class InventoryHelper {
+public class StorageHelper {
 
-    public static ConfigurationSection serializeInventory(Inventory inventory) {
-        return serializeInventory(inventory.getContents());
-    }
-
-    public static ConfigurationSection serializeInventory(ItemStack[] contents) {
-        ConfigurationSection cs = new YamlConfiguration().createSection("doot doot");
-        cs.set("capacity", contents.length);
-        for (int i = 0; i < contents.length; i++) {
-            cs.set(Integer.toString(i), contents[i]);
-        }
-        return cs;
-    }
-
-    public static ItemStack[] deserializeInventory(ConfigurationSection serial) throws IllegalArgumentException {
-        if (!serial.contains("capacity")) {
-            throw new IllegalArgumentException("Serialized inventory is missing required element \"capacity\"");
-        }
-        int capacity = serial.getInt("capacity");
-        ItemStack[] contents = new ItemStack[capacity];
-        for (int i = 0; i < capacity; i++) {
-            if (serial.contains(Integer.toString(i))) {
-                contents[i] = serial.getItemStack(Integer.toString(i));
-            }
-        }
-        return contents;
-    }
-
-    private static JsonObject csToJson(ConfigurationSection cs) {
+    /**
+     * Recursively converts a YAML {@link ConfigurationSection} to a
+     * {@link JsonObject}.
+     *
+     * @param cs The {@link ConfigurationSection} to convert
+     * @return The converted {@link JsonObject}
+     */
+    public static JsonObject yamlToJson(ConfigurationSection cs) {
         JsonObject json = new JsonObject();
         for (String key : cs.getKeys(false)) {
             if (cs.isConfigurationSection(key)) {
-                json.add(key, csToJson(cs.getConfigurationSection(key)));
+                json.add(key, yamlToJson(cs.getConfigurationSection(key)));
             } else {
                 if (cs.isList(key)) {
                     JsonArray arr = new JsonArray();
                     for (Object obj : cs.getList(key)) {
                         arr.add(objToJsonPrim(obj));
                     }
+                    json.add(key, arr);
                 } else {
                     json.add(key, objToJsonPrim(cs.get(key)));
                 }
             }
         }
         return json;
+    }
+
+    /**
+     * Recursively onverts a {@link JsonObject} to a YAML
+     * {@link ConfigurationSection}.
+     *
+     * @param json The {@link JsonObject} to convert
+     * @return The converted {@link ConfigurationSection}
+     */
+    public static YamlConfiguration jsonToYaml(JsonObject json) {
+        return (YamlConfiguration) jsonToYaml(json, true);
+    }
+
+    private static ConfigurationSection jsonToYaml(JsonObject json, boolean entryPoint) {
+        ConfigurationSection cs = new YamlConfiguration();
+        if (!entryPoint) {
+            cs = cs.createSection("squid kid");
+        }
+        for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
+            if (entry.getValue().isJsonObject()) {
+                cs.set(entry.getKey(), jsonToYaml((JsonObject) entry.getValue(), false));
+            } else if (entry.getValue().isJsonArray()) {
+                List<Object> list = new ArrayList<>();
+                for (JsonElement je : entry.getValue().getAsJsonArray()) {
+                    if (je.isJsonPrimitive()) {
+                        list.add(jsonPrimToObj(je.getAsJsonPrimitive()));
+                    }
+                }
+                cs.set(entry.getKey(), list);
+            } else if (entry.getValue() instanceof JsonPrimitive) {
+                cs.set(entry.getKey(), jsonPrimToObj(entry.getValue().getAsJsonPrimitive()));
+            }
+        }
+        return cs;
     }
 
     private static JsonPrimitive objToJsonPrim(Object obj) {
@@ -101,6 +117,21 @@ public class InventoryHelper {
         } else {
             throw new UnsupportedOperationException("BLEH");
         }
+    }
+
+    private static Object jsonPrimToObj(JsonPrimitive prim) {
+        if (prim.isBoolean()) {
+            return prim.getAsBoolean();
+        } else if (prim.isNumber()) {
+            if (prim.getAsDouble() % 1 == 0) {
+                return prim.getAsLong();
+            } else {
+                return prim.getAsNumber();
+            }
+        } else if (prim.isString()) {
+            return prim.getAsString();
+        }
+        return null;
     }
 
 }
