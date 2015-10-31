@@ -37,12 +37,14 @@ import net.caseif.flint.common.event.round.CommonRoundTimerStopEvent;
 import net.caseif.flint.common.event.round.challenger.CommonChallengerJoinRoundEvent;
 import net.caseif.flint.common.event.round.challenger.CommonChallengerLeaveRoundEvent;
 import net.caseif.flint.common.exception.round.CommonRoundJoinException;
+import net.caseif.flint.common.round.CommonJoinResult;
 import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.component.exception.OrphanedComponentException;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.exception.round.RoundJoinException;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.minigame.Minigame;
+import net.caseif.flint.round.JoinResult;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelCore;
@@ -90,24 +92,22 @@ public class SteelRound extends CommonRound {
 
     @Override
     @SuppressWarnings("DuplicateThrows")
-    public Challenger addChallenger(UUID uuid) throws IllegalStateException, RoundJoinException,
-            OrphanedComponentException {
+    public JoinResult addChallenger(UUID uuid) throws IllegalStateException, OrphanedComponentException {
+        checkState();
+
         Player bukkitPlayer = Bukkit.getPlayer(uuid);
         if (bukkitPlayer == null) {
-            throw new CommonRoundJoinException(uuid, this, RoundJoinException.Reason.OFFLINE,
-                    "Cannot enter challenger with UUID " + uuid.toString() + "(Player is offline)");
+            return new CommonJoinResult(JoinResult.Status.PLAYER_OFFLINE);
         }
 
         if (getChallengers().size() >= getConfigValue(ConfigNode.MAX_PLAYERS)) {
-            throw new CommonRoundJoinException(uuid, this, RoundJoinException.Reason.FULL,
-                    "Cannot enter challenger " + bukkitPlayer.getName() + " (Round is full)");
+            return new CommonJoinResult(JoinResult.Status.ROUND_FULL);
         }
 
         for (Minigame mg : CommonCore.getMinigames().values()) {
             for (Challenger c : mg.getChallengers()) {
                 if (c.getUniqueId().equals(uuid)) {
-                    throw new CommonRoundJoinException(uuid, this, RoundJoinException.Reason.ALREADY_ENTERED,
-                            "Cannot enter challenger " + bukkitPlayer.getName() + " (Already in a round)");
+                    return new CommonJoinResult(JoinResult.Status.ALREADY_IN_ROUND);
                 }
             }
         }
@@ -117,8 +117,7 @@ public class SteelRound extends CommonRound {
         try {
             PlayerHelper.storeLocation(bukkitPlayer);
         } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
-            throw new CommonRoundJoinException(uuid, this, ex, "Could not push location for player "
-                    + challenger.getName() + " into persistent storage");
+            return new CommonJoinResult(ex);
         }
 
 
@@ -133,12 +132,43 @@ public class SteelRound extends CommonRound {
         try {
             PlayerHelper.pushInventory(bukkitPlayer);
         } catch (IOException ex) {
-            throw new CommonRoundJoinException(uuid, this, ex, "Could not push inventory for player "
-                    + challenger.getName() + " into persistent storage");
+            return new CommonJoinResult(ex);
         }
 
         getArena().getMinigame().getEventBus().post(new CommonChallengerJoinRoundEvent(challenger));
-        return challenger;
+        return new CommonJoinResult(challenger);
+    }
+
+    @SuppressWarnings({"DuplicateThrows", "deprecation"})
+    @Override
+    public Challenger _INVALID_addChallenger(UUID uuid) throws IllegalStateException, RoundJoinException,
+            OrphanedComponentException {
+        JoinResult result = addChallenger(uuid);
+        RoundJoinException.Reason reason;
+        switch (result.getStatus()) {
+            case SUCCESS: {
+                return result.getChallenger();
+            }
+            case INTERNAL_ERROR: {
+                throw new CommonRoundJoinException(uuid, this, result.getThrowable());
+            }
+            case ALREADY_IN_ROUND: {
+                reason = RoundJoinException.Reason.ALREADY_ENTERED;
+                break;
+            }
+            case PLAYER_OFFLINE: {
+                reason = RoundJoinException.Reason.OFFLINE;
+                break;
+            }
+            case ROUND_FULL: {
+                reason = RoundJoinException.Reason.FULL;
+                break;
+            }
+            default: {
+                throw new AssertionError();
+            }
+        }
+        throw new CommonRoundJoinException(uuid, this, reason);
     }
 
     @Override // overridden from CommonRound
@@ -193,11 +223,13 @@ public class SteelRound extends CommonRound {
 
     @Override
     public boolean isTimerTicking() throws OrphanedComponentException {
+        checkState();
         return this.timerTicking;
     }
 
     @Override
     public void setTimerTicking(boolean ticking) throws OrphanedComponentException {
+        checkState();
         if (ticking != isTimerTicking()) {
             timerTicking = ticking;
             getArena().getMinigame().getEventBus()
@@ -208,6 +240,7 @@ public class SteelRound extends CommonRound {
     @SuppressWarnings("DuplicateThrows")
     @Override
     public void end(boolean rollback, boolean natural) throws IllegalStateException, OrphanedComponentException {
+        checkState();
         cancelTimerTask();
         super.end(rollback, natural);
         for (LobbySign ls : getArena().getLobbySigns()) {
@@ -218,6 +251,7 @@ public class SteelRound extends CommonRound {
 
     @Override
     public void broadcast(String message) {
+        checkState();
         for (Challenger c : getChallengers()) {
             Bukkit.getPlayer(c.getUniqueId()).sendMessage(message);
         }
