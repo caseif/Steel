@@ -39,7 +39,6 @@ import net.caseif.flint.steel.util.helper.rollback.serialization.BlockStateSeria
 import net.caseif.flint.steel.util.helper.rollback.serialization.EntityStateSerializer;
 import net.caseif.flint.util.physical.Location3D;
 
-import com.google.common.base.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -55,6 +54,7 @@ import org.bukkit.inventory.InventoryHolder;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -108,29 +108,29 @@ public final class RollbackHelper extends CommonRollbackHelper {
     }
 
     public static void checkBlockChange(Location location, BlockState state, Event event) {
-        Optional<Arena> arena = checkChangeAtLocation(LocationHelper.convertLocation(location));
-        if (arena.isPresent() && arena.get().getRound().isPresent()) {
+        List<Arena> arenas = checkChangeAtLocation(LocationHelper.convertLocation(location));
+        for (Arena arena : arenas) {
             try {
-                ((SteelArena) arena.get()).getRollbackHelper().logBlockChange(location, state);
+                ((SteelArena) arena).getRollbackHelper().logBlockChange(location, state);
             } catch (IOException | SQLException ex) {
                 throw new RuntimeException("Failed to log " + event.getEventName() + " for rollback in arena "
-                        + arena.get().getName(), ex);
+                        + arena.getName(), ex);
             }
         }
     }
 
     public static void checkEntityChange(Entity entity, boolean newlyCreated, Event event) {
-        Optional<Arena> arena = checkChangeAtLocation(LocationHelper.convertLocation(entity.getLocation()));
-        if (arena.isPresent()) {
+        List<Arena> arenas = checkChangeAtLocation(LocationHelper.convertLocation(entity.getLocation()));
+        for (Arena arena : arenas) {
             try {
                 if (newlyCreated) {
-                    ((SteelArena) arena.get()).getRollbackHelper().logEntityCreation(entity);
+                    ((SteelArena) arena).getRollbackHelper().logEntityCreation(entity);
                 } else {
-                    ((SteelArena) arena.get()).getRollbackHelper().logEntityChange(entity);
+                    ((SteelArena) arena).getRollbackHelper().logEntityChange(entity);
                 }
             } catch (IOException | SQLException ex) {
                 throw new RuntimeException("Failed to log " + event.getEventName() + " for rollback in arena "
-                        + arena.get().getName(), ex);
+                        + arena.getName(), ex);
             }
         }
     }
