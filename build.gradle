@@ -24,7 +24,7 @@ defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
 
 // Project information
 group = 'net.caseif.flint.steel'
-version = '1.0.1'
+version = '1.0.2'
 
 // Extended project information
 ext.projectName = 'steel'
@@ -144,6 +144,9 @@ shadowJar {
         exclude dependency('org.bukkit:bukkit')
     }
     classifier = ''
+
+    relocate('net.gravitydevelopment.updater', 'net.caseif.ttt.lib.net.gravitydevelopment.updater')
+    relocate('org.mcstats', 'net.caseif.ttt.lib.org.mcstats')
 }
 
 task sourceJar(type: Jar) {
