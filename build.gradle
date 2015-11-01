@@ -145,6 +145,9 @@ shadowJar {
         exclude dependency('org.bukkit:bukkit')
     }
     classifier = ''
+
+    relocate('net.gravitydevelopment.updater', 'net.caseif.ttt.lib.net.gravitydevelopment.updater')
+    relocate('org.mcstats', 'net.caseif.ttt.lib.org.mcstats')
 }
 
 task sourceJar(type: Jar) {
