@@ -30,18 +30,19 @@ package net.caseif.flint.steel.util.helper.rollback.serialization;
 
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.util.Support;
-import net.caseif.flint.steel.util.helper.StorageHelper;
 
-import com.google.gson.JsonObject;
 import org.bukkit.Art;
 import org.bukkit.Rotation;
 import org.bukkit.block.BlockFace;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hanging;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Painting;
+
+import java.io.IOException;
 
 /**
  * Static utility class for serialization of entity state.
@@ -77,7 +78,7 @@ public class EntityStateSerializer {
 
     private static final String PAINTING_ART = "art";
 
-    public static JsonObject serializeState(Entity entity) {
+    public static String serializeState(Entity entity) {
         YamlConfiguration yaml = new YamlConfiguration();
         if (Support.ARMOR_STAND && entity instanceof ArmorStand) {
             EulerAngleSerializer eas = EulerAngleSerializer.getInstance();
@@ -110,11 +111,14 @@ public class EntityStateSerializer {
             }
         }
 
-        return StorageHelper.yamlToJson(yaml);
+        return yaml.saveToString();
     }
 
-    public static void deserializeState(Entity entity, JsonObject serial) {
-        YamlConfiguration yaml = StorageHelper.jsonToYaml(serial);
+    public static void deserializeState(Entity entity, String serial)
+            throws InvalidConfigurationException, IOException {
+        YamlConfiguration yaml = new YamlConfiguration();
+        yaml.loadFromString(serial);
+
         if (Support.ARMOR_STAND && entity instanceof ArmorStand) {
             EulerAngleSerializer eas = EulerAngleSerializer.getInstance();
             ArmorStand stand = (ArmorStand) entity;

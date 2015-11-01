@@ -40,13 +40,13 @@ import net.caseif.flint.steel.util.helper.rollback.serialization.EntityStateSeri
 import net.caseif.flint.util.physical.Location3D;
 
 import com.google.common.base.Optional;
-import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.Event;
@@ -87,7 +87,7 @@ public final class RollbackHelper extends CommonRollbackHelper {
      */
     @SuppressWarnings("deprecation")
     public void logBlockChange(Location location, BlockState originalState) throws IOException, SQLException {
-        JsonObject state = BlockStateSerializer.serializeState(originalState).orNull();
+        String state = BlockStateSerializer.serializeState(originalState).orNull();
         logChange(RECORD_TYPE_BLOCK_CHANGED, LocationHelper.convertLocation(location), null,
                 originalState.getType().name(), originalState.getRawData(), state);
     }
@@ -101,7 +101,7 @@ public final class RollbackHelper extends CommonRollbackHelper {
     }
 
     private void logEntitySomething(Entity entity, boolean newlyCreated) throws IOException, SQLException {
-        JsonObject state = !newlyCreated ? EntityStateSerializer.serializeState(entity) : null;
+        String state = !newlyCreated ? EntityStateSerializer.serializeState(entity) : null;
         logChange(newlyCreated ? RECORD_TYPE_ENTITY_CREATED : RECORD_TYPE_ENTITY_CHANGED,
                 LocationHelper.convertLocation(entity.getLocation()), entity.getUniqueId(), entity.getType().name(), -1,
                 state);
@@ -109,7 +109,7 @@ public final class RollbackHelper extends CommonRollbackHelper {
 
     public static void checkBlockChange(Location location, BlockState state, Event event) {
         Optional<Arena> arena = checkChangeAtLocation(LocationHelper.convertLocation(location));
-        if (arena.isPresent()) {
+        if (arena.isPresent() && arena.get().getRound().isPresent()) {
             try {
                 ((SteelArena) arena.get()).getRollbackHelper().logBlockChange(location, state);
             } catch (IOException | SQLException ex) {
@@ -137,7 +137,8 @@ public final class RollbackHelper extends CommonRollbackHelper {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void rollbackBlock(int id, Location3D location, String type, int data, JsonObject stateSerial) {
+    public void rollbackBlock(int id, Location3D location, String type, int data, String stateSerial)
+            throws IOException {
         Block b = LocationHelper.convertLocation(location).getBlock();
         Material m = Material.valueOf(type);
         if (m != null) {
@@ -148,7 +149,11 @@ public final class RollbackHelper extends CommonRollbackHelper {
             b.setType(m);
             b.setData((byte) data);
             if (stateSerial != null) {
-                BlockStateSerializer.deserializeState(b, stateSerial);
+                try {
+                    BlockStateSerializer.deserializeState(b, stateSerial);
+                } catch (InvalidConfigurationException ex) {
+                    throw new IOException(ex);
+                }
             }
         } else {
             SteelCore.logWarning("Rollback record with ID " + id + " in arena "
@@ -166,7 +171,8 @@ public final class RollbackHelper extends CommonRollbackHelper {
     }
 
     @Override
-    public void rollbackEntityChange(int id, UUID uuid, Location3D location, String type, JsonObject stateSerial) {
+    public void rollbackEntityChange(int id, UUID uuid, Location3D location, String type, String stateSerial)
+            throws IOException {
         EntityType entityType = EntityType.valueOf(type);
         if (entityType != null) {
             if (entities.containsKey(uuid)) {
@@ -179,7 +185,11 @@ public final class RollbackHelper extends CommonRollbackHelper {
             Location loc = LocationHelper.convertLocation(location);
             Entity e = loc.getWorld().spawnEntity(loc, entityType);
             if (stateSerial != null) {
-                EntityStateSerializer.deserializeState(e, stateSerial);
+                try {
+                    EntityStateSerializer.deserializeState(e, stateSerial);
+                } catch (InvalidConfigurationException ex) {
+                    throw new IOException(ex);
+                }
             }
         } else {
             CommonCore.logWarning("Invalid entity type for rollback record with ID " + id

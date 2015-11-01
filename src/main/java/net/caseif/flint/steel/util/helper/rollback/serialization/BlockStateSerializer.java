@@ -31,10 +31,8 @@ package net.caseif.flint.steel.util.helper.rollback.serialization;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.util.Support;
 import net.caseif.flint.steel.util.helper.InventoryHelper;
-import net.caseif.flint.steel.util.helper.StorageHelper;
 
 import com.google.common.base.Optional;
-import com.google.gson.JsonObject;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.Note;
@@ -51,12 +49,14 @@ import org.bukkit.block.Skull;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.banner.PatternType;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.material.FlowerPot;
 import org.bukkit.material.MaterialData;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -95,7 +95,7 @@ public class BlockStateSerializer {
     private static final String FLOWER_DATA_KEY = "flower-data";
 
     @SuppressWarnings("deprecation")
-    public static Optional<JsonObject> serializeState(BlockState state) {
+    public static Optional<String> serializeState(BlockState state) {
         YamlConfiguration yaml = new YamlConfiguration();
 
         // http://minecraft.gamepedia.com/Block_entity was used as a reference for this method
@@ -137,14 +137,16 @@ public class BlockStateSerializer {
         }
 
         if (yaml.getKeys(false).size() > 0) {
-            return Optional.of(StorageHelper.yamlToJson(yaml));
+            return Optional.of(yaml.saveToString());
         }
             return Optional.absent();
     }
 
     @SuppressWarnings("deprecation")
-    public static void deserializeState(Block block, JsonObject serial) {
-        YamlConfiguration yaml = StorageHelper.jsonToYaml(serial);
+    public static void deserializeState(Block block, String serial) throws InvalidConfigurationException, IOException {
+        YamlConfiguration yaml = new YamlConfiguration();
+        yaml.loadFromString(serial);
+
         BlockState state = block.getState();
         boolean missingData = false;
         boolean malformedData = false;

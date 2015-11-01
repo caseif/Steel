@@ -100,6 +100,7 @@ public class SteelMinigame extends CommonMinigame {
             //TODO: document
             throw new IllegalArgumentException("Cannot create arena: ID \"" + id + "\" contains illegal characters");
         }
+
         SteelArena arena = new SteelArena(this, id, name, spawnPoint, boundary);
         try {
             arena.store();
@@ -246,7 +247,7 @@ public class SteelMinigame extends CommonMinigame {
                             arenaSection.set(coordKey, null);
                         }
                     } else {
-                        SteelCore.logWarning("Found orphaned lobby sign group (arena \"" + arenaKey
+                        SteelCore.logVerbose("Found orphaned lobby sign group (arena \"" + arenaKey
                                 + "\" - not loading");
                     }
                 }
