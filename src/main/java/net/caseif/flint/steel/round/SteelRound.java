@@ -41,7 +41,6 @@ import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.component.exception.OrphanedComponentException;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.lobby.LobbySign;
-import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.round.JoinResult;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
@@ -102,12 +101,8 @@ public class SteelRound extends CommonRound {
             return new CommonJoinResult(JoinResult.Status.ROUND_FULL);
         }
 
-        for (Minigame mg : CommonCore.getMinigames().values()) {
-            for (Challenger c : mg.getChallengers()) {
-                if (c.getUniqueId().equals(uuid)) {
-                    return new CommonJoinResult(JoinResult.Status.ALREADY_IN_ROUND);
-                }
-            }
+        if (CommonCore.getChallenger(uuid).isPresent()) {
+            return new CommonJoinResult(JoinResult.Status.ALREADY_IN_ROUND);
         }
 
         SteelChallenger challenger = new SteelChallenger(uuid, this);
@@ -139,7 +134,7 @@ public class SteelRound extends CommonRound {
 
     @Override // overridden from CommonRound
     public void removeChallenger(Challenger challenger, boolean isDisconnecting, boolean updateSigns,
-            boolean roundEnding) throws OrphanedComponentException {
+                                 boolean roundEnding) throws OrphanedComponentException {
         super.removeChallenger(challenger, isDisconnecting, updateSigns, roundEnding);
 
         Player bukkitPlayer = Bukkit.getPlayer(challenger.getUniqueId());
