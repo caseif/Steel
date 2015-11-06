@@ -94,8 +94,11 @@ public class PlayerConnectionListener implements Listener {
             }
         }
 
-        if (((SteelMinigame) mg).getLobbyWizardManager().isWizardPlayer(event.getPlayer().getUniqueId())) {
-            ((SteelMinigame) mg).getLobbyWizardManager().removePlayer(event.getPlayer().getUniqueId());
+        for (Minigame mg : CommonCore.getMinigames().values()) {
+            if (((SteelMinigame) mg).getLobbyWizardManager().isWizardPlayer(event.getPlayer().getUniqueId())) {
+                ((SteelMinigame) mg).getLobbyWizardManager().removePlayer(event.getPlayer().getUniqueId());
+                break;
+            }
         }
     }
 
