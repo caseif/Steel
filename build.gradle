@@ -24,7 +24,7 @@ defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
 
 // Project information
 group = 'net.caseif.flint.steel'
-version = '1.1.0-beta1'
+version = '1.1.0-SNAPSHOT'
 
 // Extended project information
 ext.projectName = 'steel'
@@ -73,6 +73,7 @@ ext {
     common = 'net.caseif.flint.common:flintcommon:' + commonVersion
     metrics = 'org.mcstats.bukkit:metrics:R7'
     updater = 'net.gravitydevelopment.updater:updater:2.3'
+    jtelemetry = 'net.caseif.jtelemetry:jtelemetry:1.1.0'
 }
 
 // Project dependencies
@@ -82,6 +83,7 @@ dependencies {
     shadow common
     shadow metrics
     shadow updater
+    shadow jtelemetry
 }
 
 // Read source files using UTF-8

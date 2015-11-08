@@ -38,6 +38,7 @@ import net.caseif.flint.steel.listener.rollback.RollbackInventoryListener;
 import net.caseif.flint.steel.listener.rollback.breaking.v18.BreakingV18RollbackEntityListener;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.steel.util.helper.ConfigHelper;
+import net.caseif.flint.steel.util.TelemetryRunner;
 
 import net.gravitydevelopment.updater.Updater;
 import org.bukkit.Bukkit;
@@ -83,6 +84,7 @@ public class SteelMain extends JavaPlugin {
         }
 
         initMetrics();
+        initTelemetry();
         initUpdater();
     }
 
@@ -103,6 +105,12 @@ public class SteelMain extends JavaPlugin {
                 ex.printStackTrace();
                 getLogger().severe("Failed to enable Plugin Metrics!");
             }
+        }
+    }
+
+    public void initTelemetry() {
+        if (getConfig().getBoolean("enable-metrics")) {
+            Bukkit.getScheduler().runTask(this, new TelemetryRunner());
         }
     }
 
