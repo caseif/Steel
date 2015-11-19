@@ -28,6 +28,9 @@
  */
 package net.caseif.flint.steel.util.helper;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.Inventory;
@@ -65,6 +68,39 @@ public class InventoryHelper {
             }
         }
         return contents;
+    }
+
+    private static JsonObject csToJson(ConfigurationSection cs) {
+        JsonObject json = new JsonObject();
+        for (String key : cs.getKeys(false)) {
+            if (cs.isConfigurationSection(key)) {
+                json.add(key, csToJson(cs.getConfigurationSection(key)));
+            } else {
+                if (cs.isList(key)) {
+                    JsonArray arr = new JsonArray();
+                    for (Object obj : cs.getList(key)) {
+                        arr.add(objToJsonPrim(obj));
+                    }
+                } else {
+                    json.add(key, objToJsonPrim(cs.get(key)));
+                }
+            }
+        }
+        return json;
+    }
+
+    private static JsonPrimitive objToJsonPrim(Object obj) {
+        if (obj instanceof Boolean) {
+            return new JsonPrimitive((Boolean) obj);
+        } else if (obj instanceof Character) {
+            return new JsonPrimitive((Character) obj);
+        } else if (obj instanceof Number) {
+            return new JsonPrimitive((Number) obj);
+        } else if (obj instanceof String) {
+            return new JsonPrimitive((String) obj);
+        } else {
+            throw new UnsupportedOperationException("BLEH");
+        }
     }
 
 }

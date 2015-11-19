@@ -56,7 +56,7 @@ import java.util.List;
  */
 public class RollbackEntityListener implements Listener {
 
-    private static final List<EntityType> SUPPORTED_TYPES = new ArrayList<EntityType>();
+    private static final List<EntityType> SUPPORTED_TYPES = new ArrayList<>();
 
     static {
         SUPPORTED_TYPES.add(EntityType.ITEM_FRAME);

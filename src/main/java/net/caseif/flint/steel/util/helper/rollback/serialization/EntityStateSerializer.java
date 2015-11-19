@@ -34,13 +34,15 @@ import net.caseif.flint.steel.util.Support;
 import org.bukkit.Art;
 import org.bukkit.Rotation;
 import org.bukkit.block.BlockFace;
-import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hanging;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Painting;
+
+import java.io.IOException;
 
 /**
  * Static utility class for serialization of entity state.
@@ -76,64 +78,68 @@ public class EntityStateSerializer {
 
     private static final String PAINTING_ART = "art";
 
-    public static ConfigurationSection serializeState(Entity entity) {
-        ConfigurationSection cs = new YamlConfiguration().createSection("thank 4 good bones and calsium");
+    public static String serializeState(Entity entity) {
+        YamlConfiguration yaml = new YamlConfiguration();
         if (Support.ARMOR_STAND && entity instanceof ArmorStand) {
             EulerAngleSerializer eas = EulerAngleSerializer.getInstance();
             ArmorStand stand = (ArmorStand) entity;
-            cs.set(PITCH, stand.getLocation().getPitch());
-            cs.set(YAW, stand.getLocation().getYaw());
-            cs.set(ARMOR_STAND_HELMET, stand.getHelmet());
-            cs.set(ARMOR_STAND_CHESTPLATE, stand.getChestplate());
-            cs.set(ARMOR_STAND_LEGGINGS, stand.getLeggings());
-            cs.set(ARMOR_STAND_BOOTS, stand.getBoots());
-            cs.set(ARMOR_STAND_HAND, stand.getItemInHand());
-            cs.set(ARMOR_STAND_POSE_HEAD, eas.serialize(stand.getHeadPose()));
-            cs.set(ARMOR_STAND_POSE_BODY, eas.serialize(stand.getBodyPose()));
-            cs.set(ARMOR_STAND_POSE_ARM_LEFT, eas.serialize(stand.getLeftArmPose()));
-            cs.set(ARMOR_STAND_POSE_ARM_RIGHT, eas.serialize(stand.getRightArmPose()));
-            cs.set(ARMOR_STAND_POSE_LEG_LEFT, eas.serialize(stand.getLeftLegPose()));
-            cs.set(ARMOR_STAND_POSE_LEG_RIGHT, eas.serialize(stand.getRightLegPose()));
-            cs.set(ARMOR_STAND_ARMS, stand.hasArms());
-            cs.set(ARMOR_STAND_BASE_PLATE, stand.hasBasePlate());
-            cs.set(ARMOR_STAND_GRAVITY, stand.hasGravity());
-            cs.set(ARMOR_STAND_SMALL, stand.isSmall());
-            cs.set(ARMOR_STAND_VISIBLE, stand.isVisible());
+            yaml.set(PITCH, stand.getLocation().getPitch());
+            yaml.set(YAW, stand.getLocation().getYaw());
+            yaml.set(ARMOR_STAND_HELMET, stand.getHelmet());
+            yaml.set(ARMOR_STAND_CHESTPLATE, stand.getChestplate());
+            yaml.set(ARMOR_STAND_LEGGINGS, stand.getLeggings());
+            yaml.set(ARMOR_STAND_BOOTS, stand.getBoots());
+            yaml.set(ARMOR_STAND_HAND, stand.getItemInHand());
+            yaml.set(ARMOR_STAND_POSE_HEAD, eas.serialize(stand.getHeadPose()));
+            yaml.set(ARMOR_STAND_POSE_BODY, eas.serialize(stand.getBodyPose()));
+            yaml.set(ARMOR_STAND_POSE_ARM_LEFT, eas.serialize(stand.getLeftArmPose()));
+            yaml.set(ARMOR_STAND_POSE_ARM_RIGHT, eas.serialize(stand.getRightArmPose()));
+            yaml.set(ARMOR_STAND_POSE_LEG_LEFT, eas.serialize(stand.getLeftLegPose()));
+            yaml.set(ARMOR_STAND_POSE_LEG_RIGHT, eas.serialize(stand.getRightLegPose()));
+            yaml.set(ARMOR_STAND_ARMS, stand.hasArms());
+            yaml.set(ARMOR_STAND_BASE_PLATE, stand.hasBasePlate());
+            yaml.set(ARMOR_STAND_GRAVITY, stand.hasGravity());
+            yaml.set(ARMOR_STAND_SMALL, stand.isSmall());
+            yaml.set(ARMOR_STAND_VISIBLE, stand.isVisible());
         } else if (entity instanceof Hanging) {
-            cs.set(HANGING_FACING, ((Hanging) entity).getFacing().name());
+            yaml.set(HANGING_FACING, ((Hanging) entity).getFacing().name());
             if (entity instanceof ItemFrame) {
-                cs.set(ITEM_FRAME_ITEM, ((ItemFrame) entity).getItem());
-                cs.set(ITEM_FRAME_ROTATION, ((ItemFrame) entity).getRotation().name());
+                yaml.set(ITEM_FRAME_ITEM, ((ItemFrame) entity).getItem());
+                yaml.set(ITEM_FRAME_ROTATION, ((ItemFrame) entity).getRotation().name());
             } else if (entity instanceof Painting) {
-                cs.set(PAINTING_ART, ((Painting) entity).getArt().name());
+                yaml.set(PAINTING_ART, ((Painting) entity).getArt().name());
             }
         }
 
-        return cs;
+        return yaml.saveToString();
     }
 
-    public static void deserializeState(Entity entity, ConfigurationSection serial) {
+    public static void deserializeState(Entity entity, String serial)
+            throws InvalidConfigurationException, IOException {
+        YamlConfiguration yaml = new YamlConfiguration();
+        yaml.loadFromString(serial);
+
         if (Support.ARMOR_STAND && entity instanceof ArmorStand) {
             EulerAngleSerializer eas = EulerAngleSerializer.getInstance();
             ArmorStand stand = (ArmorStand) entity;
-            stand.setHelmet(serial.getItemStack(ARMOR_STAND_HELMET));
-            stand.setChestplate(serial.getItemStack(ARMOR_STAND_CHESTPLATE));
-            stand.setLeggings(serial.getItemStack(ARMOR_STAND_LEGGINGS));
-            stand.setBoots(serial.getItemStack(ARMOR_STAND_BOOTS));
-            stand.setItemInHand(serial.getItemStack(ARMOR_STAND_HAND));
-            stand.setHeadPose(eas.deserialize(serial.getString(ARMOR_STAND_POSE_HEAD)));
-            stand.setBodyPose(eas.deserialize(serial.getString(ARMOR_STAND_POSE_BODY)));
-            stand.setLeftArmPose(eas.deserialize(serial.getString(ARMOR_STAND_POSE_ARM_LEFT)));
-            stand.setRightArmPose(eas.deserialize(serial.getString(ARMOR_STAND_POSE_ARM_RIGHT)));
-            stand.setLeftLegPose(eas.deserialize(serial.getString(ARMOR_STAND_POSE_LEG_LEFT)));
-            stand.setRightLegPose(eas.deserialize(serial.getString(ARMOR_STAND_POSE_LEG_RIGHT)));
-            stand.setArms(serial.getBoolean(ARMOR_STAND_ARMS));
-            stand.setBasePlate(serial.getBoolean(ARMOR_STAND_BASE_PLATE));
-            stand.setGravity(serial.getBoolean(ARMOR_STAND_GRAVITY));
-            stand.setSmall(serial.getBoolean(ARMOR_STAND_SMALL));
-            stand.setVisible(serial.getBoolean(ARMOR_STAND_VISIBLE));
+            stand.setHelmet(yaml.getItemStack(ARMOR_STAND_HELMET));
+            stand.setChestplate(yaml.getItemStack(ARMOR_STAND_CHESTPLATE));
+            stand.setLeggings(yaml.getItemStack(ARMOR_STAND_LEGGINGS));
+            stand.setBoots(yaml.getItemStack(ARMOR_STAND_BOOTS));
+            stand.setItemInHand(yaml.getItemStack(ARMOR_STAND_HAND));
+            stand.setHeadPose(eas.deserialize(yaml.getString(ARMOR_STAND_POSE_HEAD)));
+            stand.setBodyPose(eas.deserialize(yaml.getString(ARMOR_STAND_POSE_BODY)));
+            stand.setLeftArmPose(eas.deserialize(yaml.getString(ARMOR_STAND_POSE_ARM_LEFT)));
+            stand.setRightArmPose(eas.deserialize(yaml.getString(ARMOR_STAND_POSE_ARM_RIGHT)));
+            stand.setLeftLegPose(eas.deserialize(yaml.getString(ARMOR_STAND_POSE_LEG_LEFT)));
+            stand.setRightLegPose(eas.deserialize(yaml.getString(ARMOR_STAND_POSE_LEG_RIGHT)));
+            stand.setArms(yaml.getBoolean(ARMOR_STAND_ARMS));
+            stand.setBasePlate(yaml.getBoolean(ARMOR_STAND_BASE_PLATE));
+            stand.setGravity(yaml.getBoolean(ARMOR_STAND_GRAVITY));
+            stand.setSmall(yaml.getBoolean(ARMOR_STAND_SMALL));
+            stand.setVisible(yaml.getBoolean(ARMOR_STAND_VISIBLE));
         } else if (entity instanceof Hanging) {
-            BlockFace facing = BlockFace.valueOf(serial.getString(HANGING_FACING));
+            BlockFace facing = BlockFace.valueOf(yaml.getString(HANGING_FACING));
             if (facing != null) {
                 ((Hanging) entity).setFacingDirection(facing, true);
             } else {
@@ -142,8 +148,8 @@ public class EntityStateSerializer {
             }
 
             if (entity instanceof ItemFrame) {
-                ((ItemFrame) entity).setItem(serial.getItemStack(ITEM_FRAME_ITEM));
-                Rotation rotation = Rotation.valueOf(serial.getString(ITEM_FRAME_ROTATION));
+                ((ItemFrame) entity).setItem(yaml.getItemStack(ITEM_FRAME_ITEM));
+                Rotation rotation = Rotation.valueOf(yaml.getString(ITEM_FRAME_ROTATION));
                 if (rotation != null) {
                     ((ItemFrame) entity).setRotation(rotation);
                     // rotation doesn't sound like a word anymore
@@ -152,7 +158,7 @@ public class EntityStateSerializer {
                             + entity.getUniqueId().toString());
                 }
             } else if (entity instanceof Painting) {
-                Art art = Art.valueOf(serial.getString("art"));
+                Art art = Art.valueOf(yaml.getString("art"));
                 if (art != null) {
                     ((Painting) entity).setArt(art, true);
                     // neither does art

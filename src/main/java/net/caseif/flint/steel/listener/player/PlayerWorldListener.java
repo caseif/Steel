@@ -29,11 +29,13 @@
 package net.caseif.flint.steel.listener.player;
 
 import net.caseif.flint.challenger.Challenger;
+import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.lobby.wizard.WizardManager;
 import net.caseif.flint.steel.minigame.SteelMinigame;
+import net.caseif.flint.steel.util.helper.ChatHelper;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Boundary;
 
@@ -76,20 +78,17 @@ public class PlayerWorldListener implements Listener {
                 || event.getFrom().getY() != event.getTo().getY()
                 || event.getFrom().getZ() != event.getTo().getZ()) {
             // begin the hunt for the challenger
-            for (Minigame mg : SteelCore.getMinigames().values()) {
-                Optional<Challenger> challenger = mg.getChallenger(event.getPlayer().getUniqueId());
-                // check whether the player is in a round for this minigame
-                if (challenger.isPresent()) {
-                    Boundary bound = challenger.get().getRound().getArena().getBoundary();
-                    // check whether the player is teleporting out of the arena boundary
-                    if (!bound.contains(LocationHelper.convertLocation(event.getTo()))) {
-                        if (challenger.get().getRound().getConfigValue(ConfigNode.ALLOW_EXIT_BOUNDARY)) {
-                            challenger.get().removeFromRound();
-                        } else {
-                            event.setCancelled(true);
-                        }
+            Optional<Challenger> challenger = CommonCore.getChallenger(event.getPlayer().getUniqueId());
+            // check whether the player is in a round for this minigame
+            if (challenger.isPresent()) {
+                Boundary bound = challenger.get().getRound().getArena().getBoundary();
+                // check whether the player is teleporting out of the arena boundary
+                if (!bound.contains(LocationHelper.convertLocation(event.getTo()))) {
+                    if (challenger.get().getRound().getConfigValue(ConfigNode.ALLOW_EXIT_BOUNDARY)) {
+                        challenger.get().removeFromRound();
+                    } else {
+                        event.setCancelled(true);
                     }
-                    break;
                 }
             }
         }
@@ -112,37 +111,19 @@ public class PlayerWorldListener implements Listener {
                 return; // no need to do any more checks for the event
             }
 
-            Optional<Challenger> challenger = mg.getChallenger(event.getPlayer().getUniqueId());
-
             Iterator<Player> it = event.getRecipients().iterator();
             while (it.hasNext()) {
                 Player recip = it.next();
-                Optional<Challenger> rChal = mg.getChallenger(recip.getUniqueId());
 
-                if (challenger.isPresent() != rChal.isPresent() // one's in a round, one's not
-                        || ((challenger.isPresent() && rChal.isPresent())            // both in a round...
-                        && challenger.get().getRound() != rChal.get().getRound())) { // ...but not the same round
-                    it.remove();
-                } else if (challenger.isPresent() && challenger.get().isSpectating() && !rChal.get().isSpectating()) {
-                    // sender's a spectator, recipient's not - don't allow the message to go through
-                    it.remove();
-                } else if (((SteelMinigame) mg).getLobbyWizardManager().isWizardPlayer(recip.getUniqueId())) {
+                if (((SteelMinigame) mg).getLobbyWizardManager().isWizardPlayer(recip.getUniqueId())) {
                     ((SteelMinigame) mg).getLobbyWizardManager().withholdMessage(recip.getUniqueId(),
                             event.getPlayer().getDisplayName(), event.getMessage());
                     it.remove();
+                    continue;
                 }
-            }
 
-            // check whether the player is in a round for this minigame
-            if (challenger.isPresent()) {
-                // check if separate team chats are configured
-                if (challenger.get().getRound().getConfigValue(ConfigNode.SEPARATE_TEAM_CHATS)) {
-                    // check if the player is on a team
-                    for (Challenger c : challenger.get().getRound().getChallengers()) {
-                        if (c.getTeam().orNull() != challenger.get().getTeam().orNull()) {
-                            event.getRecipients().remove(Bukkit.getPlayer(c.getUniqueId()));
-                        }
-                    }
+                if (ChatHelper.isBarrierPresent(event.getPlayer(), recip)) {
+                    it.remove();
                 }
             }
         }
@@ -154,41 +135,35 @@ public class PlayerWorldListener implements Listener {
         // check that both parties involved are playes
         if (event.getEntity().getType() == EntityType.PLAYER && event.getDamager().getType() == EntityType.PLAYER) {
             // begin the hunt for the challenger
-            for (Minigame mg : SteelCore.getMinigames().values()) {
-                Optional<Challenger> challenger = mg.getChallenger(event.getEntity().getUniqueId());
-                Optional<Challenger> damager = mg.getChallenger(event.getDamager().getUniqueId());
+            Optional<Challenger> challenger = CommonCore.getChallenger(event.getEntity().getUniqueId());
+            Optional<Challenger> damager = CommonCore.getChallenger(event.getDamager().getUniqueId());
+            // cancel if one of them is spectating
+            if ((challenger.isPresent() && challenger.get().isSpectating())
+                    || (damager.isPresent() && damager.get().isSpectating())) {
+                event.setCancelled(true);
+                return;
+            }
 
-                // cancel if one of them is spectating
-                if ((challenger.isPresent() && challenger.get().isSpectating())
-                        || (damager.isPresent() && damager.get().isSpectating())) {
-                    event.setCancelled(true);
-                    return;
-                }
-
-                // check whether the player is in a round for this minigame
-                if (challenger.isPresent() && damager.isPresent()) {
-                    // check whether they're in the same round
-                    if (challenger.get().getRound() == damager.get().getRound()) {
-                        // check whether damage is disabled entirely
-                        if (!challenger.get().getRound().getConfigValue(ConfigNode.ALLOW_DAMAGE)) {
+            // check whether the player is in a round for this minigame
+            if (challenger.isPresent() && damager.isPresent()) {
+                // check whether they're in the same round
+                if (challenger.get().getRound() == damager.get().getRound()) {
+                    // check whether damage is disabled entirely
+                    if (!challenger.get().getRound().getConfigValue(ConfigNode.ALLOW_DAMAGE)) {
+                        cancelled = true;
+                    } else if (!challenger.get().getRound().getConfigValue(ConfigNode.ALLOW_FRIENDLY_FIRE)) {
+                        // check whether friendly fire is disabled
+                        // check if they're on the same team
+                        if (challenger.get().getTeam().orNull() == damager.get().getTeam().orNull()) {
                             cancelled = true;
-                        } else if (!challenger.get().getRound().getConfigValue(ConfigNode.ALLOW_FRIENDLY_FIRE)) {
-                            // check whether friendly fire is disabled
-                            // check if they're on the same team
-                            if (challenger.get().getTeam().orNull() == damager.get().getTeam().orNull()) {
-                                event.setCancelled(true);
-                                return;
-                            }
                         }
-                    } else {
-                        event.setCancelled(true);
-                        return;
                     }
-                } else if (challenger.isPresent() != damager.isPresent()) {
-                    // cancel if one's in a round and one's not
-                    event.setCancelled(true);
-                    return;
+                } else {
+                    cancelled = true;
                 }
+            } else if (challenger.isPresent() != damager.isPresent()) {
+                // cancel if one's in a round and one's not
+                cancelled = true;
             }
         }
         if (cancelled) {
@@ -242,25 +217,32 @@ public class PlayerWorldListener implements Listener {
             } else {
                 uuid = pl.getUniqueId();
             }
-            for (Minigame mg : SteelCore.getMinigames().values()) {
-                if (mg.getChallenger(uuid).isPresent()) {
-                    //TODO: figure out a better way to solve this than by disabling it
-                    event.setCancelled(true);
-                    event.getPlayer().sendMessage(ChatColor.RED
-                            + "You may not run this command while in a minigame round");
-                }
+            if (CommonCore.getChallenger(uuid).isPresent()) {
+                //TODO: figure out a better way to solve this than by disabling it
+                event.setCancelled(true);
+                event.getPlayer().sendMessage(ChatColor.RED
+                        + "You may not run this command while in a minigame round");
+                return;
+            }
+        }
+
+        Optional<Challenger> ch = CommonCore.getChallenger(event.getPlayer().getUniqueId());
+        if (ch.isPresent()) {
+            if (ch.get().getRound().getConfigValue(ConfigNode.FORBIDDEN_COMMANDS)
+                    .contains(event.getMessage().substring(1))) {
+                event.setCancelled(true);
+                event.getPlayer().sendMessage(ChatColor.RED
+                        + "You may not run this command while in a minigame round");
             }
         }
     }
 
     private void processEvent(Cancellable event, Player player) {
         if (!SteelCore.SPECTATOR_SUPPORT) {
-            for (Minigame mg : SteelCore.getMinigames().values()) {
-                Optional<Challenger> ch = mg.getChallenger(player.getUniqueId());
-                if (ch.isPresent() && ch.get().isSpectating()) {
-                    event.setCancelled(true);
-                    return;
-                }
+            Optional<Challenger> ch = CommonCore.getChallenger(player.getUniqueId());
+            if (ch.isPresent() && ch.get().isSpectating()) {
+                event.setCancelled(true);
+                return;
             }
         }
     }

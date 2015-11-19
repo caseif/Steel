@@ -70,33 +70,34 @@ public class PlayerConnectionListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         UUID uuid = event.getPlayer().getUniqueId();
-        for (Minigame mg : CommonCore.getMinigames().values()) {
-            Optional<Challenger> ch = mg.getChallenger(uuid);
-            if (ch.isPresent()) {
-                // store the player to disk so their inventory and location can be popped later
-                ((SteelRound)ch.get().getRound()).removeChallenger(ch.get(), true, true, false);
+        Optional<Challenger> ch = CommonCore.getChallenger(uuid);
+        if (ch.isPresent()) {
+            // store the player to disk so their inventory and location can be popped later
+            ((SteelRound)ch.get().getRound()).removeChallenger(ch.get(), true, true, false);
 
-                try {
-                    File offlinePlayers = DataFiles.OFFLINE_PLAYER_STORE.getFile();
-                    YamlConfiguration yaml = new YamlConfiguration();
-                    yaml.load(offlinePlayers);
+            try {
+                File offlinePlayers = DataFiles.OFFLINE_PLAYER_STORE.getFile();
+                YamlConfiguration yaml = new YamlConfiguration();
+                yaml.load(offlinePlayers);
 
-                    List<String> players = yaml.getStringList(OFFLINE_PLAYER_LIST_KEY);
-                    if (players == null) {
-                        players = new ArrayList<>();
-                    }
-                    players.add(uuid.toString());
-                    yaml.set(OFFLINE_PLAYER_LIST_KEY, players);
-                    yaml.save(offlinePlayers);
-                } catch (InvalidConfigurationException | IOException ex) {
-                    ex.printStackTrace();
-                    SteelCore.logSevere("Failed to store data for disconnecting challenger "
-                            + event.getPlayer().getName());
+                List<String> players = yaml.getStringList(OFFLINE_PLAYER_LIST_KEY);
+                if (players == null) {
+                    players = new ArrayList<>();
                 }
+                players.add(uuid.toString());
+                yaml.set(OFFLINE_PLAYER_LIST_KEY, players);
+                yaml.save(offlinePlayers);
+            } catch (InvalidConfigurationException | IOException ex) {
+                ex.printStackTrace();
+                SteelCore.logSevere("Failed to store data for disconnecting challenger "
+                        + event.getPlayer().getName());
             }
+        }
 
+        for (Minigame mg : CommonCore.getMinigames().values()) {
             if (((SteelMinigame) mg).getLobbyWizardManager().isWizardPlayer(event.getPlayer().getUniqueId())) {
                 ((SteelMinigame) mg).getLobbyWizardManager().removePlayer(event.getPlayer().getUniqueId());
+                break;
             }
         }
     }

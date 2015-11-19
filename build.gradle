@@ -24,7 +24,7 @@ defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
 
 // Project information
 group = 'net.caseif.flint.steel'
-version = '1.0.2'
+version = '1.1.0'
 
 // Extended project information
 ext.projectName = 'steel'
@@ -32,8 +32,8 @@ ext.description = 'The implementation of Flint minigame framework for the Bukkit
 ext.inceptionYear = '2015'
 ext.packaging = 'jar'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
 
 configurations {
     shadow
@@ -66,13 +66,14 @@ ext {
                     + (System.getenv('BUILD_NUMBER') ? '-jnks' + System.getenv('BUILD_NUMBER') : '')
     ) : ''
 
-    commonVersion = '1.0.1'
+    commonVersion = '1.1.0'
 
     guava = 'com.google.guava:guava:17.0'
     bukkit = 'org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT'
     common = 'net.caseif.flint.common:flintcommon:' + commonVersion
     metrics = 'org.mcstats.bukkit:metrics:R7'
     updater = 'net.gravitydevelopment.updater:updater:2.3'
+    jtelemetry = 'net.caseif.jtelemetry:jtelemetry:1.1.0'
 }
 
 // Project dependencies
@@ -82,6 +83,7 @@ dependencies {
     shadow common
     shadow metrics
     shadow updater
+    shadow jtelemetry
 }
 
 // Read source files using UTF-8
@@ -141,6 +143,7 @@ shadowJar {
     configurations = [project.configurations.shadow]
     dependencies {
         exclude dependency('com.google.guava:guava')
+        exclude dependency('com.google.code.gson:gson')
         exclude dependency('org.bukkit:bukkit')
     }
     classifier = ''
@@ -161,5 +164,5 @@ artifacts {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.7'
+    gradleVersion = '2.8'
 }
