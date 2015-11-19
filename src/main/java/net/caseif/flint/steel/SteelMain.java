@@ -52,7 +52,6 @@ import java.io.IOException;
  * The main plugin class.
  *
  * @author Max Roncacé
- * @version 1.0.0
  */
 public class SteelMain extends JavaPlugin {
 
