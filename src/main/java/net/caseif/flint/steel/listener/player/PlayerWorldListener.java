@@ -137,39 +137,33 @@ public class PlayerWorldListener implements Listener {
             // begin the hunt for the challenger
             Optional<Challenger> challenger = CommonCore.getChallenger(event.getEntity().getUniqueId());
             Optional<Challenger> damager = CommonCore.getChallenger(event.getDamager().getUniqueId());
-            if (challenger.get().getRound().getArena().getMinigame()
-                    == damager.get().getRound().getArena().getMinigame()) {
-                // cancel if one of them is spectating
-                if ((challenger.isPresent() && challenger.get().isSpectating())
-                        || (damager.isPresent() && damager.get().isSpectating())) {
-                    event.setCancelled(true);
-                    return;
-                }
+            // cancel if one of them is spectating
+            if ((challenger.isPresent() && challenger.get().isSpectating())
+                    || (damager.isPresent() && damager.get().isSpectating())) {
+                event.setCancelled(true);
+                return;
+            }
 
-                // check whether the player is in a round for this minigame
-                if (challenger.isPresent() && damager.isPresent()) {
-                    // check whether they're in the same round
-                    if (challenger.get().getRound() == damager.get().getRound()) {
-                        // check whether damage is disabled entirely
-                        if (!challenger.get().getRound().getConfigValue(ConfigNode.ALLOW_DAMAGE)) {
+            // check whether the player is in a round for this minigame
+            if (challenger.isPresent() && damager.isPresent()) {
+                // check whether they're in the same round
+                if (challenger.get().getRound() == damager.get().getRound()) {
+                    // check whether damage is disabled entirely
+                    if (!challenger.get().getRound().getConfigValue(ConfigNode.ALLOW_DAMAGE)) {
+                        cancelled = true;
+                    } else if (!challenger.get().getRound().getConfigValue(ConfigNode.ALLOW_FRIENDLY_FIRE)) {
+                        // check whether friendly fire is disabled
+                        // check if they're on the same team
+                        if (challenger.get().getTeam().orNull() == damager.get().getTeam().orNull()) {
                             cancelled = true;
-                        } else if (!challenger.get().getRound().getConfigValue(ConfigNode.ALLOW_FRIENDLY_FIRE)) {
-                            // check whether friendly fire is disabled
-                            // check if they're on the same team
-                            if (challenger.get().getTeam().orNull() == damager.get().getTeam().orNull()) {
-                                event.setCancelled(true);
-                                return;
-                            }
                         }
-                    } else {
-                        event.setCancelled(true);
-                        return;
                     }
-                } else if (challenger.isPresent() != damager.isPresent()) {
-                    // cancel if one's in a round and one's not
-                    event.setCancelled(true);
-                    return;
+                } else {
+                    cancelled = true;
                 }
+            } else if (challenger.isPresent() != damager.isPresent()) {
+                // cancel if one's in a round and one's not
+                cancelled = true;
             }
         }
         if (cancelled) {
