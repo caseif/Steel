@@ -24,7 +24,7 @@ defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
 
 // Project information
 group = 'net.caseif.flint.steel'
-version = '1.1.0'
+version = '1.1.1'
 
 // Extended project information
 ext.projectName = 'steel'
@@ -66,7 +66,7 @@ ext {
                     + (System.getenv('BUILD_NUMBER') ? '-jnks' + System.getenv('BUILD_NUMBER') : '')
     ) : ''
 
-    commonVersion = '1.1.0'
+    commonVersion = '1.1.1'
 
     guava = 'com.google.guava:guava:17.0'
     bukkit = 'org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT'
