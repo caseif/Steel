@@ -73,7 +73,7 @@ public class PlayerConnectionListener implements Listener {
         Optional<Challenger> ch = CommonCore.getChallenger(uuid);
         if (ch.isPresent()) {
             // store the player to disk so their inventory and location can be popped later
-            ((SteelRound)ch.get().getRound()).removeChallenger(ch.get(), true, true, false);
+            ((SteelRound)ch.get().getRound()).removeChallenger(ch.get(), true, true);
 
             try {
                 File offlinePlayers = DataFiles.OFFLINE_PLAYER_STORE.getFile();
