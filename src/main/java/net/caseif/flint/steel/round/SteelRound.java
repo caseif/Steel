@@ -53,12 +53,22 @@ import net.caseif.flint.steel.util.helper.PlayerHelper;
 import net.caseif.flint.util.physical.Location3D;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -105,6 +115,8 @@ public class SteelRound extends CommonRound {
             return new CommonJoinResult(JoinResult.Status.ALREADY_IN_ROUND);
         }
 
+        Location spawn = LocationHelper.convertLocation(nextSpawnPoint());
+
         SteelChallenger challenger = new SteelChallenger(uuid, this);
 
         try {
@@ -114,7 +126,7 @@ public class SteelRound extends CommonRound {
         }
 
 
-        bukkitPlayer.teleport(LocationHelper.convertLocation(nextSpawnPoint()));
+        bukkitPlayer.teleport(spawn);
 
         getChallengerMap().put(uuid, challenger);
 
@@ -150,7 +162,7 @@ public class SteelRound extends CommonRound {
             try {
                 PlayerHelper.popInventory(bukkitPlayer);
             } catch (InvalidConfigurationException | IOException ex) {
-                // save the exception for later so it doesn't ruin everything
+                // don't actually throw the exception so it doesn't ruin everything
                 new RuntimeException("Could not pop inventory for player " + bukkitPlayer.getName()
                         + " from persistent storage", ex).printStackTrace();
             }
@@ -180,6 +192,27 @@ public class SteelRound extends CommonRound {
                 bukkitPlayer.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
             }
         }
+    }
+
+    @Override
+    public Location3D nextSpawnPoint() {
+        List<Location3D> candidates = new ArrayList<>();
+        double greatestMean = 0;
+        for (Location3D loc : getArena().getSpawnPoints().values()) {
+            Location bukkitLoc = LocationHelper.convertLocation(loc);
+            int sum = 0;
+            for (Challenger ch : getChallengers()) {
+                sum += Bukkit.getPlayer(ch.getUniqueId()).getLocation().distance(bukkitLoc);
+            }
+            double mean = sum / getChallengers().size();
+            if (mean > greatestMean) {
+                candidates = Collections.singletonList(loc);
+                greatestMean = mean;
+            } else if (mean == greatestMean) {
+                candidates.add(loc);
+            }
+        }
+        return candidates.get((int) Math.floor(Math.random() * candidates.size()));
     }
 
     @Override
