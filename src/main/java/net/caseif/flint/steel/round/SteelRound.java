@@ -223,7 +223,7 @@ public class SteelRound extends CommonRound {
             }
             return candidates.get((int) Math.floor(Math.random() * candidates.size()));
         } else {
-            throw new AssertionError();
+            return super.nextSpawnPoint();
         }
     }
 
