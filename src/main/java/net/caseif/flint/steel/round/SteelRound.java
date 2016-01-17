@@ -28,6 +28,7 @@
  */
 package net.caseif.flint.steel.round;
 
+import net.caseif.flint.arena.SpawningMode;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.arena.CommonArena;
@@ -196,23 +197,34 @@ public class SteelRound extends CommonRound {
 
     @Override
     public Location3D nextSpawnPoint() {
-        List<Location3D> candidates = new ArrayList<>();
-        double greatestMean = 0;
-        for (Location3D loc : getArena().getSpawnPoints().values()) {
-            Location bukkitLoc = LocationHelper.convertLocation(loc);
-            int sum = 0;
-            for (Challenger ch : getChallengers()) {
-                sum += Bukkit.getPlayer(ch.getUniqueId()).getLocation().distance(bukkitLoc);
+        if (getConfigValue(ConfigNode.SPAWNING_MODE) == SpawningMode.PROXIMITY_HIGH) {
+            List<Location3D> candidates = new ArrayList<>();
+            double greatestMean = 0;
+
+            if (getChallengers().size() == 0) {
+                // just select a random spawn point
+                return getArena().getSpawnPoints()
+                        .get((int) Math.floor(Math.random() * getArena().getSpawnPoints().size()));
             }
-            double mean = sum / getChallengers().size();
-            if (mean > greatestMean) {
-                candidates = Collections.singletonList(loc);
-                greatestMean = mean;
-            } else if (mean == greatestMean) {
-                candidates.add(loc);
+
+            for (Location3D loc : getArena().getSpawnPoints().values()) {
+                Location bukkitLoc = LocationHelper.convertLocation(loc);
+                int sum = 0;
+                for (Challenger ch : getChallengers()) {
+                    sum += Bukkit.getPlayer(ch.getUniqueId()).getLocation().distance(bukkitLoc);
+                }
+                double mean = sum / getChallengers().size();
+                if (mean > greatestMean) {
+                    candidates = Collections.singletonList(loc);
+                    greatestMean = mean;
+                } else if (mean == greatestMean) {
+                    candidates.add(loc);
+                }
             }
+            return candidates.get((int) Math.floor(Math.random() * candidates.size()));
+        } else {
+            throw new AssertionError();
         }
-        return candidates.get((int) Math.floor(Math.random() * candidates.size()));
     }
 
     @Override
