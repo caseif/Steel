@@ -148,8 +148,8 @@ shadowJar {
     }
     classifier = ''
 
-    relocate('net.gravitydevelopment.updater', 'net.caseif.ttt.lib.net.gravitydevelopment.updater')
-    relocate('org.mcstats', 'net.caseif.ttt.lib.org.mcstats')
+    relocate('net.gravitydevelopment.updater', 'net.caseif.flint.steel.lib.net.gravitydevelopment.updater')
+    relocate('org.mcstats', 'net.caseif.flint.steel.lib.org.mcstats')
 }
 
 task sourceJar(type: Jar) {
