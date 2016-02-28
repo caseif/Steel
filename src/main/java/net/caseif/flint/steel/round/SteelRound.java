@@ -1,33 +1,29 @@
 /*
- * New BSD License (BSD-new)
+ * The MIT License (MIT)
  *
- * Copyright (c) 2015 Maxim Roncacé
- * All rights reserved.
+ * Copyright (c) 2015-2016, Max Roncace <me@caseif.net>
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *     - Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     - Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     - Neither the name of the copyright holder nor the names of its contributors
- *       may be used to endorse or promote products derived from this software
- *       without specific prior written permission.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
- * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
- * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 package net.caseif.flint.steel.round;
 
+import net.caseif.flint.arena.SpawningMode;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.arena.CommonArena;
@@ -53,12 +49,22 @@ import net.caseif.flint.steel.util.helper.PlayerHelper;
 import net.caseif.flint.util.physical.Location3D;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -105,6 +111,8 @@ public class SteelRound extends CommonRound {
             return new CommonJoinResult(JoinResult.Status.ALREADY_IN_ROUND);
         }
 
+        Location spawn = LocationHelper.convertLocation(nextSpawnPoint());
+
         SteelChallenger challenger = new SteelChallenger(uuid, this);
 
         try {
@@ -114,7 +122,7 @@ public class SteelRound extends CommonRound {
         }
 
 
-        bukkitPlayer.teleport(LocationHelper.convertLocation(nextSpawnPoint()));
+        bukkitPlayer.teleport(spawn);
 
         getChallengerMap().put(uuid, challenger);
 
@@ -150,7 +158,7 @@ public class SteelRound extends CommonRound {
             try {
                 PlayerHelper.popInventory(bukkitPlayer);
             } catch (InvalidConfigurationException | IOException ex) {
-                // save the exception for later so it doesn't ruin everything
+                // don't actually throw the exception so it doesn't ruin everything
                 new RuntimeException("Could not pop inventory for player " + bukkitPlayer.getName()
                         + " from persistent storage", ex).printStackTrace();
             }
@@ -179,6 +187,38 @@ public class SteelRound extends CommonRound {
                 ex.printStackTrace();
                 bukkitPlayer.teleport(Bukkit.getWorlds().get(0).getSpawnLocation());
             }
+        }
+    }
+
+    @Override
+    public Location3D nextSpawnPoint() {
+        if (getConfigValue(ConfigNode.SPAWNING_MODE) == SpawningMode.PROXIMITY_HIGH) {
+            List<Location3D> candidates = new ArrayList<>();
+            double greatestMean = 0;
+
+            if (getChallengers().size() == 0) {
+                // just select a random spawn point
+                return getArena().getSpawnPoints()
+                        .get((int) Math.floor(Math.random() * getArena().getSpawnPoints().size()));
+            }
+
+            for (Location3D loc : getArena().getSpawnPoints().values()) {
+                Location bukkitLoc = LocationHelper.convertLocation(loc);
+                int sum = 0;
+                for (Challenger ch : getChallengers()) {
+                    sum += Bukkit.getPlayer(ch.getUniqueId()).getLocation().distance(bukkitLoc);
+                }
+                double mean = sum / getChallengers().size();
+                if (mean > greatestMean) {
+                    candidates = Collections.singletonList(loc);
+                    greatestMean = mean;
+                } else if (mean == greatestMean) {
+                    candidates.add(loc);
+                }
+            }
+            return candidates.get((int) Math.floor(Math.random() * candidates.size()));
+        } else {
+            return super.nextSpawnPoint();
         }
     }
 
