@@ -71,7 +71,7 @@ ext {
     guava = 'com.google.guava:guava:17.0'
     bukkit = 'org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT'
     common = 'net.caseif.flint.common:flintcommon:' + commonVersion
-    metrics = 'org.mcstats.bukkit:metrics:R7'
+    metrics = 'org.mcstats.bukkit:metrics:R8-SNAPSHOT'
     updater = 'net.gravitydevelopment.updater:updater:2.3'
     jtelemetry = 'net.caseif.jtelemetry:jtelemetry:1.1.0'
 }
