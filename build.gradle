@@ -24,7 +24,7 @@ defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
 
 // Project information
 group = 'net.caseif.flint.steel'
-version = '1.2.1'
+version = '1.2.2'
 
 // Extended project information
 ext.projectName = 'steel'
@@ -74,6 +74,7 @@ ext {
     metrics = 'org.mcstats.bukkit:metrics:R8-SNAPSHOT'
     updater = 'net.gravitydevelopment.updater:updater:2.3'
     jtelemetry = 'net.caseif.jtelemetry:jtelemetry:1.1.0'
+    gson = 'com.google.code.gson:gson:2.6.2'
 }
 
 // Project dependencies
@@ -84,6 +85,7 @@ dependencies {
     shadow metrics
     shadow updater
     shadow jtelemetry
+    shadow gson
 }
 
 // Read source files using UTF-8
@@ -98,8 +100,8 @@ jar {
 jar.manifest.mainAttributes(
         'Created-By': System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
         'Specification-Title': 'Flint',
-        'Specification-Version': '1.0',
-        'Specification-Vendor': 'Max Roncacé',
+        'Specification-Version': '1.2',
+        'Specification-Vendor': 'Max Roncace',
         'Implementation-Title': name,
         'Implementation-Version': version + versionSuffix,
         'Implementation-Vendor': author
@@ -143,13 +145,14 @@ shadowJar {
     configurations = [project.configurations.shadow]
     dependencies {
         exclude dependency('com.google.guava:guava')
-        exclude dependency('com.google.code.gson:gson')
         exclude dependency('org.bukkit:bukkit')
     }
     classifier = ''
 
     relocate('net.gravitydevelopment.updater', 'net.caseif.flint.steel.lib.net.gravitydevelopment.updater')
     relocate('org.mcstats', 'net.caseif.flint.steel.lib.org.mcstats')
+    relocate('net.caseif.jtelemetry', 'net.caseif.flint.steel.lib.net.caseif.jtelemetry')
+    relocate('com.google.gson', 'net.caseif.flint.steel.lib.com.google.gson')
 }
 
 task sourceJar(type: Jar) {
