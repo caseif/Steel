@@ -26,9 +26,11 @@ package net.caseif.flint.steel;
 import net.caseif.flint.FlintCore;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.component.CommonComponent;
+import net.caseif.flint.common.util.agent.chat.IChatAgent;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.SteelUtils;
+import net.caseif.flint.steel.util.agent.ChatAgent;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -43,6 +45,8 @@ public class SteelCore extends CommonCore {
     public static final boolean SPECTATOR_SUPPORT;
 
     private static boolean VERBOSE_LOGGING;
+
+    private static ChatAgent chatAgent = new ChatAgent();
 
     static {
         boolean javacIsStupid = false;
@@ -104,6 +108,10 @@ public class SteelCore extends CommonCore {
                 component.setOrphanFlag();
             }
         });
+    }
+
+    protected IChatAgent getChatAgent0() {
+        return chatAgent;
     }
 
 }

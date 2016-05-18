@@ -23,9 +23,11 @@
  */
 package net.caseif.flint.steel.lobby.wizard;
 
+import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.lobby.wizard.CommonWizardManager;
 import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.common.lobby.wizard.IWizardPlayer;
+import net.caseif.flint.common.lobby.wizard.WizardMessages;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.util.physical.Location3D;
@@ -54,10 +56,9 @@ public class WizardManager extends CommonWizardManager {
     public void addPlayer(UUID uuid, Location3D location) {
         assert !wizardPlayers.containsKey(uuid);
         wizardPlayers.put(uuid, new WizardPlayer(uuid, location, this));
-        Player player = Bukkit.getPlayer(uuid);
-        if (player == null) {
-            throw new AssertionError("Cannot get Bukkit player from UUID in wizard manager. Report this immediately.");
-        }
+        //TODO: possibly add assertion that player is valid?
+        CommonCore.getChatAgent().processAndSend(uuid, WizardMessages.WELCOME, WizardMessages.CHAT_WITHHOLDING,
+                WizardMessages.DIVIDER, WizardMessages.GET_ARENA);
     }
 
     //               _,._
