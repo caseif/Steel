@@ -90,7 +90,7 @@ public class PlayerConnectionListener implements Listener {
         }
 
         for (Minigame mg : CommonCore.getMinigames().values()) {
-            if (((SteelMinigame) mg).getLobbyWizardManager().isWizardPlayer(event.getPlayer().getUniqueId())) {
+            if (((SteelMinigame) mg).getLobbyWizardManager().hasPlayer(event.getPlayer().getUniqueId())) {
                 ((SteelMinigame) mg).getLobbyWizardManager().removePlayer(event.getPlayer().getUniqueId());
                 break;
             }

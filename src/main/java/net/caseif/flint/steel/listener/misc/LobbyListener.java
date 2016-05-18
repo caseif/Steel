@@ -29,7 +29,7 @@ import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.event.lobby.PlayerClickLobbySignEvent;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.steel.lobby.wizard.WizardManager;
+import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Location3D;
@@ -103,9 +103,9 @@ public class LobbyListener implements Listener {
                 if (e.getValue().getConfigValue(ConfigNode.ENABLE_LOBBY_WIZARD)) {
                     if (event.getPlayer().hasPermission(e.getKey() + ".lobby.create")
                             || event.getPlayer().hasPermission(e.getKey() + ".lobby.*")) {
-                        WizardManager wm = ((SteelMinigame) e.getValue()).getLobbyWizardManager();
-                        if (!wm.isWizardPlayer(event.getPlayer().getUniqueId())) {
-                            wm.addWizardPlayer(event.getPlayer().getUniqueId(),
+                        IWizardManager wm = ((SteelMinigame) e.getValue()).getLobbyWizardManager();
+                        if (!wm.hasPlayer(event.getPlayer().getUniqueId())) {
+                            wm.addPlayer(event.getPlayer().getUniqueId(),
                                     LocationHelper.convertLocation(event.getBlock().getLocation()));
                         } else {
                             event.getPlayer().sendMessage(ChatColor.RED + "You are already in a lobby sign wizard");

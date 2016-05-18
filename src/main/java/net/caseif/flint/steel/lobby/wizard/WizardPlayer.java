@@ -28,6 +28,9 @@ import static net.caseif.flint.steel.lobby.wizard.WizardMessages.ERROR_COLOR;
 import static net.caseif.flint.steel.lobby.wizard.WizardMessages.INFO_COLOR;
 
 import net.caseif.flint.arena.Arena;
+import net.caseif.flint.common.lobby.wizard.IWizardManager;
+import net.caseif.flint.common.lobby.wizard.CommonWizardPlayer;
+import net.caseif.flint.common.lobby.wizard.WizardStage;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
 import net.caseif.flint.lobby.type.StatusLobbySign;
@@ -44,26 +47,17 @@ import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
- * Implements {@link IWizardPlayer}.
+ * Implements {@link CommonWizardPlayer}.
  *
  * @author Max Roncacé
  */
-class WizardPlayer implements IWizardPlayer {
+class WizardPlayer extends CommonWizardPlayer {
 
-    private UUID uuid;
-    private Location3D location;
     private Material origMaterial;
     private byte origData;
-    private WizardManager manager;
-
-    private WizardStage stage;
-    private WizardCollectedData data;
-
-    private List<String[]> withheldMessages = new ArrayList<>();
 
     /**
      * Creates a new {@link WizardPlayer} with the given {@link UUID} for the
@@ -75,34 +69,12 @@ class WizardPlayer implements IWizardPlayer {
      *     {@link WizardManager}
      */
     @SuppressWarnings("deprecation")
-    WizardPlayer(UUID uuid, Location3D location, WizardManager manager) {
+    WizardPlayer(UUID uuid, Location3D location, IWizardManager manager) {
+        super(uuid, location, manager);
         assert LocationHelper.convertLocation(location).getBlock().getState() instanceof Sign;
-        this.uuid = uuid;
-        this.location = location;
         this.origMaterial = LocationHelper.convertLocation(location).getBlock().getType();
         this.origData = LocationHelper.convertLocation(location).getBlock().getState().getRawData();
-        this.manager = manager;
-
-        this.stage = WizardStage.GET_ARENA;
-        this.data = new WizardCollectedData();
     }
-
-    @Override
-    public UUID getUniqueId() {
-        return uuid;
-    }
-
-    @Override
-    public Location3D getLocation() {
-        return location;
-    }
-
-    @Override
-    public WizardManager getParent() {
-        return manager;
-    }
-
-
 
     @Override
     @SuppressWarnings("deprecation")
@@ -116,7 +88,7 @@ class WizardPlayer implements IWizardPlayer {
             case GET_ARENA: {
                 Optional<Arena> arena = getParent().getOwner().getArena(input);
                 if (arena.isPresent()) {
-                    data.setArena(input);
+                    wizardData.setArena(input);
                     stage = WizardStage.GET_TYPE;
                     return new String[]{WizardMessages.DIVIDER, WizardMessages.GET_TYPE,
                             WizardMessages.GET_TYPE_STATUS, WizardMessages.GET_TYPE_LISTING};
@@ -129,12 +101,12 @@ class WizardPlayer implements IWizardPlayer {
                     int i = Integer.parseInt(input);
                     switch (i) {
                         case 1: {
-                            data.setSignType(LobbySign.Type.STATUS);
+                            wizardData.setSignType(LobbySign.Type.STATUS);
                             stage = WizardStage.CONFIRMATION;
                             return constructConfirmation();
                         }
                         case 2: {
-                            data.setSignType(LobbySign.Type.CHALLENGER_LISTING);
+                            wizardData.setSignType(LobbySign.Type.CHALLENGER_LISTING);
                             stage = WizardStage.GET_INDEX;
                             return new String[]{WizardMessages.DIVIDER, WizardMessages.GET_INDEX};
                         }
@@ -151,7 +123,7 @@ class WizardPlayer implements IWizardPlayer {
                 try {
                     int i = Integer.parseInt(input);
                     if (i > 0) {
-                        data.setIndex(i - 1);
+                        wizardData.setIndex(i - 1);
                         stage = WizardStage.CONFIRMATION;
                         return constructConfirmation();
                     } // else: continue to block end
@@ -162,12 +134,12 @@ class WizardPlayer implements IWizardPlayer {
             }
             case CONFIRMATION: {
                 if (input.equalsIgnoreCase("yes")) {
-                    Optional<Arena> arena = getParent().getOwner().getArena(data.getArena());
+                    Optional<Arena> arena = getParent().getOwner().getArena(wizardData.getArena());
                     if (arena.isPresent()) {
                         Block b = LocationHelper.convertLocation(getLocation()).getBlock();
                         b.setType(origMaterial);
                         b.setData(origData);
-                        switch (data.getSignType()) {
+                        switch (wizardData.getSignType()) {
                             case STATUS: {
                                 try {
                                     Optional<StatusLobbySign> sign
@@ -188,7 +160,7 @@ class WizardPlayer implements IWizardPlayer {
                             }
                             case CHALLENGER_LISTING: {
                                 Optional<ChallengerListingLobbySign> sign = arena.get()
-                                        .createChallengerListingLobbySign(getLocation(), data.getIndex());
+                                        .createChallengerListingLobbySign(getLocation(), wizardData.getIndex());
                                 if (sign.isPresent()) {
                                     getParent().removePlayer(getUniqueId());
                                     playbackWithheldMessages();
@@ -221,11 +193,13 @@ class WizardPlayer implements IWizardPlayer {
         }
     }
 
+    @Override
     public void withholdMessage(String sender, String message) {
         withheldMessages.add(new String[]{sender, message});
     }
 
-    private void playbackWithheldMessages() {
+    @Override
+    public void playbackWithheldMessages() {
         Bukkit.getScheduler().runTask(SteelMain.getInstance(), new Runnable() {
             @Override
             public void run() {
@@ -243,10 +217,10 @@ class WizardPlayer implements IWizardPlayer {
         ArrayList<String> msgs = new ArrayList<>();
         msgs.add(WizardMessages.DIVIDER);
         msgs.add(WizardMessages.CONFIRM_1);
-        msgs.add(INFO_COLOR + "Arena ID: " + EM_COLOR + data.getArena());
-        msgs.add(INFO_COLOR + "Sign type: " + EM_COLOR + data.getSignType().toString());
-        if (data.getSignType() == LobbySign.Type.CHALLENGER_LISTING) {
-            msgs.add(INFO_COLOR + "Sign index: " + EM_COLOR + (data.getIndex() + 1));
+        msgs.add(INFO_COLOR + "Arena ID: " + EM_COLOR + wizardData.getArena());
+        msgs.add(INFO_COLOR + "Sign type: " + EM_COLOR + wizardData.getSignType().toString());
+        if (wizardData.getSignType() == LobbySign.Type.CHALLENGER_LISTING) {
+            msgs.add(INFO_COLOR + "Sign index: " + EM_COLOR + (wizardData.getIndex() + 1));
         }
         msgs.add(WizardMessages.CONFIRM_2);
         String[] arr = new String[msgs.size()];

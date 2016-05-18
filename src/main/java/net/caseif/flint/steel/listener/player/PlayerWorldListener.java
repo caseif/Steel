@@ -28,7 +28,7 @@ import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.steel.lobby.wizard.WizardManager;
+import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.helper.ChatHelper;
 import net.caseif.flint.steel.util.helper.LocationHelper;
@@ -94,9 +94,9 @@ public class PlayerWorldListener implements Listener {
         // iterate minigames
         for (Minigame mg : SteelCore.getMinigames().values()) {
             // get the wizard manager for the minigame
-            WizardManager wm = ((SteelMinigame) mg).getLobbyWizardManager();
+            IWizardManager wm = ((SteelMinigame) mg).getLobbyWizardManager();
             // check if the player is in a wizard
-            if (wm.isWizardPlayer(event.getPlayer().getUniqueId())) {
+            if (wm.hasPlayer(event.getPlayer().getUniqueId())) {
                 event.setCancelled(true); // cancel the event
                 // send the original message for reference
                 event.getPlayer().sendMessage("<" + event.getPlayer().getDisplayName() + "> " + event.getMessage());
@@ -110,7 +110,7 @@ public class PlayerWorldListener implements Listener {
             while (it.hasNext()) {
                 Player recip = it.next();
 
-                if (((SteelMinigame) mg).getLobbyWizardManager().isWizardPlayer(recip.getUniqueId())) {
+                if (((SteelMinigame) mg).getLobbyWizardManager().hasPlayer(recip.getUniqueId())) {
                     ((SteelMinigame) mg).getLobbyWizardManager().withholdMessage(recip.getUniqueId(),
                             event.getPlayer().getDisplayName(), event.getMessage());
                     it.remove();

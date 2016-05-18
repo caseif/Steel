@@ -31,6 +31,7 @@ import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.lobby.SteelLobbySign;
+import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.steel.lobby.wizard.WizardManager;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.util.physical.Boundary;
@@ -58,7 +59,7 @@ public class SteelMinigame extends CommonMinigame {
 
     private final Plugin plugin;
 
-    private final WizardManager wizardManager;
+    private final IWizardManager wizardManager;
 
     public SteelMinigame(String plugin) {
         super();
@@ -144,7 +145,7 @@ public class SteelMinigame extends CommonMinigame {
         ((CommonArena) arena).orphan();
     }
 
-    public WizardManager getLobbyWizardManager() {
+    public IWizardManager getLobbyWizardManager() {
         return wizardManager;
     }
 
