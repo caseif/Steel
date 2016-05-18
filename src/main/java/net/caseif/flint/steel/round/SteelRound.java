@@ -23,13 +23,12 @@
  */
 package net.caseif.flint.steel.round;
 
+import com.google.common.collect.ImmutableSet;
 import net.caseif.flint.arena.SpawningMode;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.challenger.CommonChallenger;
-import net.caseif.flint.common.event.round.CommonRoundTimerStartEvent;
-import net.caseif.flint.common.event.round.CommonRoundTimerStopEvent;
 import net.caseif.flint.common.event.round.challenger.CommonChallengerJoinRoundEvent;
 import net.caseif.flint.common.event.round.challenger.CommonChallengerLeaveRoundEvent;
 import net.caseif.flint.common.round.CommonJoinResult;
@@ -47,10 +46,6 @@ import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.helper.PlayerHelper;
 import net.caseif.flint.util.physical.Location3D;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -60,11 +55,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -75,7 +66,6 @@ import java.util.UUID;
 public class SteelRound extends CommonRound {
 
     private final int schedulerHandle;
-    private boolean timerTicking = true;
 
     public SteelRound(CommonArena arena, ImmutableSet<LifecycleStage> stages) {
         super(arena, stages);
@@ -219,22 +209,6 @@ public class SteelRound extends CommonRound {
             return candidates.get((int) Math.floor(Math.random() * candidates.size()));
         } else {
             return super.nextSpawnPoint();
-        }
-    }
-
-    @Override
-    public boolean isTimerTicking() throws OrphanedComponentException {
-        checkState();
-        return this.timerTicking;
-    }
-
-    @Override
-    public void setTimerTicking(boolean ticking) throws OrphanedComponentException {
-        checkState();
-        if (ticking != isTimerTicking()) {
-            timerTicking = ticking;
-            getArena().getMinigame().getEventBus()
-                    .post(ticking ? new CommonRoundTimerStartEvent(this) : new CommonRoundTimerStopEvent(this));
         }
     }
 

@@ -25,11 +25,13 @@ package net.caseif.flint.steel.arena;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.minigame.CommonMinigame;
 import net.caseif.flint.component.exception.OrphanedComponentException;
-import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.exception.rollback.RollbackException;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
@@ -49,10 +51,6 @@ import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.helper.rollback.RollbackHelper;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -97,26 +95,6 @@ public class SteelArena extends CommonArena {
         ((SteelMinigame) getMinigame()).getRoundMap().put(this, new SteelRound(this, stages));
         Preconditions.checkState(getRound().isPresent(), "Cannot get created round from arena! This is a bug.");
         return getRound().get();
-    }
-
-    @Override
-    public Round createRound() throws IllegalStateException, OrphanedComponentException {
-        checkState();
-        Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
-        ImmutableSet<LifecycleStage> stages = getMinigame().getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES);
-        Preconditions.checkState(stages != null && !stages.isEmpty(),
-                "Illegal call to nullary createRound method: default lifecycle stages are not set");
-        return createRound(getMinigame().getConfigValue(ConfigNode.DEFAULT_LIFECYCLE_STAGES));
-    }
-
-    @Override
-    public Round getOrCreateRound(ImmutableSet<LifecycleStage> stages) {
-        return getRound().isPresent() ? getRound().get() : createRound(stages);
-    }
-
-    @Override
-    public Round getOrCreateRound() {
-        return getRound().isPresent() ? getRound().get() : createRound();
     }
 
     @Override
@@ -198,20 +176,17 @@ public class SteelArena extends CommonArena {
         yaml.save(arenaStore);
     }
 
-    /**
-     * Removes this arena from persistent storage.
-     *
-     * @throws InvalidConfigurationException If an exception occurs while
-     *     configuring the persistent store
-     * @throws IOException If an exception occurs while writing to the
-     *     persistent store
-     */
-    public void removeFromStore() throws InvalidConfigurationException, IOException {
+    @Override
+    public void removeFromStore() throws IOException {
         File arenaStore = DataFiles.ARENA_STORE.getFile(getMinigame());
         YamlConfiguration yaml = new YamlConfiguration();
-        yaml.load(arenaStore);
-        yaml.set(getId(), null);
-        yaml.save(arenaStore);
+        try {
+            yaml.load(arenaStore);
+            yaml.set(getId(), null);
+            yaml.save(arenaStore);
+        } catch (InvalidConfigurationException ex) {
+            throw new IOException(ex);
+        }
     }
 
     /**

@@ -23,21 +23,19 @@
  */
 package net.caseif.flint.steel.minigame;
 
+import com.google.common.base.Optional;
 import net.caseif.flint.arena.Arena;
-import net.caseif.flint.common.arena.CommonArena;
+import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.common.minigame.CommonMinigame;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.lobby.SteelLobbySign;
-import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.steel.lobby.wizard.WizardManager;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
-
-import com.google.common.base.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -106,43 +104,6 @@ public class SteelMinigame extends CommonMinigame {
         }
         getArenaMap().put(id, arena);
         return arena;
-    }
-
-    @Override
-    public Arena createArena(String id, Location3D spawnPoint, Boundary boundary) throws IllegalArgumentException {
-        return createArena(id, id, spawnPoint, boundary);
-    }
-
-    @Override
-    public void removeArena(String id) throws IllegalArgumentException {
-        id = id.toLowerCase();
-        Arena arena = getArenaMap().get(id);
-        if (arena != null) {
-            removeArena(arena);
-        } else {
-            throw new IllegalArgumentException("Cannot find arena with ID " + id + " in minigame " + getPlugin());
-        }
-    }
-
-    @Override
-    public void removeArena(Arena arena) throws IllegalArgumentException {
-        if (arena.getMinigame() != this) {
-            throw new IllegalArgumentException("Cannot remove arena with different parent minigame");
-        }
-        if (arena.getRound().isPresent()) {
-            arena.getRound().get().end();
-            SteelCore.logVerbose("Minigame " + getBukkitPlugin() + " requested to remove arena " + arena.getId()
-                    + " while it still contained a round. Steel will end it automatically, but typically this behavior "
-                    + "is not ideal and the round should be ended before the arena is requested for removal.");
-        }
-        getArenaMap().remove(arena.getId());
-        try {
-            ((SteelArena) arena).removeFromStore();
-        } catch (InvalidConfigurationException | IOException ex) {
-            SteelCore.logSevere("Failed to remove arena with ID " + arena.getId() + " from persistent store");
-            ex.printStackTrace();
-        }
-        ((CommonArena) arena).orphan();
     }
 
     public IWizardManager getLobbyWizardManager() {
