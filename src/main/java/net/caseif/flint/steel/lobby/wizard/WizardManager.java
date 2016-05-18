@@ -25,17 +25,10 @@ package net.caseif.flint.steel.lobby.wizard;
 
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.lobby.wizard.CommonWizardManager;
-import net.caseif.flint.common.lobby.wizard.IWizardManager;
-import net.caseif.flint.common.lobby.wizard.IWizardPlayer;
 import net.caseif.flint.common.lobby.wizard.WizardMessages;
 import net.caseif.flint.minigame.Minigame;
-import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.util.physical.Location3D;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
-import java.util.HashMap;
 import java.util.UUID;
 
 /**

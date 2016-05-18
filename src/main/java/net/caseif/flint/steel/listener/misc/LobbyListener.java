@@ -25,11 +25,11 @@ package net.caseif.flint.steel.listener.misc;
 
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.event.lobby.CommonPlayerClickLobbySignEvent;
+import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.event.lobby.PlayerClickLobbySignEvent;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Location3D;

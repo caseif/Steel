@@ -24,6 +24,7 @@
 package net.caseif.flint.steel.util.helper;
 
 import net.caseif.flint.util.physical.Location3D;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.WorldCreator;

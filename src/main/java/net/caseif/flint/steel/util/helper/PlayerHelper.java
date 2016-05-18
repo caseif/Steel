@@ -26,6 +26,7 @@ package net.caseif.flint.steel.util.helper;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.util.physical.Location3D;
+
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;

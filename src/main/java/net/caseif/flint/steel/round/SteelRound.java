@@ -23,7 +23,6 @@
  */
 package net.caseif.flint.steel.round;
 
-import com.google.common.collect.ImmutableSet;
 import net.caseif.flint.arena.SpawningMode;
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
@@ -46,6 +45,8 @@ import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.helper.PlayerHelper;
 import net.caseif.flint.util.physical.Location3D;
+
+import com.google.common.collect.ImmutableSet;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;

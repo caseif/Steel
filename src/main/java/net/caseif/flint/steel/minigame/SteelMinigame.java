@@ -23,7 +23,6 @@
  */
 package net.caseif.flint.steel.minigame;
 
-import com.google.common.base.Optional;
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.common.minigame.CommonMinigame;
@@ -36,6 +35,8 @@ import net.caseif.flint.steel.lobby.wizard.WizardManager;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
+
+import com.google.common.base.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;

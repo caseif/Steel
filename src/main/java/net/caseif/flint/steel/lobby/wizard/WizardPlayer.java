@@ -24,9 +24,8 @@
 package net.caseif.flint.steel.lobby.wizard;
 
 import static net.caseif.flint.common.lobby.wizard.WizardMessages.INFO_COLOR;
-
-import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.common.lobby.wizard.CommonWizardPlayer;
+import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.common.lobby.wizard.WizardMessages;
 import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.util.helper.LocationHelper;

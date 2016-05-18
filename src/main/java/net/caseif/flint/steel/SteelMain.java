@@ -31,9 +31,9 @@ import net.caseif.flint.steel.listener.rollback.RollbackBlockListener;
 import net.caseif.flint.steel.listener.rollback.RollbackEntityListener;
 import net.caseif.flint.steel.listener.rollback.RollbackInventoryListener;
 import net.caseif.flint.steel.listener.rollback.breaking.v18.BreakingV18RollbackEntityListener;
+import net.caseif.flint.steel.util.TelemetryRunner;
 import net.caseif.flint.steel.util.file.DataFiles;
 import net.caseif.flint.steel.util.helper.ConfigHelper;
-import net.caseif.flint.steel.util.TelemetryRunner;
 
 import net.gravitydevelopment.updater.Updater;
 import org.bukkit.Bukkit;

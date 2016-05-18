@@ -23,8 +23,8 @@
  */
 package net.caseif.flint.steel.util;
 
-import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.common.util.PlatformUtils;
+import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 

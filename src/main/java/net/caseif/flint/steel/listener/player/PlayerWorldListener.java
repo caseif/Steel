@@ -25,10 +25,10 @@ package net.caseif.flint.steel.listener.player;
 
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
+import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.helper.ChatHelper;
 import net.caseif.flint.steel.util.helper.LocationHelper;

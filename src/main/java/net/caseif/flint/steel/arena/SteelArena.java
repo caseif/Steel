@@ -24,10 +24,6 @@
 package net.caseif.flint.steel.arena;
 
 import static com.google.common.base.Preconditions.checkArgument;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.minigame.CommonMinigame;
@@ -51,6 +47,10 @@ import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.helper.rollback.RollbackHelper;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableSet;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;

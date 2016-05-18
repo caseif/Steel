@@ -24,7 +24,6 @@
 package net.caseif.flint.steel.util.agent;
 
 import static com.google.common.base.Preconditions.checkArgument;
-
 import net.caseif.flint.common.util.agent.chat.IChatAgent;
 
 import org.bukkit.Bukkit;
