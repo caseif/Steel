@@ -32,6 +32,7 @@ import net.caseif.flint.steel.listener.rollback.RollbackEntityListener;
 import net.caseif.flint.steel.listener.rollback.RollbackInventoryListener;
 import net.caseif.flint.steel.listener.rollback.breaking.v18.BreakingV18RollbackEntityListener;
 import net.caseif.flint.steel.util.TelemetryRunner;
+import net.caseif.flint.steel.util.compatibility.CoreDataMigrationAgent;
 import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.steel.util.helper.ConfigHelper;
 
@@ -76,6 +77,8 @@ public class SteelMain extends JavaPlugin {
             getLogger().severe("Failed to load SQL driver");
             ex.printStackTrace();
         }
+
+        new CoreDataMigrationAgent().migrateData();
 
         initMetrics();
         initTelemetry();

@@ -21,22 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package net.caseif.flint.steel.util.file;
+package net.caseif.flint.steel.util.compatibility;
 
-import net.caseif.flint.common.util.file.CommonDataFiles;
-import net.caseif.flint.common.util.file.CoreDataFile;
-import net.caseif.flint.common.util.file.MinigameDataFile;
+public interface DataMigrationAgent {
 
-/**
- * Utility class for working with Flint data files.
- */
-public class SteelDataFiles extends CommonDataFiles {
-
-    public static final CoreDataFile TELEMETRY_UUID_STORE = new CoreDataFile("uuid.txt");
-
-    // for old file formats
-    public static final CoreDataFile CORE_OLD_DATA_DIR = new CoreDataFile("old", true);
-    public static final MinigameDataFile MG_OLD_DATA_DIR = new MinigameDataFile("old", true);
-    public static final CoreDataFile OLD_OFFLINE_PLAYER_STORE = new CoreDataFile("offline_players.yml");
+    void migrateData();
 
 }

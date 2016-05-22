@@ -25,18 +25,17 @@ package net.caseif.flint.steel.listener.player;
 
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
+import net.caseif.flint.common.util.helper.CommonPlayerHelper;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.challenger.SteelChallenger;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.round.SteelRound;
-import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.steel.util.helper.PlayerHelper;
 
 import com.google.common.base.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -44,11 +43,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Listener for events relating to players' connections.
@@ -57,36 +52,14 @@ import java.util.UUID;
  */
 public class PlayerConnectionListener implements Listener {
 
-    /**
-     * Config key for the list of offline players that need to be reset on join.
-     */
-    private static final String OFFLINE_PLAYER_LIST_KEY = "offline";
-
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
-        UUID uuid = event.getPlayer().getUniqueId();
-        Optional<Challenger> ch = CommonCore.getChallenger(uuid);
+        Optional<Challenger> ch = CommonCore.getChallenger(event.getPlayer().getUniqueId());
         if (ch.isPresent()) {
             // store the player to disk so their inventory and location can be popped later
-            ((SteelRound)ch.get().getRound()).removeChallenger(ch.get(), true, true);
+            ((SteelRound) ch.get().getRound()).removeChallenger(ch.get(), true, true);
 
-            try {
-                File offlinePlayers = SteelDataFiles.OFFLINE_PLAYER_STORE.getFile();
-                YamlConfiguration yaml = new YamlConfiguration();
-                yaml.load(offlinePlayers);
-
-                List<String> players = yaml.getStringList(OFFLINE_PLAYER_LIST_KEY);
-                if (players == null) {
-                    players = new ArrayList<>();
-                }
-                players.add(uuid.toString());
-                yaml.set(OFFLINE_PLAYER_LIST_KEY, players);
-                yaml.save(offlinePlayers);
-            } catch (InvalidConfigurationException | IOException ex) {
-                ex.printStackTrace();
-                SteelCore.logSevere("Failed to store data for disconnecting challenger "
-                        + event.getPlayer().getName());
-            }
+            CommonPlayerHelper.setOfflineFlag(event.getPlayer().getUniqueId());
         }
 
         for (Minigame mg : CommonCore.getMinigames().values()) {
@@ -133,39 +106,21 @@ public class PlayerConnectionListener implements Listener {
     }
 
     private void tryReset(Player player) {
-        UUID uuid = player.getUniqueId();
-        try {
-            File offlinePlayers = SteelDataFiles.OFFLINE_PLAYER_STORE.getFile();
-            YamlConfiguration yaml = new YamlConfiguration();
-            yaml.load(offlinePlayers);
-
-            if (yaml.isSet(OFFLINE_PLAYER_LIST_KEY)) {
-                List<String> players = yaml.getStringList(OFFLINE_PLAYER_LIST_KEY);
-                // check whether the player left while in a round
-                if (players.contains(uuid.toString())) {
-
-                    // these two try-blocks are separate so they can both run even if one fails
-                    try {
-                        PlayerHelper.popInventory(player);
-                    } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
-                        SteelCore.logSevere("Failed to pop inventory for player " + player.getName());
-                        ex.printStackTrace();
-                    }
-
-                    players.remove(uuid.toString());
-                    yaml.set(OFFLINE_PLAYER_LIST_KEY, players);
-                    yaml.save(offlinePlayers);
-                    try {
-                        PlayerHelper.popLocation(player);
-                    } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
-                        SteelCore.logSevere("Failed to pop location for player " + player.getName());
-                        ex.printStackTrace();
-                    }
-                }
+        if (CommonPlayerHelper.checkOfflineFlag(player.getUniqueId())) {
+            // these two try-blocks are separate so they can both run even if one fails
+            try {
+                PlayerHelper.popInventory(player);
+            } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
+                SteelCore.logSevere("Failed to pop inventory for player " + player.getName());
+                ex.printStackTrace();
             }
-        } catch (InvalidConfigurationException | IOException ex) {
-            ex.printStackTrace();
-            SteelCore.logSevere("Failed to load offline player data");
+
+            try {
+                PlayerHelper.popLocation(player);
+            } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
+                SteelCore.logSevere("Failed to pop location for player " + player.getName());
+                ex.printStackTrace();
+            }
         }
     }
 
