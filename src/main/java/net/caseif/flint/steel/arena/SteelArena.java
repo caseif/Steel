@@ -42,7 +42,7 @@ import net.caseif.flint.steel.lobby.type.SteelChallengerListingLobbySign;
 import net.caseif.flint.steel.lobby.type.SteelStatusLobbySign;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.round.SteelRound;
-import net.caseif.flint.steel.util.file.DataFiles;
+import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.helper.rollback.RollbackHelper;
 import net.caseif.flint.util.physical.Boundary;
@@ -158,7 +158,7 @@ public class SteelArena extends CommonArena {
      */
     @Override
     public void store() throws InvalidConfigurationException, IOException {
-        File arenaStore = DataFiles.ARENA_STORE.getFile(getMinigame());
+        File arenaStore = SteelDataFiles.ARENA_STORE.getFile(getMinigame());
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.load(arenaStore);
         yaml.set(getId(), null); // for good measure
@@ -178,7 +178,7 @@ public class SteelArena extends CommonArena {
 
     @Override
     public void removeFromStore() throws IOException {
-        File arenaStore = DataFiles.ARENA_STORE.getFile(getMinigame());
+        File arenaStore = SteelDataFiles.ARENA_STORE.getFile(getMinigame());
         YamlConfiguration yaml = new YamlConfiguration();
         try {
             yaml.load(arenaStore);

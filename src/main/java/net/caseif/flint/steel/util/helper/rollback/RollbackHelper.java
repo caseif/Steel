@@ -28,7 +28,7 @@ import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.util.helper.rollback.CommonRollbackHelper;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
-import net.caseif.flint.steel.util.file.DataFiles;
+import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.helper.rollback.serialization.BlockStateSerializer;
 import net.caseif.flint.steel.util.helper.rollback.serialization.EntityStateSerializer;
@@ -67,8 +67,8 @@ public final class RollbackHelper extends CommonRollbackHelper {
      *     {@link RollbackHelper}
      */
     public RollbackHelper(SteelArena arena) {
-        super(arena, DataFiles.ROLLBACK_STORE.getFile(arena.getMinigame()),
-                DataFiles.ROLLBACK_STATE_STORE.getFile(arena.getMinigame()));
+        super(arena, SteelDataFiles.ROLLBACK_STORE.getFile(arena.getMinigame()),
+                SteelDataFiles.ROLLBACK_STATE_STORE.getFile(arena.getMinigame()));
     }
     /**
      * Logs a rollback change at the given location.

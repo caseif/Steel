@@ -24,7 +24,7 @@
 package net.caseif.flint.steel.util.helper;
 
 import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.steel.util.file.DataFiles;
+import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.util.physical.Location3D;
 
 import org.bukkit.Bukkit;
@@ -76,7 +76,7 @@ public class PlayerHelper {
     public static void pushInventory(Player player) throws IOException {
         PlayerInventory inv = player.getInventory();
         // the file to store the inventory in
-        File storage = new File(DataFiles.PLAYER_INVENTORY_DIR.getFile(), player.getUniqueId() + ".yml");
+        File storage = new File(SteelDataFiles.PLAYER_INVENTORY_DIR.getFile(), player.getUniqueId() + ".yml");
         if (storage.exists()) { // verify file isn't already present on disk (meaning it wasn't popped the last time)
             SteelCore.logVerbose("Inventory push requested for player " + player.getName() + ", but "
                     + "inventory was already present in persistent storage. Popping stored inventory first.");
@@ -108,7 +108,7 @@ public class PlayerHelper {
     public static void popInventory(Player player) throws IllegalArgumentException, IOException,
             InvalidConfigurationException {
         // the file to load the inventory from
-        File storage = new File(DataFiles.PLAYER_INVENTORY_DIR.getFile(), player.getUniqueId() + ".yml");
+        File storage = new File(SteelDataFiles.PLAYER_INVENTORY_DIR.getFile(), player.getUniqueId() + ".yml");
         if (!storage.exists()) { // verify file is present on disk
             throw new IllegalArgumentException("Inventory pop requested for player " + player.getName() + ", but "
                     + "inventory was not present in persistent storage!");
@@ -160,7 +160,7 @@ public class PlayerHelper {
      */
     public static void storeLocation(Player player, Location3D location)
             throws InvalidConfigurationException, IOException {
-        File file = DataFiles.PLAYER_LOCATION_STORE.getFile();
+        File file = SteelDataFiles.PLAYER_LOCATION_STORE.getFile();
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.load(file);
         yaml.set(player.getUniqueId().toString(), location.serialize());
@@ -180,7 +180,7 @@ public class PlayerHelper {
      */
     public static void popLocation(Player player)
             throws IllegalArgumentException, InvalidConfigurationException, IOException {
-        File file = DataFiles.PLAYER_LOCATION_STORE.getFile();
+        File file = SteelDataFiles.PLAYER_LOCATION_STORE.getFile();
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.load(file);
         Location3D l3d = getReturnLocation(player);
@@ -203,7 +203,7 @@ public class PlayerHelper {
      */
     public static Location3D getReturnLocation(Player player)
             throws IllegalArgumentException, InvalidConfigurationException, IOException {
-        File file = DataFiles.PLAYER_LOCATION_STORE.getFile();
+        File file = SteelDataFiles.PLAYER_LOCATION_STORE.getFile();
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.load(file);
         if (!yaml.isSet(player.getUniqueId().toString())) {

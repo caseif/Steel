@@ -32,7 +32,7 @@ import net.caseif.flint.steel.listener.rollback.RollbackEntityListener;
 import net.caseif.flint.steel.listener.rollback.RollbackInventoryListener;
 import net.caseif.flint.steel.listener.rollback.breaking.v18.BreakingV18RollbackEntityListener;
 import net.caseif.flint.steel.util.TelemetryRunner;
-import net.caseif.flint.steel.util.file.DataFiles;
+import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.steel.util.helper.ConfigHelper;
 
 import net.gravitydevelopment.updater.Updater;
@@ -68,7 +68,7 @@ public class SteelMain extends JavaPlugin {
             ex.printStackTrace();
             SteelCore.logWarning("Failed to write missing config keys");
         }
-        DataFiles.createCoreDataFiles();
+        SteelDataFiles.createCoreDataFiles();
 
         try {
             Class.forName("org.sqlite.JDBC"); // load the SQL driver

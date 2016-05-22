@@ -23,38 +23,14 @@
  */
 package net.caseif.flint.steel.util.file;
 
-import net.caseif.flint.minigame.Minigame;
-
-import org.bukkit.Bukkit;
-
-import java.io.File;
+import net.caseif.flint.common.util.file.CommonDataFiles;
+import net.caseif.flint.common.util.file.CoreDataFile;
 
 /**
- * Represents a {@link Minigame}-specific data file.
- *
- * @author Max Roncacé
+ * Utility class for working with Flint data files.
  */
-public class MinigameDataFile extends DataFile {
+public class SteelDataFiles extends CommonDataFiles {
 
-    public MinigameDataFile(String fileName, boolean isDirectory) {
-        super(fileName, isDirectory);
-    }
-
-    public MinigameDataFile(String fileName) {
-        super(fileName);
-    }
-
-    /**
-     * Gets the {@link File} backing this {@link MinigameDataFile} for the given
-     * {@link Minigame}.
-     *
-     * @param minigame The {@link Minigame} to retrieve a {@link File} for
-     * @return The {@link File} backing this {@link MinigameDataFile} for the
-     *     given {@link Minigame}.
-     */
-    public File getFile(Minigame minigame) {
-        return new File(Bukkit.getPluginManager().getPlugin(minigame.getPlugin()).getDataFolder(),
-                DataFiles.ROOT_DATA_DIR + File.separatorChar + getFileName());
-    }
+    public static final CoreDataFile TELEMETRY_UUID_STORE = new CoreDataFile("uuid.txt");
 
 }

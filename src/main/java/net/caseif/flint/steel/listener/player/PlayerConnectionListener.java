@@ -30,7 +30,7 @@ import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.challenger.SteelChallenger;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.round.SteelRound;
-import net.caseif.flint.steel.util.file.DataFiles;
+import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.steel.util.helper.PlayerHelper;
 
 import com.google.common.base.Optional;
@@ -71,7 +71,7 @@ public class PlayerConnectionListener implements Listener {
             ((SteelRound)ch.get().getRound()).removeChallenger(ch.get(), true, true);
 
             try {
-                File offlinePlayers = DataFiles.OFFLINE_PLAYER_STORE.getFile();
+                File offlinePlayers = SteelDataFiles.OFFLINE_PLAYER_STORE.getFile();
                 YamlConfiguration yaml = new YamlConfiguration();
                 yaml.load(offlinePlayers);
 
@@ -135,7 +135,7 @@ public class PlayerConnectionListener implements Listener {
     private void tryReset(Player player) {
         UUID uuid = player.getUniqueId();
         try {
-            File offlinePlayers = DataFiles.OFFLINE_PLAYER_STORE.getFile();
+            File offlinePlayers = SteelDataFiles.OFFLINE_PLAYER_STORE.getFile();
             YamlConfiguration yaml = new YamlConfiguration();
             yaml.load(offlinePlayers);
 

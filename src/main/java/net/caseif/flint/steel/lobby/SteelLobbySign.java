@@ -33,7 +33,7 @@ import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.lobby.type.SteelChallengerListingLobbySign;
 import net.caseif.flint.steel.lobby.type.SteelStatusLobbySign;
-import net.caseif.flint.steel.util.file.DataFiles;
+import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Location3D;
 
@@ -113,7 +113,7 @@ public abstract class SteelLobbySign extends CommonLobbySign {
     private void store(boolean remove) {
         try {
             YamlConfiguration yaml = new YamlConfiguration();
-            File f = DataFiles.LOBBY_STORE.getFile(getArena().getMinigame());
+            File f = SteelDataFiles.LOBBY_STORE.getFile(getArena().getMinigame());
             yaml.load(f);
             ConfigurationSection arenaSection = yaml.getConfigurationSection(getArena().getId());
             if (arenaSection == null) {

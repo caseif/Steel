@@ -32,7 +32,7 @@ import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.lobby.SteelLobbySign;
 import net.caseif.flint.steel.lobby.wizard.WizardManager;
-import net.caseif.flint.steel.util.file.DataFiles;
+import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 
@@ -70,7 +70,7 @@ public class SteelMinigame extends CommonMinigame {
         }
         SteelCore.logInfo(this.plugin + " has successfully hooked Steel");
         wizardManager = new WizardManager(this);
-        DataFiles.createMinigameDataFiles(this);
+        SteelDataFiles.createMinigameDataFiles(this);
         loadArenas();
         loadLobbySigns();
     }
@@ -112,7 +112,7 @@ public class SteelMinigame extends CommonMinigame {
     }
 
     private void loadArenas() {
-        File arenaStore = DataFiles.ARENA_STORE.getFile(this);
+        File arenaStore = SteelDataFiles.ARENA_STORE.getFile(this);
         YamlConfiguration yaml = new YamlConfiguration();
         try {
             yaml.load(arenaStore);
@@ -155,7 +155,7 @@ public class SteelMinigame extends CommonMinigame {
     public void loadLobbySigns() {
         try {
             YamlConfiguration yaml = new YamlConfiguration();
-            File f = DataFiles.LOBBY_STORE.getFile(this);
+            File f = SteelDataFiles.LOBBY_STORE.getFile(this);
             yaml.load(f);
             for (String arenaKey : yaml.getKeys(false)) {
                 if (yaml.isConfigurationSection(arenaKey)) {

@@ -25,7 +25,7 @@ package net.caseif.flint.steel.util;
 
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.SteelMain;
-import net.caseif.flint.steel.util.file.DataFiles;
+import net.caseif.flint.steel.util.file.SteelDataFiles;
 
 import net.caseif.jtelemetry.JTelemetry;
 
@@ -92,7 +92,7 @@ public class TelemetryRunner implements Runnable {
     }
 
     private static UUID getUuid() throws IOException {
-        File uuidFile = DataFiles.TELEMETRY_UUID_STORE.getFile();
+        File uuidFile = SteelDataFiles.TELEMETRY_UUID_STORE.getFile();
         if (!uuidFile.exists()) {
             //noinspection ResultOfMethodCallIgnored
             uuidFile.createNewFile();
