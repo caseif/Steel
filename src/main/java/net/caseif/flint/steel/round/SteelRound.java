@@ -32,6 +32,7 @@ import net.caseif.flint.common.event.round.challenger.CommonChallengerJoinRoundE
 import net.caseif.flint.common.event.round.challenger.CommonChallengerLeaveRoundEvent;
 import net.caseif.flint.common.round.CommonJoinResult;
 import net.caseif.flint.common.round.CommonRound;
+import net.caseif.flint.common.util.helper.CommonPlayerHelper;
 import net.caseif.flint.component.exception.OrphanedComponentException;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.lobby.LobbySign;
@@ -46,6 +47,7 @@ import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.helper.PlayerHelper;
 import net.caseif.flint.util.physical.Location3D;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -137,12 +139,14 @@ public class SteelRound extends CommonRound {
         super.removeChallenger(challenger, isDisconnecting, updateSigns);
 
         Player bukkitPlayer = Bukkit.getPlayer(challenger.getUniqueId());
-        Location3D returnPoint;
+        Optional<Location3D> returnPoint = null;
         try {
-            returnPoint = PlayerHelper.getReturnLocation(bukkitPlayer);
-        } catch (InvalidConfigurationException | IOException ex) {
+            returnPoint = CommonPlayerHelper.getReturnLocation(bukkitPlayer.getUniqueId());
+        } catch (IOException ex) {
             ex.printStackTrace();
-            returnPoint = LocationHelper.convertLocation(Bukkit.getWorlds().get(0).getSpawnLocation());
+        }
+        if (returnPoint == null) {
+            returnPoint = Optional.of(LocationHelper.convertLocation(Bukkit.getWorlds().get(0).getSpawnLocation()));
         }
 
         if (!isDisconnecting) {
@@ -155,7 +159,7 @@ public class SteelRound extends CommonRound {
             }
         }
 
-        CommonChallengerLeaveRoundEvent event = new CommonChallengerLeaveRoundEvent(challenger, returnPoint);
+        CommonChallengerLeaveRoundEvent event = new CommonChallengerLeaveRoundEvent(challenger, returnPoint.get());
         getArena().getMinigame().getEventBus().post(event);
 
         if (!challenger.getRound().isEnding()) {
@@ -164,8 +168,8 @@ public class SteelRound extends CommonRound {
 
         if (!event.getReturnLocation().equals(returnPoint)) {
             try {
-                PlayerHelper.storeLocation(bukkitPlayer, event.getReturnLocation());
-            } catch (InvalidConfigurationException | IOException ex) {
+                CommonPlayerHelper.storeLocation(bukkitPlayer.getUniqueId(), event.getReturnLocation());
+            } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }

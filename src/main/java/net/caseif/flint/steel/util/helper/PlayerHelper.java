@@ -23,10 +23,12 @@
  */
 package net.caseif.flint.steel.util.helper;
 
+import net.caseif.flint.common.util.helper.CommonPlayerHelper;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.util.physical.Location3D;
 
+import com.google.common.base.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -145,26 +147,8 @@ public class PlayerHelper {
      * @throws IOException If an exception occurs while saving to disk
      */
     public static void storeLocation(Player player) throws InvalidConfigurationException, IOException {
-        storeLocation(player, LocationHelper.convertLocation(player.getLocation()));
-    }
-
-    /**
-     * Stores the given {@link Location3D} to persistent storage, associated
-     * with the given {@link Player}.
-     *
-     * @param player The {@link Player} to store a {@link Location3D} for
-     * @param location The {@link Location3D} to store
-     * @throws InvalidConfigurationException If an exception occurs while
-     *     loading from disk
-     * @throws IOException If an exception occurs while saving to disk
-     */
-    public static void storeLocation(Player player, Location3D location)
-            throws InvalidConfigurationException, IOException {
-        File file = SteelDataFiles.PLAYER_LOCATION_STORE.getFile();
-        YamlConfiguration yaml = new YamlConfiguration();
-        yaml.load(file);
-        yaml.set(player.getUniqueId().toString(), location.serialize());
-        yaml.save(file);
+        CommonPlayerHelper.storeLocation(player.getUniqueId(),
+                LocationHelper.convertLocation(player.getLocation()));
     }
 
     /**
@@ -180,48 +164,18 @@ public class PlayerHelper {
      */
     public static void popLocation(Player player)
             throws IllegalArgumentException, InvalidConfigurationException, IOException {
-        File file = SteelDataFiles.PLAYER_LOCATION_STORE.getFile();
-        YamlConfiguration yaml = new YamlConfiguration();
-        yaml.load(file);
-        Location3D l3d = getReturnLocation(player);
-        player.teleport(LocationHelper.convertLocation(l3d));
-        yaml.set(player.getUniqueId().toString(), null);
-        yaml.save(file);
-    }
-
-    /**
-     * Gets the given {@link Player}'s stored location from persistent storage.
-     *
-     * @param player The {@link Player} to load the location of
-     * @return The stored {@link Location3D}
-     * @throws IllegalArgumentException If the player's location is not present
-     *     in the persistent store or if an error occurs during deserialization
-     *     of the stored location
-     * @throws InvalidConfigurationException If an exception occurs while
-     *     loading from disk
-     * @throws IOException If an exception occurs while saving to disk
-     */
-    public static Location3D getReturnLocation(Player player)
-            throws IllegalArgumentException, InvalidConfigurationException, IOException {
-        File file = SteelDataFiles.PLAYER_LOCATION_STORE.getFile();
-        YamlConfiguration yaml = new YamlConfiguration();
-        yaml.load(file);
-        if (!yaml.isSet(player.getUniqueId().toString())) {
-            throw new IllegalArgumentException("Location of player " + player.getName() + " not present in persistent "
-                    + "store");
+        Optional<Location3D> retLoc = CommonPlayerHelper.getReturnLocation(player.getUniqueId());
+        if (!retLoc.isPresent()) {
+            throw new IllegalArgumentException("Location of player " + player.getName()
+                    + " not present in persistent store");
         }
-        Location3D l3d = Location3D.deserialize(yaml.getString(player.getUniqueId().toString()));
-        if (!l3d.getWorld().isPresent()) {
-            throw new IllegalArgumentException("World not present in stored location of player " + player.getName());
-        }
-        return l3d;
+        player.teleport(LocationHelper.convertLocation(retLoc.get()));
     }
 
     /**
      * Version-independent getOnlinePlayers() method.
      *
      * @return a list of online players
-     * @since 0.4.0
      */
     @SuppressWarnings("unchecked")
     public static Collection<? extends Player> getOnlinePlayers() {

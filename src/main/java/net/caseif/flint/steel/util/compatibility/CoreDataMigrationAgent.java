@@ -27,6 +27,7 @@ import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.util.file.SteelDataFiles;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -49,6 +50,7 @@ public class CoreDataMigrationAgent implements DataMigrationAgent {
     @Override
     public void migrateData() {
         migrateOfflinePlayerStore();
+        migrateLocationStore();
     }
 
     private void migrateOfflinePlayerStore() {
@@ -78,7 +80,37 @@ public class CoreDataMigrationAgent implements DataMigrationAgent {
 
             relocateOldFile(oldFile.toPath());
             SteelCore.logInfo("Old file has been relocated to "
-                    + SteelDataFiles.CORE_OLD_DATA_DIR.getFile().toPath().toString() + ".");
+                    + SteelDataFiles.OLD_OFFLINE_PLAYER_STORE.getFile().toPath().toString() + ".");
+        }
+    }
+
+    private void migrateLocationStore() {
+        File oldFile = SteelDataFiles.OLD_PLAYER_LOCATION_STORE.getFile();
+        if (oldFile.exists()) {
+            SteelCore.logInfo("Detected old location store. Attempting to migrate...");
+            File newFile = SteelDataFiles.PLAYER_LOCATION_STORE.getFile();
+            try {
+                YamlConfiguration yaml = new YamlConfiguration();
+                yaml.load(oldFile);
+
+                JsonObject json = new JsonObject();
+                for (String key : yaml.getKeys(false)) {
+                    json.addProperty(key, yaml.getString(key));
+                }
+
+                Files.deleteIfExists(newFile.toPath());
+                Files.createFile(newFile.toPath());
+                try (FileWriter writer = new FileWriter(newFile)) {
+                    writer.write(json.toString());
+                }
+            } catch (InvalidConfigurationException | IOException ex) {
+                SteelCore.logSevere("Failed to migrate location store!");
+                ex.printStackTrace();
+            }
+
+            relocateOldFile(oldFile.toPath());
+            SteelCore.logInfo("Old file has been relocated to "
+                    + SteelDataFiles.OLD_PLAYER_LOCATION_STORE.getFile().toPath().toString() + ".");
         }
     }
 

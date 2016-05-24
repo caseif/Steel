@@ -38,5 +38,6 @@ public class SteelDataFiles extends CommonDataFiles {
     public static final CoreDataFile CORE_OLD_DATA_DIR = new CoreDataFile("old", true);
     public static final MinigameDataFile MG_OLD_DATA_DIR = new MinigameDataFile("old", true);
     public static final CoreDataFile OLD_OFFLINE_PLAYER_STORE = new CoreDataFile("offline_players.yml");
+    public static final CoreDataFile OLD_PLAYER_LOCATION_STORE = new CoreDataFile("locs.yml");
 
 }
