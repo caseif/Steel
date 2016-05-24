@@ -36,14 +36,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 /**
  * Utility class for migrating data from older revisions of the plugin to the
  * current format.
  */
-public class CoreDataMigrationAgent implements DataMigrationAgent {
+public class CoreDataMigrationAgent extends DataMigrationAgent {
 
     private static final String OFFLINE_PLAYER_LIST_KEY = "offline";
 
@@ -51,6 +50,11 @@ public class CoreDataMigrationAgent implements DataMigrationAgent {
     public void migrateData() {
         migrateOfflinePlayerStore();
         migrateLocationStore();
+    }
+
+    @Override
+    protected File getOldDir() {
+        return SteelDataFiles.CORE_OLD_DATA_DIR.getFile();
     }
 
     private void migrateOfflinePlayerStore() {
@@ -79,8 +83,6 @@ public class CoreDataMigrationAgent implements DataMigrationAgent {
             }
 
             relocateOldFile(oldFile.toPath());
-            SteelCore.logInfo("Old file has been relocated to "
-                    + SteelDataFiles.OLD_OFFLINE_PLAYER_STORE.getFile().toPath().toString() + ".");
         }
     }
 
@@ -109,24 +111,6 @@ public class CoreDataMigrationAgent implements DataMigrationAgent {
             }
 
             relocateOldFile(oldFile.toPath());
-            SteelCore.logInfo("Old file has been relocated to "
-                    + SteelDataFiles.OLD_PLAYER_LOCATION_STORE.getFile().toPath().toString() + ".");
-        }
-    }
-
-    private void relocateOldFile(Path oldFile) {
-        try {
-            Path oldDir = SteelDataFiles.CORE_OLD_DATA_DIR.getFile().toPath();
-            if (!Files.exists(oldDir)) {
-                Files.createDirectory(oldDir);
-            }
-
-            Path copyPath = oldDir.resolve(oldFile.getFileName());
-            Files.deleteIfExists(copyPath);
-            Files.move(oldFile, copyPath);
-        } catch (IOException ex) { // we're fucked, basically
-            SteelCore.logSevere("Failed to relocate " + oldFile.getFileName().toString() + "! This is very bad.");
-            throw new RuntimeException(ex);
         }
     }
 

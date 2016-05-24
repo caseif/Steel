@@ -62,6 +62,7 @@ public class SteelMinigame extends CommonMinigame {
 
     public SteelMinigame(String plugin) {
         super();
+
         assert plugin != null;
         if (Bukkit.getPluginManager().isPluginEnabled(plugin)) {
             this.plugin = Bukkit.getPluginManager().getPlugin(plugin);
@@ -99,7 +100,7 @@ public class SteelMinigame extends CommonMinigame {
         SteelArena arena = new SteelArena(this, id, name, spawnPoint, boundary);
         try {
             arena.store();
-        } catch (InvalidConfigurationException | IOException ex) {
+        } catch (IOException ex) {
             ex.printStackTrace();
             SteelCore.logSevere("Failed to save arena with ID " + arena.getId() + " to persistent storage");
         }
@@ -109,47 +110,6 @@ public class SteelMinigame extends CommonMinigame {
 
     public IWizardManager getLobbyWizardManager() {
         return wizardManager;
-    }
-
-    private void loadArenas() {
-        File arenaStore = SteelDataFiles.ARENA_STORE.getFile(this);
-        YamlConfiguration yaml = new YamlConfiguration();
-        try {
-            yaml.load(arenaStore);
-            for (String key : yaml.getKeys(false)) {
-                if (yaml.isConfigurationSection(key)) {
-                    ConfigurationSection arenaSection = yaml.getConfigurationSection(key);
-                    if (arenaSection.isSet(SteelArena.PERSISTENCE_NAME_KEY)
-                            && arenaSection.isSet(SteelArena.PERSISTENCE_WORLD_KEY)) {
-                        Location3D upperBound = Location3D.deserialize(
-                                arenaSection.getString(SteelArena.PERSISTENCE_BOUNDS_UPPER_KEY)
-                        );
-                        Location3D lowerBound = Location3D.deserialize(
-                                arenaSection.getString(SteelArena.PERSISTENCE_BOUNDS_LOWER_KEY)
-                        );
-                        SteelArena arena = new SteelArena(
-                                this,
-                                key.toLowerCase(),
-                                arenaSection.getString(SteelArena.PERSISTENCE_NAME_KEY),
-                                new Location3D(arenaSection.getString(SteelArena.PERSISTENCE_WORLD_KEY),
-                                        lowerBound.getX(), lowerBound.getY(), lowerBound.getZ()),
-                                new Boundary(
-                                        upperBound,
-                                        lowerBound
-                                )
-                        );
-                        arena.getSpawnPointMap().remove(0); // remove initial placeholder spawn
-                        arena.configure(arenaSection);
-                        getArenaMap().put(arena.getId(), arena);
-                    } else {
-                        SteelCore.logWarning("Invalid configuration section \"" + key + "\"in arena store");
-                    }
-                }
-            }
-        } catch (InvalidConfigurationException | IOException ex) {
-            ex.printStackTrace();
-            SteelCore.logSevere("Failed to load existing arenas from disk");
-        }
     }
 
     public void loadLobbySigns() {

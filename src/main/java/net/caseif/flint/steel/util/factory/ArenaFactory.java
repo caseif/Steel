@@ -21,36 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package net.caseif.flint.steel.util.compatibility;
+package net.caseif.flint.steel.util.factory;
 
-import net.caseif.flint.steel.SteelCore;
+import net.caseif.flint.common.arena.CommonArena;
+import net.caseif.flint.common.minigame.CommonMinigame;
+import net.caseif.flint.common.util.factory.IArenaFactory;
+import net.caseif.flint.steel.arena.SteelArena;
+import net.caseif.flint.util.physical.Boundary;
+import net.caseif.flint.util.physical.Location3D;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+public class ArenaFactory implements IArenaFactory {
 
-abstract class DataMigrationAgent {
-
-    public abstract void migrateData();
-
-    protected abstract File getOldDir();
-
-    protected void relocateOldFile(Path oldFile) {
-        try {
-            Path oldDir = getOldDir().toPath();
-            if (!Files.exists(oldDir)) {
-                Files.createDirectory(oldDir);
-            }
-
-            Path copyPath = oldDir.resolve(oldFile.getFileName());
-            Files.deleteIfExists(copyPath);
-            Files.move(oldFile, copyPath);
-            SteelCore.logInfo("Old file has been relocated to " + copyPath.toString() + ".");
-        } catch (IOException ex) { // we're fucked, basically
-            SteelCore.logSevere("Failed to relocate " + oldFile.getFileName().toString() + "! This is very bad.");
-            throw new RuntimeException(ex);
-        }
+    @Override
+    public CommonArena createArena(CommonMinigame parent, String id, String name, Location3D initialSpawn,
+                                   Boundary boundary) {
+        return new SteelArena(parent, id, name, initialSpawn, boundary);
     }
 
 }
