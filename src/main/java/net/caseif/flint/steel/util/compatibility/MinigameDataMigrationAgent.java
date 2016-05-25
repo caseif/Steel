@@ -23,16 +23,18 @@
  */
 package net.caseif.flint.steel.util.compatibility;
 
+import static net.caseif.flint.common.util.helper.JsonSerializer.serializeLocation;
+import static net.caseif.flint.util.physical.Location3D.deserialize;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.metadata.persist.CommonPersistentMetadata;
-import net.caseif.flint.common.util.helper.MetadataHelper;
+import net.caseif.flint.common.util.helper.JsonSerializer;
 import net.caseif.flint.metadata.persist.PersistentMetadata;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.util.file.SteelDataFiles;
+import net.caseif.flint.util.physical.Location3D;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -80,27 +82,27 @@ public class MinigameDataMigrationAgent extends DataMigrationAgent {
                     String name = arenaSec.getString(CommonArena.PERSISTENCE_NAME_KEY);
                     String world = arenaSec.getString(CommonArena.PERSISTENCE_WORLD_KEY);
                     ConfigurationSection spawns = arenaSec.getConfigurationSection(CommonArena.PERSISTENCE_SPAWNS_KEY);
-                    String lowBound = arenaSec.getString(CommonArena.PERSISTENCE_BOUNDS_LOWER_KEY);
-                    String highBound = arenaSec.getString(CommonArena.PERSISTENCE_BOUNDS_UPPER_KEY);
+                    Location3D lowBound = deserialize(arenaSec.getString(CommonArena.PERSISTENCE_BOUNDS_LOWER_KEY));
+                    Location3D highBound = deserialize(arenaSec.getString(CommonArena.PERSISTENCE_BOUNDS_UPPER_KEY));
 
                     JsonObject spawnsJson = new JsonObject();
                     for (String spawnKey : spawns.getKeys(false)) {
-                        spawnsJson.add(spawnKey, new JsonPrimitive(spawns.getString(spawnKey)));
+                        spawnsJson.add(spawnKey, serializeLocation(deserialize(spawns.getString(spawnKey))));
                     }
 
                     JsonObject arenaJson = new JsonObject();
                     arenaJson.addProperty(CommonArena.PERSISTENCE_NAME_KEY, name);
                     arenaJson.addProperty(CommonArena.PERSISTENCE_WORLD_KEY, world);
                     arenaJson.add(CommonArena.PERSISTENCE_SPAWNS_KEY, spawnsJson);
-                    arenaJson.addProperty(CommonArena.PERSISTENCE_BOUNDS_LOWER_KEY, lowBound);
-                    arenaJson.addProperty(CommonArena.PERSISTENCE_BOUNDS_UPPER_KEY, highBound);
+                    arenaJson.add(CommonArena.PERSISTENCE_BOUNDS_LOWER_KEY, serializeLocation(lowBound));
+                    arenaJson.add(CommonArena.PERSISTENCE_BOUNDS_UPPER_KEY, serializeLocation(highBound));
 
                     ConfigurationSection metadataSec
                             = arenaSec.getConfigurationSection(CommonArena.PERSISTENCE_METADATA_KEY);
                     PersistentMetadata metadata = metadataSec != null ? buildMetadata(metadataSec) : null;
                     if (metadata != null) {
                         JsonObject metaJson = new JsonObject();
-                        MetadataHelper.storeMetadata(metaJson, metadata);
+                        JsonSerializer.serializeMetadata(metaJson, metadata);
                         arenaJson.add(CommonArena.PERSISTENCE_METADATA_KEY, metaJson);
                     }
 

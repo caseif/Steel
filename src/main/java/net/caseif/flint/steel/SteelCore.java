@@ -81,8 +81,6 @@ public class SteelCore extends CommonCore {
         Minigame minigame = new SteelMinigame(pluginId);
         getMinigames().put(pluginId, minigame);
 
-        new MinigameDataMigrationAgent(minigame).migrateData();
-
         return minigame;
     }
 

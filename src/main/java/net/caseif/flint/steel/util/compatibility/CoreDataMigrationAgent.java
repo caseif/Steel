@@ -23,6 +23,8 @@
  */
 package net.caseif.flint.steel.util.compatibility;
 
+import static net.caseif.flint.common.util.helper.JsonSerializer.serializeLocation;
+import static net.caseif.flint.util.physical.Location3D.deserialize;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.util.file.SteelDataFiles;
 
@@ -97,7 +99,7 @@ public class CoreDataMigrationAgent extends DataMigrationAgent {
 
                 JsonObject json = new JsonObject();
                 for (String key : yaml.getKeys(false)) {
-                    json.addProperty(key, yaml.getString(key));
+                    json.add(key, serializeLocation(deserialize(yaml.getString(key))));
                 }
 
                 Files.deleteIfExists(newFile.toPath());

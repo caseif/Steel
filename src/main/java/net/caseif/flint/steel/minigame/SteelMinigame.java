@@ -32,6 +32,7 @@ import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.lobby.SteelLobbySign;
 import net.caseif.flint.steel.lobby.wizard.WizardManager;
+import net.caseif.flint.steel.util.compatibility.MinigameDataMigrationAgent;
 import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
@@ -69,7 +70,11 @@ public class SteelMinigame extends CommonMinigame {
         } else {
             throw new IllegalArgumentException("Plugin \"" + plugin + "\" is not loaded!");
         }
+
         SteelCore.logInfo(this.plugin + " has successfully hooked Steel");
+
+        new MinigameDataMigrationAgent(this).migrateData();
+
         wizardManager = new WizardManager(this);
         SteelDataFiles.createMinigameDataFiles(this);
         loadArenas();
@@ -92,10 +97,6 @@ public class SteelMinigame extends CommonMinigame {
         if (getArenaMap().containsKey(id)) {
             throw new IllegalArgumentException("Cannot create arena: arena with ID \"" + id + "\" already exists");
         }
-        if (id.contains(".")) {
-            //TODO: document
-            throw new IllegalArgumentException("Cannot create arena: ID \"" + id + "\" contains illegal characters");
-        }
 
         SteelArena arena = new SteelArena(this, id, name, spawnPoint, boundary);
         try {
@@ -112,7 +113,7 @@ public class SteelMinigame extends CommonMinigame {
         return wizardManager;
     }
 
-    public void loadLobbySigns() {
+    private void loadLobbySigns() {
         try {
             YamlConfiguration yaml = new YamlConfiguration();
             File f = SteelDataFiles.LOBBY_STORE.getFile(this);

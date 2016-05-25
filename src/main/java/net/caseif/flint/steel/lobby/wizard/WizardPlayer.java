@@ -23,7 +23,6 @@
  */
 package net.caseif.flint.steel.lobby.wizard;
 
-import static net.caseif.flint.common.lobby.wizard.WizardMessages.INFO_COLOR;
 import net.caseif.flint.common.lobby.wizard.CommonWizardPlayer;
 import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.common.lobby.wizard.WizardMessages;
@@ -69,8 +68,7 @@ class WizardPlayer extends CommonWizardPlayer {
             @Override
             public void run() {
                 Player player = Bukkit.getPlayer(uuid);
-                player.sendMessage(INFO_COLOR
-                        + WizardMessages.MESSAGE_PLAYBACK);
+                player.sendMessage(WizardMessages.MESSAGE_PLAYBACK);
                 for (String[] msg : withheldMessages) {
                     player.sendMessage("<" + msg[0] + "> " + msg[1]);
                 }
