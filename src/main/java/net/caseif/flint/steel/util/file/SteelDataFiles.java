@@ -41,5 +41,6 @@ public class SteelDataFiles extends CommonDataFiles {
 
     public static final MinigameDataFile MG_OLD_DATA_DIR = new MinigameDataFile("old", true, false);
     public static final MinigameDataFile OLD_ARENA_STORE = new MinigameDataFile("arenas.yml", false, false);
+    public static final MinigameDataFile OLD_LOBBY_STORE = new MinigameDataFile("lobbies.yml", false, false);
 
 }

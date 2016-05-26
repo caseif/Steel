@@ -23,8 +23,11 @@
  */
 package net.caseif.flint.steel.util.compatibility;
 
+import static net.caseif.flint.common.lobby.CommonLobbySign.PERSIST_INDEX_KEY;
+import static net.caseif.flint.common.lobby.CommonLobbySign.PERSIST_TYPE_KEY;
 import static net.caseif.flint.common.util.helper.JsonSerializer.serializeLocation;
 import static net.caseif.flint.util.physical.Location3D.deserialize;
+
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.metadata.persist.CommonPersistentMetadata;
 import net.caseif.flint.common.util.helper.JsonSerializer;
@@ -59,6 +62,7 @@ public class MinigameDataMigrationAgent extends DataMigrationAgent {
     @Override
     public void migrateData() {
         migrateArenaStore();
+        migrateLobbyStore();
     }
 
     private void migrateArenaStore() {
@@ -115,7 +119,64 @@ public class MinigameDataMigrationAgent extends DataMigrationAgent {
                     writer.write(json.toString());
                 }
             } catch (InvalidConfigurationException | IOException ex) {
-                SteelCore.logSevere("Failed to migrate offline player store!");
+                SteelCore.logSevere("Failed to migrate arena store!");
+                ex.printStackTrace();
+            }
+
+            relocateOldFile(oldFile.toPath());
+        }
+    }
+
+    private void migrateLobbyStore() {
+        File oldFile = SteelDataFiles.OLD_LOBBY_STORE.getFile(mg);
+        if (oldFile.exists()) {
+            SteelCore.logInfo("Detected old lobby store for minigame " + mg.getPlugin() + ". Attempting to migrate...");
+            File newFile = SteelDataFiles.LOBBY_STORE.getFile(mg);
+            try {
+                YamlConfiguration yaml = new YamlConfiguration();
+                yaml.load(oldFile);
+
+                JsonObject json = new JsonObject();
+
+                for (String key : yaml.getKeys(false)) {
+                    if (!yaml.isConfigurationSection(key)) {
+                        SteelCore.logWarning("Found invalid arena key \"" + key + "\" in old lobby store. "
+                                + "Not migrating...");
+                        continue;
+                    }
+
+                    JsonObject arenaJson = new JsonObject();
+                    json.add(key, arenaJson);
+
+                    ConfigurationSection arenaSec = yaml.getConfigurationSection(key);
+
+                    for (String coordKey : arenaSec.getKeys(false)) {
+                        if (!arenaSec.isConfigurationSection(coordKey)) {
+                            continue; // meh
+                        }
+
+                        try {
+                            ConfigurationSection signSec = arenaSec.getConfigurationSection(coordKey);
+
+                            JsonObject signJson = new JsonObject();
+                            arenaJson.add(coordKey, signJson);
+
+                            signJson.addProperty(PERSIST_TYPE_KEY, signSec.getString(PERSIST_TYPE_KEY));
+                            if (signJson.has(PERSIST_INDEX_KEY)) {
+                                signJson.addProperty(PERSIST_INDEX_KEY, signSec.getString(PERSIST_INDEX_KEY));
+                            }
+                        } catch (IllegalArgumentException ignored) { // meh
+                        }
+                    }
+                }
+
+                Files.deleteIfExists(newFile.toPath());
+                Files.createFile(newFile.toPath());
+                try (FileWriter writer = new FileWriter(newFile)) {
+                    writer.write(json.toString());
+                }
+            } catch (InvalidConfigurationException | IOException ex) {
+                SteelCore.logSevere("Failed to migrate lobby store!");
                 ex.printStackTrace();
             }
 

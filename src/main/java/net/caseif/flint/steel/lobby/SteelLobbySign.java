@@ -26,27 +26,19 @@ package net.caseif.flint.steel.lobby;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.lobby.CommonLobbySign;
 import net.caseif.flint.lobby.LobbySign;
-import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
-import net.caseif.flint.lobby.type.StatusLobbySign;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.lobby.type.SteelChallengerListingLobbySign;
 import net.caseif.flint.steel.lobby.type.SteelStatusLobbySign;
-import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Location3D;
 
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Implements {@link LobbySign}.
@@ -54,12 +46,6 @@ import java.io.IOException;
  * @author Max Roncacé
  */
 public abstract class SteelLobbySign extends CommonLobbySign {
-
-    private static final String PERSIST_TYPE_KEY = "type";
-    private static final String PERSIST_TYPE_STATUS = "status";
-    private static final String PERSIST_TYPE_LISTING = "listing";
-
-    private static final String PERSIST_INDEX_KEY = "index";
 
     public SteelLobbySign(Location3D location, CommonArena arena) {
         super(location, arena);
@@ -91,16 +77,6 @@ public abstract class SteelLobbySign extends CommonLobbySign {
         orphan();
     }
 
-    @Override
-    public void store() {
-        store(false);
-    }
-
-    @Override
-    public void unstore() {
-        store(true);
-    }
-
     public Block getBlock() {
         World world = Bukkit.getWorld(getLocation().getWorld().get());
         if (world == null) {
@@ -110,66 +86,19 @@ public abstract class SteelLobbySign extends CommonLobbySign {
         return world.getBlockAt((int) getLocation().getX(), (int) getLocation().getY(), (int) getLocation().getZ());
     }
 
-    private void store(boolean remove) {
-        try {
-            YamlConfiguration yaml = new YamlConfiguration();
-            File f = SteelDataFiles.LOBBY_STORE.getFile(getArena().getMinigame());
-            yaml.load(f);
-            ConfigurationSection arenaSection = yaml.getConfigurationSection(getArena().getId());
-            if (arenaSection == null) {
-                if (!remove) { // okay to create it since we're newly storing the sign
-                    arenaSection = yaml.createSection(getArena().getId());
-                } else { // can't delete something that's not there
-                    SteelCore.logWarning("Engine requested removal of lobby sign from store, but arena was not "
-                            + "defined");
-                    return;
-                }
-            }
-
-            String locSerial = getLocation().serialize();
-            if (remove) {
-                if (arenaSection.isSet(locSerial)) {
-                    arenaSection.set(locSerial, null);
-                } else {
-                    SteelCore.logWarning("Engine requested removal of lobby sign from store, but respective section "
-                            + "was not defined");
-                }
-            } else {
-                ConfigurationSection signSection = arenaSection.createSection(locSerial);
-                String type;
-                if (this instanceof StatusLobbySign) {
-                    type = PERSIST_TYPE_STATUS;
-                } else if (this instanceof ChallengerListingLobbySign) {
-                    type = PERSIST_TYPE_LISTING;
-                } else {
-                    throw new AssertionError("Invalid LobbySign object. Report this immediately.");
-                }
-                signSection.set(PERSIST_TYPE_KEY, type);
-                if (this instanceof ChallengerListingLobbySign) {
-                    signSection.set(PERSIST_INDEX_KEY, ((ChallengerListingLobbySign) this).getIndex());
-                }
-            }
-
-            yaml.save(f);
-        } catch (InvalidConfigurationException | IOException ex) {
-            SteelCore.logSevere("Failed to write to lobby sign store");
-            ex.printStackTrace();
-        }
-    }
-
-    public static SteelLobbySign of(Location3D location, SteelArena arena, ConfigurationSection section)
+    public static SteelLobbySign of(Location3D location, SteelArena arena, JsonObject json)
             throws IllegalArgumentException {
-        if (section.isString(PERSIST_TYPE_KEY)) {
-            String type = section.getString(PERSIST_TYPE_KEY);
+        if (json.has(PERSIST_TYPE_KEY)) {
+            String type = json.get(PERSIST_TYPE_KEY).getAsString();
             switch (type) {
                 case PERSIST_TYPE_STATUS: {
                     return new SteelStatusLobbySign(location, arena);
                 }
                 case PERSIST_TYPE_LISTING: {
-                    if (!section.isInt(PERSIST_INDEX_KEY)) {
+                    if (!json.has(PERSIST_INDEX_KEY)) {
                         break;
                     }
-                    int index = section.getInt(PERSIST_INDEX_KEY);
+                    int index = json.get(PERSIST_INDEX_KEY).getAsInt();
                     return new SteelChallengerListingLobbySign(location, arena, index);
                 }
                 default: { // continue to IllegalArgumentException

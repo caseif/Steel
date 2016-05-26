@@ -87,9 +87,13 @@ class WizardPlayer extends CommonWizardPlayer {
     @Override
     @SuppressWarnings("deprecation")
     protected void restoreTargetBlock() {
-        Block b = LocationHelper.convertLocation(getLocation()).getBlock();
-        b.setType(origMaterial);
-        b.setData(origData);
+        Bukkit.getScheduler().runTask(SteelMain.getInstance(), new Runnable() {
+            public void run() {
+                Block b = LocationHelper.convertLocation(getLocation()).getBlock();
+                b.setType(origMaterial);
+                b.setData(origData);
+            }
+        });
     }
 
 }

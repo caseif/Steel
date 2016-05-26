@@ -26,6 +26,7 @@ package net.caseif.flint.steel.minigame;
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.common.minigame.CommonMinigame;
+import net.caseif.flint.common.util.helper.JsonHelper;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
@@ -38,17 +39,18 @@ import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 
 import com.google.common.base.Optional;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Implements {@link Minigame}.
@@ -115,18 +117,23 @@ public class SteelMinigame extends CommonMinigame {
 
     private void loadLobbySigns() {
         try {
-            YamlConfiguration yaml = new YamlConfiguration();
-            File f = SteelDataFiles.LOBBY_STORE.getFile(this);
-            yaml.load(f);
-            for (String arenaKey : yaml.getKeys(false)) {
-                if (yaml.isConfigurationSection(arenaKey)) {
-                    Optional<Arena> arena = getArena(arenaKey);
+            File store = SteelDataFiles.LOBBY_STORE.getFile(this);
+            Optional<JsonObject> jsonOpt = JsonHelper.readJson(store);
+            if (!jsonOpt.isPresent()) {
+                return;
+            }
+            JsonObject json = jsonOpt.get();
+
+            for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
+                if (json.get(entry.getKey()).isJsonObject()) {
+                    Optional<Arena> arena = getArena(entry.getKey());
                     if (arena.isPresent()) {
-                        ConfigurationSection arenaSection = yaml.getConfigurationSection(arenaKey);
-                        for (String coordKey : arenaSection.getKeys(false)) {
-                            if (arenaSection.isConfigurationSection(coordKey)) {
+                        JsonObject arenaJson = json.getAsJsonObject(entry.getKey());
+                        for (Map.Entry<String, JsonElement> arenaEntry : arenaJson.entrySet()) {
+                            if (arenaJson.get(arenaEntry.getKey()).isJsonObject()) {
                                 try {
-                                    Location3D loc = Location3D.deserialize(coordKey);
+                                    System.out.println(arenaEntry.getKey());
+                                    Location3D loc = Location3D.deserialize(arenaEntry.getKey());
                                     if (loc.getWorld().isPresent()) {
                                         World w = Bukkit.getWorld(loc.getWorld().get());
                                         if (w != null) {
@@ -138,17 +145,17 @@ public class SteelMinigame extends CommonMinigame {
                                             if (block.getState() instanceof Sign) {
                                                 try {
                                                     LobbySign sign = SteelLobbySign.of(loc, (SteelArena) arena.get(),
-                                                            arenaSection.getConfigurationSection(coordKey));
+                                                            arenaJson.getAsJsonObject(arenaEntry.getKey()));
                                                     ((SteelArena) arena.get()).getLobbySignMap().put(loc, sign);
                                                 } catch (IllegalArgumentException ex) {
                                                     SteelCore.logWarning("Found lobby sign in store with invalid "
                                                             + "configuration. Removing...");
-                                                    arenaSection.set(coordKey, null);
+                                                    json.remove(arenaEntry.getKey());
                                                 }
                                             } else {
                                                 SteelCore.logWarning("Found lobby sign with location not containing a "
                                                         + "sign block. Removing...");
-                                                arenaSection.set(coordKey, null);
+                                                json.remove(arenaEntry.getKey());
                                             }
                                         } else {
                                             SteelCore.logVerbose("Cannot load world \"" + loc.getWorld().get()
@@ -157,22 +164,24 @@ public class SteelMinigame extends CommonMinigame {
                                         continue;
                                     } // else: continue to invalid warning
                                 } catch (IllegalArgumentException ignored) { // continue to invalid warning
-                                    ignored.printStackTrace();
                                 }
                             } // else: continue to invalid warning
                             // never executes unless the serial is invalid in some way
-                            SteelCore.logWarning("Found lobby sign in store with invalid location serial."
+                            SteelCore.logWarning("Found lobby sign in store with invalid location serial. "
                                     + "Removing...");
-                            arenaSection.set(coordKey, null);
+                            json.remove(arenaEntry.getKey());
                         }
                     } else {
-                        SteelCore.logVerbose("Found orphaned lobby sign group (arena \"" + arenaKey
-                                + "\" - not loading");
+                        SteelCore.logVerbose("Found orphaned lobby sign group (arena \"" + entry.getKey()
+                                + "\") - not loading");
                     }
                 }
             }
-            yaml.save(f);
-        } catch (InvalidConfigurationException | IOException ex) {
+
+            try (FileWriter writer = new FileWriter(store)) {
+                writer.write(json.toString());
+            }
+        } catch (IOException ex) {
             SteelCore.logSevere("Failed to load lobby signs for minigame " + getPlugin());
             ex.printStackTrace();
         }
