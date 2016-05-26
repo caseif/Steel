@@ -27,13 +27,12 @@ import net.caseif.flint.FlintCore;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.component.CommonComponent;
 import net.caseif.flint.common.util.agent.chat.IChatAgent;
-import net.caseif.flint.common.util.factory.IArenaFactory;
+import net.caseif.flint.common.util.factory.IFactoryRegistry;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.SteelUtils;
-import net.caseif.flint.steel.util.agent.ChatAgent;
-import net.caseif.flint.steel.util.compatibility.MinigameDataMigrationAgent;
-import net.caseif.flint.steel.util.factory.ArenaFactory;
+import net.caseif.flint.steel.util.agent.chat.ChatAgent;
+import net.caseif.flint.steel.util.factory.FactoryRegistry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -50,7 +49,7 @@ public class SteelCore extends CommonCore {
     private static boolean VERBOSE_LOGGING;
 
     private static final ChatAgent CHAT_AGENT = new ChatAgent();
-    private static final ArenaFactory ARENA_FACTORY = new ArenaFactory();
+    private static final FactoryRegistry FACTORY_REGISTRY = new FactoryRegistry();
 
     static {
         boolean javacIsStupid = false;
@@ -71,17 +70,6 @@ public class SteelCore extends CommonCore {
     @Override
     protected String getImplementationName0() {
         return SteelMain.getInstance().getName();
-    }
-
-    @Override
-    protected Minigame registerPlugin0(String pluginId) throws IllegalStateException {
-        if (getMinigames().containsKey(pluginId)) {
-            throw new IllegalStateException(pluginId + " attempted to register itself more than once");
-        }
-        Minigame minigame = new SteelMinigame(pluginId);
-        getMinigames().put(pluginId, minigame);
-
-        return minigame;
     }
 
     @Override
@@ -119,8 +107,8 @@ public class SteelCore extends CommonCore {
         return CHAT_AGENT;
     }
 
-    protected IArenaFactory getArenaFactory0() {
-        return ARENA_FACTORY;
+    protected IFactoryRegistry getFactoryRegistry0() {
+        return FACTORY_REGISTRY;
     }
 
 }

@@ -40,7 +40,6 @@ import net.caseif.flint.round.JoinResult;
 import net.caseif.flint.round.LifecycleStage;
 import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.challenger.SteelChallenger;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.helper.LocationHelper;
@@ -79,10 +78,9 @@ public class SteelRound extends CommonRound {
                 20L
         );
         try {
-            ((SteelArena) getArena()).getRollbackHelper().createRollbackDatabase();
+            arena.getRollbackAgent().createRollbackDatabase();
         } catch (IOException | SQLException ex) {
-            SteelCore.logSevere("Failed to create rollback store");
-            ex.printStackTrace();
+            throw new RuntimeException("Failed to create rollback store", ex);
         }
     }
 

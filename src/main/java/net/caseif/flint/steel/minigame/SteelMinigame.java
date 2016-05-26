@@ -115,6 +115,7 @@ public class SteelMinigame extends CommonMinigame {
         return wizardManager;
     }
 
+    //TODO: Whoa, this is supposed to be in Common. Next commit for sure.
     private void loadLobbySigns() {
         try {
             File store = SteelDataFiles.LOBBY_STORE.getFile(this);
@@ -132,7 +133,6 @@ public class SteelMinigame extends CommonMinigame {
                         for (Map.Entry<String, JsonElement> arenaEntry : arenaJson.entrySet()) {
                             if (arenaJson.get(arenaEntry.getKey()).isJsonObject()) {
                                 try {
-                                    System.out.println(arenaEntry.getKey());
                                     Location3D loc = Location3D.deserialize(arenaEntry.getKey());
                                     if (loc.getWorld().isPresent()) {
                                         World w = Bukkit.getWorld(loc.getWorld().get());

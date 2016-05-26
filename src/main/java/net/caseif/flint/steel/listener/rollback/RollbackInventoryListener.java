@@ -23,7 +23,7 @@
  */
 package net.caseif.flint.steel.listener.rollback;
 
-import net.caseif.flint.steel.util.helper.rollback.RollbackHelper;
+import net.caseif.flint.steel.util.helper.rollback.RollbackAgent;
 
 import org.bukkit.block.BlockState;
 import org.bukkit.event.Event;
@@ -67,7 +67,7 @@ public class RollbackInventoryListener implements Listener {
     public void checkInventoryEvent(Inventory inventory, Event event) {
         if (inventory.getHolder() instanceof BlockState) {
             BlockState bs = ((BlockState) inventory.getHolder());
-            RollbackHelper.checkBlockChange(bs.getLocation(), bs, event);
+            RollbackAgent.checkBlockChange(bs.getLocation(), bs, event);
         }
     }
 

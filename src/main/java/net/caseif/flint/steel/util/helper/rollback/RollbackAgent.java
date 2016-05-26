@@ -25,10 +25,10 @@ package net.caseif.flint.steel.util.helper.rollback;
 
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.CommonCore;
-import net.caseif.flint.common.util.helper.rollback.CommonRollbackHelper;
+import net.caseif.flint.common.arena.CommonArena;
+import net.caseif.flint.common.util.agent.rollback.CommonRollbackAgent;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
-import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.helper.rollback.serialization.BlockStateSerializer;
 import net.caseif.flint.steel.util.helper.rollback.serialization.EntityStateSerializer;
@@ -57,19 +57,19 @@ import java.util.UUID;
  *
  * @author Max Roncacé
  */
-public final class RollbackHelper extends CommonRollbackHelper {
+public final class RollbackAgent extends CommonRollbackAgent {
 
     /**
-     * Creates a new {@link RollbackHelper} backing the given
+     * Creates a new {@link RollbackAgent} backing the given
      * {@link SteelArena}.
      *
      * @param arena The {@link SteelArena} to be backed by the new
-     *     {@link RollbackHelper}
+     *     {@link RollbackAgent}
      */
-    public RollbackHelper(SteelArena arena) {
-        super(arena, SteelDataFiles.ROLLBACK_STORE.getFile(arena.getMinigame()),
-                SteelDataFiles.ROLLBACK_STATE_STORE.getFile(arena.getMinigame()));
+    public RollbackAgent(CommonArena arena) {
+        super(arena);
     }
+
     /**
      * Logs a rollback change at the given location.
      *
@@ -106,7 +106,7 @@ public final class RollbackHelper extends CommonRollbackHelper {
         List<Arena> arenas = checkChangeAtLocation(LocationHelper.convertLocation(location));
         for (Arena arena : arenas) {
             try {
-                ((SteelArena) arena).getRollbackHelper().logBlockChange(location, state);
+                ((SteelArena) arena).getRollbackAgent().logBlockChange(location, state);
             } catch (IOException | SQLException ex) {
                 throw new RuntimeException("Failed to log " + event.getEventName() + " for rollback in arena "
                         + arena.getName(), ex);
@@ -119,9 +119,9 @@ public final class RollbackHelper extends CommonRollbackHelper {
         for (Arena arena : arenas) {
             try {
                 if (newlyCreated) {
-                    ((SteelArena) arena).getRollbackHelper().logEntityCreation(entity);
+                    ((SteelArena) arena).getRollbackAgent().logEntityCreation(entity);
                 } else {
-                    ((SteelArena) arena).getRollbackHelper().logEntityChange(entity);
+                    ((SteelArena) arena).getRollbackAgent().logEntityChange(entity);
                 }
             } catch (IOException | SQLException ex) {
                 throw new RuntimeException("Failed to log " + event.getEventName() + " for rollback in arena "
@@ -135,24 +135,26 @@ public final class RollbackHelper extends CommonRollbackHelper {
     public void rollbackBlock(int id, Location3D location, String type, int data, String stateSerial)
             throws IOException {
         Block b = LocationHelper.convertLocation(location).getBlock();
-        Material m = Material.valueOf(type);
-        if (m != null) {
-            if (b.getState() instanceof InventoryHolder) {
-                // Bukkit drops the items if they aren't cleared
-                ((InventoryHolder) b.getState()).getInventory().clear();
-            }
-            b.setType(m);
-            b.setData((byte) data);
-            if (stateSerial != null) {
-                try {
-                    BlockStateSerializer.deserializeState(b, stateSerial);
-                } catch (InvalidConfigurationException ex) {
-                    throw new IOException(ex);
-                }
-            }
-        } else {
+        Material m;
+        try {
+            m = Material.valueOf(type);
+        } catch (IllegalArgumentException ex) {
             SteelCore.logWarning("Rollback record with ID " + id + " in arena "
                     + getArena().getId() + " cannot be matched to a Material");
+            return;
+        }
+        if (b.getState() instanceof InventoryHolder) {
+            // Bukkit drops the items if they aren't cleared
+            ((InventoryHolder) b.getState()).getInventory().clear();
+        }
+        b.setType(m);
+        b.setData((byte) data);
+        if (stateSerial != null) {
+            try {
+                BlockStateSerializer.deserializeState(b, stateSerial);
+            } catch (InvalidConfigurationException ex) {
+                throw new IOException(ex);
+            }
         }
     }
 
@@ -168,27 +170,31 @@ public final class RollbackHelper extends CommonRollbackHelper {
     @Override
     public void rollbackEntityChange(int id, UUID uuid, Location3D location, String type, String stateSerial)
             throws IOException {
-        EntityType entityType = EntityType.valueOf(type);
-        if (entityType != null) {
-            if (entities.containsKey(uuid)) {
-                Entity e = entities.get(uuid);
-                // teleport to bottom of map so it doesn't conflict since it isn't removed
-                // until the next tick
-                e.teleport(e.getLocation().subtract(0, e.getLocation().getY() + 1, 0));
-                e.remove(); // clean slate
-            }
-            Location loc = LocationHelper.convertLocation(location);
-            Entity e = loc.getWorld().spawnEntity(loc, entityType);
-            if (stateSerial != null) {
-                try {
-                    EntityStateSerializer.deserializeState(e, stateSerial);
-                } catch (InvalidConfigurationException ex) {
-                    throw new IOException(ex);
-                }
-            }
-        } else {
+        EntityType entityType;
+        try {
+            entityType = EntityType.valueOf(type);
+        } catch (IllegalArgumentException ex) {
             CommonCore.logWarning("Invalid entity type for rollback record with ID " + id
                     + " in arena " + getArena().getId());
+            return;
+        }
+
+        if (entities.containsKey(uuid)) {
+            Entity e = entities.get(uuid);
+            // teleport to bottom of map so it doesn't conflict since it isn't removed
+            // until the next tick
+            e.teleport(e.getLocation().subtract(0, e.getLocation().getY() + 1, 0));
+            e.remove(); // clean slate
+        }
+
+        Location loc = LocationHelper.convertLocation(location);
+        Entity e = loc.getWorld().spawnEntity(loc, entityType);
+        if (stateSerial != null) {
+            try {
+                EntityStateSerializer.deserializeState(e, stateSerial);
+            } catch (InvalidConfigurationException ex) {
+                throw new IOException(ex);
+            }
         }
     }
 

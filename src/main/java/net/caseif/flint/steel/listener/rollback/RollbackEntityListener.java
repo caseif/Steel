@@ -24,7 +24,7 @@
 package net.caseif.flint.steel.listener.rollback;
 
 import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.steel.util.helper.rollback.RollbackHelper;
+import net.caseif.flint.steel.util.helper.rollback.RollbackAgent;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -69,14 +69,14 @@ public class RollbackEntityListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
         for (Block b : event.blockList()) {
-            RollbackHelper.checkBlockChange(b.getLocation(), b.getState(), event);
+            RollbackAgent.checkBlockChange(b.getLocation(), b.getState(), event);
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     // covers enderman, falling blocks, and probably other stuff I'm forgetting
     public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-        RollbackHelper.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
+        RollbackAgent.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
     }
 
     // ENTITY ROLLBACKS
@@ -108,7 +108,7 @@ public class RollbackEntityListener implements Listener {
 
     public static void handleEntityEvent(Entity entity, boolean newlyCreated, Event event) {
         if (SUPPORTED_TYPES.contains(entity.getType())) {
-            RollbackHelper.checkEntityChange(entity, newlyCreated, event);
+            RollbackAgent.checkEntityChange(entity, newlyCreated, event);
         }
     }
 

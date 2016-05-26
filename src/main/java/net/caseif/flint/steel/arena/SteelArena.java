@@ -27,26 +27,19 @@ import static com.google.common.base.Preconditions.checkArgument;
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.minigame.CommonMinigame;
-import net.caseif.flint.component.exception.OrphanedComponentException;
 import net.caseif.flint.exception.rollback.RollbackException;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
 import net.caseif.flint.lobby.type.StatusLobbySign;
-import net.caseif.flint.round.LifecycleStage;
-import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.lobby.SteelLobbySign;
 import net.caseif.flint.steel.lobby.type.SteelChallengerListingLobbySign;
 import net.caseif.flint.steel.lobby.type.SteelStatusLobbySign;
-import net.caseif.flint.steel.minigame.SteelMinigame;
-import net.caseif.flint.steel.round.SteelRound;
 import net.caseif.flint.steel.util.helper.LocationHelper;
-import net.caseif.flint.steel.util.helper.rollback.RollbackHelper;
+import net.caseif.flint.steel.util.helper.rollback.RollbackAgent;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -66,19 +59,6 @@ public class SteelArena extends CommonArena {
 
     public SteelArena(CommonMinigame parent, String id, String name, Location3D initialSpawn, Boundary boundary) {
         super(parent, id.toLowerCase(), name, initialSpawn, boundary);
-        assert !id.contains(".");
-        rbHelper = new RollbackHelper(this);
-    }
-
-    @Override
-    public Round createRound(ImmutableSet<LifecycleStage> stages)
-            throws IllegalArgumentException, IllegalStateException, OrphanedComponentException {
-        checkState();
-        Preconditions.checkState(!getRound().isPresent(), "Cannot create a round in an arena already hosting one");
-        checkArgument(stages != null && !stages.isEmpty(), "LifecycleStage set must not be null or empty");
-        ((SteelMinigame) getMinigame()).getRoundMap().put(this, new SteelRound(this, stages));
-        Preconditions.checkState(getRound().isPresent(), "Cannot get created round from arena! This is a bug.");
-        return getRound().get();
     }
 
     @Override
@@ -105,15 +85,15 @@ public class SteelArena extends CommonArena {
 
         try {
             Location loc = LocationHelper.convertLocation(location);
-            getRollbackHelper().logBlockChange(loc, loc.getBlock().getState());
+            getRollbackAgent().logBlockChange(loc, loc.getBlock().getState());
         } catch (IOException | SQLException ex) {
             throw new RollbackException(ex);
         }
     }
 
     @Override
-    public RollbackHelper getRollbackHelper() {
-        return (RollbackHelper) super.getRollbackHelper();
+    public RollbackAgent getRollbackAgent() {
+        return (RollbackAgent) super.getRollbackAgent();
     }
 
     private boolean checkLocationForLobbySign(Location3D location) throws IllegalArgumentException {
