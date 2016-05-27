@@ -28,13 +28,9 @@ import net.caseif.flint.common.lobby.CommonLobbySign;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.SteelMain;
-import net.caseif.flint.steel.arena.SteelArena;
-import net.caseif.flint.steel.lobby.type.SteelChallengerListingLobbySign;
-import net.caseif.flint.steel.lobby.type.SteelStatusLobbySign;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Location3D;
 
-import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -71,8 +67,6 @@ public abstract class SteelLobbySign extends CommonLobbySign {
             for (int i = 0; i < ((Sign) block.getState()).getLines().length; i++) {
                 ((Sign) block.getState()).setLine(i, "");
             }
-        } else {
-            SteelCore.logWarning("Cannot blank unregistered lobby sign: not a sign");
         }
         orphan();
     }
@@ -84,28 +78,6 @@ public abstract class SteelLobbySign extends CommonLobbySign {
                     + "\" for lobby sign");
         }
         return world.getBlockAt((int) getLocation().getX(), (int) getLocation().getY(), (int) getLocation().getZ());
-    }
-
-    public static SteelLobbySign of(Location3D location, SteelArena arena, JsonObject json)
-            throws IllegalArgumentException {
-        if (json.has(PERSIST_TYPE_KEY)) {
-            String type = json.get(PERSIST_TYPE_KEY).getAsString();
-            switch (type) {
-                case PERSIST_TYPE_STATUS: {
-                    return new SteelStatusLobbySign(location, arena);
-                }
-                case PERSIST_TYPE_LISTING: {
-                    if (!json.has(PERSIST_INDEX_KEY)) {
-                        break;
-                    }
-                    int index = json.get(PERSIST_INDEX_KEY).getAsInt();
-                    return new SteelChallengerListingLobbySign(location, arena, index);
-                }
-                default: { // continue to IllegalArgumentException
-                }
-            }
-        }
-        throw new IllegalArgumentException("Invalid ConfigurationSection for LobbySign");
     }
 
 }

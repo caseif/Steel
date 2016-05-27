@@ -25,6 +25,7 @@ package net.caseif.flint.steel.util.factory;
 
 import net.caseif.flint.common.util.factory.IArenaFactory;
 import net.caseif.flint.common.util.factory.IFactoryRegistry;
+import net.caseif.flint.common.util.factory.ILobbySignFactory;
 import net.caseif.flint.common.util.factory.IMinigameFactory;
 import net.caseif.flint.common.util.factory.IRollbackAgentFactory;
 import net.caseif.flint.common.util.factory.IRoundFactory;
@@ -34,6 +35,7 @@ public class FactoryRegistry implements IFactoryRegistry {
     private MinigameFactory minigameFac = new MinigameFactory();
     private ArenaFactory arenaFac = new ArenaFactory();
     private RoundFactory roundFac = new RoundFactory();
+    private LobbySignFactory lsFac = new LobbySignFactory();
     private RollbackAgentFactory rollbackFac = new RollbackAgentFactory();
 
     @Override
@@ -49,6 +51,11 @@ public class FactoryRegistry implements IFactoryRegistry {
     @Override
     public IRoundFactory getRoundFactory() {
         return roundFac;
+    }
+
+    @Override
+    public ILobbySignFactory getLobbySignFactory() {
+        return lsFac;
     }
 
     @Override

@@ -50,6 +50,8 @@ import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -115,75 +117,29 @@ public class SteelMinigame extends CommonMinigame {
         return wizardManager;
     }
 
-    //TODO: Whoa, this is supposed to be in Common. Next commit for sure.
-    private void loadLobbySigns() {
-        try {
-            File store = SteelDataFiles.LOBBY_STORE.getFile(this);
-            Optional<JsonObject> jsonOpt = JsonHelper.readJson(store);
-            if (!jsonOpt.isPresent()) {
-                return;
-            }
-            JsonObject json = jsonOpt.get();
-
-            for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
-                if (json.get(entry.getKey()).isJsonObject()) {
-                    Optional<Arena> arena = getArena(entry.getKey());
-                    if (arena.isPresent()) {
-                        JsonObject arenaJson = json.getAsJsonObject(entry.getKey());
-                        for (Map.Entry<String, JsonElement> arenaEntry : arenaJson.entrySet()) {
-                            if (arenaJson.get(arenaEntry.getKey()).isJsonObject()) {
-                                try {
-                                    Location3D loc = Location3D.deserialize(arenaEntry.getKey());
-                                    if (loc.getWorld().isPresent()) {
-                                        World w = Bukkit.getWorld(loc.getWorld().get());
-                                        if (w != null) {
-                                            Block block = w.getBlockAt(
-                                                    (int) Math.floor(loc.getX()),
-                                                    (int) Math.floor(loc.getY()),
-                                                    (int) Math.floor(loc.getZ())
-                                            );
-                                            if (block.getState() instanceof Sign) {
-                                                try {
-                                                    LobbySign sign = SteelLobbySign.of(loc, (SteelArena) arena.get(),
-                                                            arenaJson.getAsJsonObject(arenaEntry.getKey()));
-                                                    ((SteelArena) arena.get()).getLobbySignMap().put(loc, sign);
-                                                } catch (IllegalArgumentException ex) {
-                                                    SteelCore.logWarning("Found lobby sign in store with invalid "
-                                                            + "configuration. Removing...");
-                                                    json.remove(arenaEntry.getKey());
-                                                }
-                                            } else {
-                                                SteelCore.logWarning("Found lobby sign with location not containing a "
-                                                        + "sign block. Removing...");
-                                                json.remove(arenaEntry.getKey());
-                                            }
-                                        } else {
-                                            SteelCore.logVerbose("Cannot load world \"" + loc.getWorld().get()
-                                                    + "\" - not loading contained lobby sign");
-                                        }
-                                        continue;
-                                    } // else: continue to invalid warning
-                                } catch (IllegalArgumentException ignored) { // continue to invalid warning
-                                }
-                            } // else: continue to invalid warning
-                            // never executes unless the serial is invalid in some way
-                            SteelCore.logWarning("Found lobby sign in store with invalid location serial. "
-                                    + "Removing...");
-                            json.remove(arenaEntry.getKey());
-                        }
-                    } else {
-                        SteelCore.logVerbose("Found orphaned lobby sign group (arena \"" + entry.getKey()
-                                + "\") - not loading");
-                    }
+    protected int checkPhysicalLobbySign(Location3D loc) {
+        if (loc.getWorld().isPresent()) {
+            World w = Bukkit.getWorld(loc.getWorld().get());
+            if (w != null) {
+                Block block = w.getBlockAt(
+                        (int) Math.floor(loc.getX()),
+                        (int) Math.floor(loc.getY()),
+                        (int) Math.floor(loc.getZ())
+                );
+                if (block.getState() instanceof Sign) {
+                    return 0;
+                } else {
+                    SteelCore.logWarning("Found lobby sign with location not containing a sign block. Removing...");
+                    return 2;
                 }
+            } else {
+                SteelCore.logVerbose("Cannot load world \"" + loc.getWorld().get()
+                        + "\" - not loading contained lobby sign");
+                return 1;
             }
-
-            try (FileWriter writer = new FileWriter(store)) {
-                writer.write(json.toString());
-            }
-        } catch (IOException ex) {
-            SteelCore.logSevere("Failed to load lobby signs for minigame " + getPlugin());
-            ex.printStackTrace();
+        } else {
+            SteelCore.logWarning("Found lobby sign in store with invalid location serial. Removing...");
+            return 2;
         }
     }
 
