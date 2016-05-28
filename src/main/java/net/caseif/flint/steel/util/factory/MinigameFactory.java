@@ -27,10 +27,13 @@ import net.caseif.flint.common.util.factory.IMinigameFactory;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 
+import org.bukkit.Bukkit;
+
 public class MinigameFactory implements IMinigameFactory {
 
     public Minigame createMinigame(String pluginId) {
-        return new SteelMinigame(pluginId);
+        assert Bukkit.getPluginManager().isPluginEnabled(pluginId);
+        return new SteelMinigame(Bukkit.getPluginManager().getPlugin(pluginId));
     }
 
 }

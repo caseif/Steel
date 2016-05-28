@@ -24,6 +24,7 @@
 package net.caseif.flint.steel.util.agent.chat;
 
 import static com.google.common.base.Preconditions.checkArgument;
+
 import net.caseif.flint.common.util.agent.chat.IChatAgent;
 
 import org.bukkit.Bukkit;
@@ -37,14 +38,8 @@ import java.util.UUID;
 public class ChatAgent implements IChatAgent {
 
     @Override
-    public void processAndSend(UUID recipient, String message) {
-        // we can basically just send the message with the legacy codes
-        getPlayer(recipient).sendMessage(message);
-    }
-
-    @Override
-    public void processAndSend(UUID recipient, String... message) {
-        getPlayer(recipient).sendMessage(message);
+    public void processAndSend(UUID recipient, String... messages) {
+        getPlayer(recipient).sendMessage(messages);
     }
 
     private Player getPlayer(UUID uuid) {

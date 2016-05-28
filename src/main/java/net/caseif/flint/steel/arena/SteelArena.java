@@ -24,6 +24,7 @@
 package net.caseif.flint.steel.arena;
 
 import static com.google.common.base.Preconditions.checkArgument;
+
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.minigame.CommonMinigame;
@@ -34,14 +35,15 @@ import net.caseif.flint.lobby.type.StatusLobbySign;
 import net.caseif.flint.steel.lobby.SteelLobbySign;
 import net.caseif.flint.steel.lobby.type.SteelChallengerListingLobbySign;
 import net.caseif.flint.steel.lobby.type.SteelStatusLobbySign;
-import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.agent.rollback.RollbackAgent;
+import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 
 import com.google.common.base.Optional;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -103,7 +105,13 @@ public class SteelArena extends CommonArena {
             throw new IllegalArgumentException("Invalid world for lobby sign location");
         }
         Block block = LocationHelper.convertLocation(location).getBlock();
-        return block.getState() instanceof Sign && !getLobbySignMap().containsKey(location);
+        if (!getLobbySignMap().containsKey(location)) {
+            if (!(block.getState() instanceof Sign)) {
+                block.setType(Material.SIGN);
+            }
+            return true;
+        }
+        return false;
     }
 
     private <T extends LobbySign> Optional<T> storeAndWrap(T sign) {

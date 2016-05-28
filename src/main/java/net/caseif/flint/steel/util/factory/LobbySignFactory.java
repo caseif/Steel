@@ -40,7 +40,8 @@ import com.google.gson.JsonObject;
 public class LobbySignFactory implements ILobbySignFactory {
 
     @Override
-    public LobbySign createLobbySign(Location3D location, Arena arena, JsonObject json) throws IllegalArgumentException {
+    public LobbySign createLobbySign(Location3D location, Arena arena, JsonObject json)
+            throws IllegalArgumentException {
         if (json.has(PERSIST_TYPE_KEY)) {
             String type = json.get(PERSIST_TYPE_KEY).getAsString();
             switch (type) {
