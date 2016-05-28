@@ -26,33 +26,22 @@ package net.caseif.flint.steel.minigame;
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.common.minigame.CommonMinigame;
-import net.caseif.flint.common.util.helper.JsonHelper;
-import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
-import net.caseif.flint.steel.lobby.SteelLobbySign;
 import net.caseif.flint.steel.lobby.wizard.WizardManager;
 import net.caseif.flint.steel.util.compatibility.MinigameDataMigrationAgent;
 import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 
-import com.google.common.base.Optional;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.plugin.Plugin;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Implements {@link Minigame}.
@@ -65,13 +54,13 @@ public class SteelMinigame extends CommonMinigame {
 
     private final IWizardManager wizardManager;
 
-    public SteelMinigame(String plugin) {
+    public SteelMinigame(Plugin plugin) {
         super();
 
         assert plugin != null;
-        if (Bukkit.getPluginManager().isPluginEnabled(plugin)) {
-            this.plugin = Bukkit.getPluginManager().getPlugin(plugin);
-        } else {
+
+        this.plugin = plugin;
+        if (!Bukkit.getPluginManager().isPluginEnabled(plugin)) {
             throw new IllegalArgumentException("Plugin \"" + plugin + "\" is not loaded!");
         }
 
