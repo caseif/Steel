@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package net.caseif.flint.steel.util.helper.rollback.serialization;
+package net.caseif.flint.steel.util.agent.rollback.serialization;
 
 import net.caseif.flint.serialization.Serializer;
 

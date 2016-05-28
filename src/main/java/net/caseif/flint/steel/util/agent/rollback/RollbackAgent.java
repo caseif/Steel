@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package net.caseif.flint.steel.util.helper.rollback;
+package net.caseif.flint.steel.util.agent.rollback;
 
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.CommonCore;
@@ -30,8 +30,8 @@ import net.caseif.flint.common.util.agent.rollback.CommonRollbackAgent;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.util.helper.LocationHelper;
-import net.caseif.flint.steel.util.helper.rollback.serialization.BlockStateSerializer;
-import net.caseif.flint.steel.util.helper.rollback.serialization.EntityStateSerializer;
+import net.caseif.flint.steel.util.agent.rollback.serialization.BlockStateSerializer;
+import net.caseif.flint.steel.util.agent.rollback.serialization.EntityStateSerializer;
 import net.caseif.flint.util.physical.Location3D;
 
 import org.bukkit.Bukkit;
@@ -109,7 +109,7 @@ public final class RollbackAgent extends CommonRollbackAgent {
                 ((SteelArena) arena).getRollbackAgent().logBlockChange(location, state);
             } catch (IOException | SQLException ex) {
                 throw new RuntimeException("Failed to log " + event.getEventName() + " for rollback in arena "
-                        + arena.getName(), ex);
+                        + arena.getDisplayName(), ex);
             }
         }
     }
@@ -125,7 +125,7 @@ public final class RollbackAgent extends CommonRollbackAgent {
                 }
             } catch (IOException | SQLException ex) {
                 throw new RuntimeException("Failed to log " + event.getEventName() + " for rollback in arena "
-                        + arena.getName(), ex);
+                        + arena.getDisplayName(), ex);
             }
         }
     }

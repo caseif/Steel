@@ -35,7 +35,7 @@ import net.caseif.flint.steel.lobby.SteelLobbySign;
 import net.caseif.flint.steel.lobby.type.SteelChallengerListingLobbySign;
 import net.caseif.flint.steel.lobby.type.SteelStatusLobbySign;
 import net.caseif.flint.steel.util.helper.LocationHelper;
-import net.caseif.flint.steel.util.helper.rollback.RollbackAgent;
+import net.caseif.flint.steel.util.agent.rollback.RollbackAgent;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
 

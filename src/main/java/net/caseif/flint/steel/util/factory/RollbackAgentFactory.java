@@ -27,7 +27,7 @@ import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.util.agent.rollback.IRollbackAgent;
 import net.caseif.flint.common.util.factory.IRollbackAgentFactory;
 import net.caseif.flint.steel.arena.SteelArena;
-import net.caseif.flint.steel.util.helper.rollback.RollbackAgent;
+import net.caseif.flint.steel.util.agent.rollback.RollbackAgent;
 
 public class RollbackAgentFactory implements IRollbackAgentFactory {
 
