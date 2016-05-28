@@ -26,14 +26,8 @@ package net.caseif.flint.steel.lobby.type;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.component.exception.OrphanedComponentException;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
-import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.lobby.SteelLobbySign;
 import net.caseif.flint.util.physical.Location3D;
-
-import org.bukkit.Bukkit;
-import org.bukkit.block.Block;
-import org.bukkit.block.Sign;
 
 /**
  * Implements {@link ChallengerListingLobbySign}.
@@ -45,40 +39,13 @@ public class SteelChallengerListingLobbySign extends SteelLobbySign implements C
     private final int index;
 
     public SteelChallengerListingLobbySign(Location3D location, CommonArena arena, int index) {
-        super(location, arena);
+        super(location, arena, Type.CHALLENGER_LISTING);
         this.index = index;
     }
 
     @Override
     public Type getType() {
         return Type.CHALLENGER_LISTING;
-    }
-
-    @Override
-    public void update() {
-        Block b = getBlock();
-        if (!(b.getState() instanceof Sign)) {
-            // hehe, illegal "state"
-            unregister();
-            SteelCore.logWarning("Cannot update lobby sign at ("
-                    + "\"" + b.getWorld().getName() + "\", " + b.getX() + ", " + b.getY() + ", " + b.getZ()
-                    + "): not a sign. Removing...");
-        }
-        final Sign sign = (Sign) b.getState();
-        int startIndex = getIndex() * sign.getLines().length;
-        boolean round = getArena().getRound().isPresent();
-        for (int i = 0; i < sign.getLines().length; i++) {
-            if (round && startIndex + i < getArena().getRound().get().getChallengers().size()) {
-                sign.setLine(i, getArena().getRound().get().getChallengers().get(startIndex + i).getName());
-            } else {
-                sign.setLine(i, "");
-            }
-        }
-        Bukkit.getScheduler().runTask(SteelMain.getInstance(), new Runnable() {
-            public void run() {
-                sign.update(true);
-            }
-        });
     }
 
     @Override

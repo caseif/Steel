@@ -98,12 +98,12 @@ public class RollbackEntityListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onHangingPlace(HangingPlaceEvent event) {
-            handleEntityEvent(event.getEntity(), true, event);
+        handleEntityEvent(event.getEntity(), true, event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onHangingBreak(HangingBreakEvent event) {
-            handleEntityEvent(event.getEntity(), false, event);
+        handleEntityEvent(event.getEntity(), false, event);
     }
 
     public static void handleEntityEvent(Entity entity, boolean newlyCreated, Event event) {

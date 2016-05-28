@@ -32,6 +32,7 @@ import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Location3D;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -43,15 +44,38 @@ import org.bukkit.block.Sign;
  */
 public abstract class SteelLobbySign extends CommonLobbySign {
 
-    public SteelLobbySign(Location3D location, CommonArena arena) {
-        super(location, arena);
-        final LobbySign sign = this;
+    private static final int SIGN_SIZE = 4;
+
+    private static final ChatColor[] STATUS_COLORS = new ChatColor[] {ChatColor.DARK_AQUA, ChatColor.DARK_PURPLE,
+            ChatColor.DARK_PURPLE, ChatColor.DARK_BLUE};
+
+    public SteelLobbySign(Location3D location, CommonArena arena, Type type) {
+        super(location, arena, type);
+        final LobbySign sign = this; // thank you based javac
         Bukkit.getScheduler().runTask(SteelMain.getInstance(), new Runnable() {
             @Override
             public void run() {
                 sign.update();
             }
         });
+    }
+
+    @Override
+    public void update() {
+        switch (getType()) {
+            case STATUS:
+                String[] lines = getStatusText();
+                for (int i = 0; i < getSignSize(); i++) {
+                    lines[i] = STATUS_COLORS[i] + lines[i];
+                }
+                updateSign(lines);
+                break;
+            case CHALLENGER_LISTING:
+                updateSign(getChallengerListingText());
+                break;
+            default: // wtf
+                throw new AssertionError();
+        }
     }
 
     @Override
@@ -69,6 +93,36 @@ public abstract class SteelLobbySign extends CommonLobbySign {
             }
         }
         orphan();
+    }
+
+    private void updateSign(String[] lines) {
+        assert lines.length == getSignSize();
+
+        Block block = LocationHelper.convertLocation(getLocation()).getBlock();
+        if (block.getState() instanceof Sign) {
+            final Sign sign = (Sign) block.getState();
+
+            for (int i = 0; i < getSignSize(); i++) {
+                sign.setLine(i, lines[i]);
+            }
+
+            Bukkit.getScheduler().runTask(SteelMain.getInstance(), new Runnable() {
+                public void run() {
+                    sign.update(true);
+                }
+            });
+        }
+    }
+
+    @Override
+    protected boolean validate() {
+        Block b = getBlock();
+        return (b.getState() instanceof Sign);
+    }
+
+    @Override
+    protected int getSignSize() {
+        return SIGN_SIZE;
     }
 
     public Block getBlock() {
