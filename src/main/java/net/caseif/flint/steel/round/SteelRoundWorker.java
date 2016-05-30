@@ -24,10 +24,9 @@
 package net.caseif.flint.steel.round;
 
 import net.caseif.flint.challenger.Challenger;
-import net.caseif.flint.common.event.round.CommonRoundTimerTickEvent;
+import net.caseif.flint.common.round.CommonRound;
+import net.caseif.flint.common.round.CommonRoundWorker;
 import net.caseif.flint.config.ConfigNode;
-import net.caseif.flint.lobby.LobbySign;
-import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
@@ -36,58 +35,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-/**
- * Used as the {@link Runnable} for {@link Round} timers.
- *
- * @author Max Roncacé
- */
-public class RoundWorker implements Runnable {
+class SteelRoundWorker extends CommonRoundWorker {
 
-    private final SteelRound round;
-
-    public RoundWorker(SteelRound round) {
-        this.round = round;
+    SteelRoundWorker(CommonRound round) {
+        super(round);
     }
 
-    public void run() {
-        if (round.isTimerTicking()) {
-            handleTick();
-        }
-        if (!round.isOrphaned()) {
-            checkPlayerLocations();
-
-            for (LobbySign sign : round.getArena().getLobbySigns()) {
-                if (sign.getType() == LobbySign.Type.STATUS) {
-                    sign.update();
-                }
-            }
-        }
-    }
-
-    private void handleTick() {
-        boolean stageSwitch = round.getLifecycleStage().getDuration() > 0
-                && round.getTime() >= round.getLifecycleStage().getDuration();
-        if (stageSwitch) {
-            if (round.getNextLifecycleStage().isPresent()) {
-                round.nextLifecycleStage();
-            } else {
-                round.end(round.getConfigValue(ConfigNode.ROLLBACK_ON_END), true);
-                return;
-            }
-        } else {
-            round.setTime(round.getTime() + 1, false);
-        }
-        round.getArena().getMinigame().getEventBus().post(new CommonRoundTimerTickEvent(round, round.getTime() - 1,
-                stageSwitch ? 0 : round.getTime()));
-    }
-
-    private void checkPlayerLocations() {
-        Boundary bound = round.getArena().getBoundary();
-        for (Challenger challenger : round.getChallengers()) {
+    @Override
+    protected void checkPlayerLocations() {
+        Boundary bound = getRound().getArena().getBoundary();
+        for (Challenger challenger : getRound().getChallengers()) {
             Player player = Bukkit.getPlayer(challenger.getUniqueId());
             Location3D loc = LocationHelper.convertLocation(player.getLocation());
             if (!bound.contains(loc)) {
-                if (round.getConfigValue(ConfigNode.ALLOW_EXIT_BOUNDARY)) {
+                if (getRound().getConfigValue(ConfigNode.ALLOW_EXIT_BOUNDARY)) {
                     challenger.removeFromRound();
                 } else {
                     double x = loc.getX() > bound.getUpperBound().getX() ? bound.getUpperBound().getX()
