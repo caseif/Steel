@@ -51,17 +51,18 @@ public abstract class SteelLobbySign extends CommonLobbySign {
 
     public SteelLobbySign(Location3D location, CommonArena arena, Type type) {
         super(location, arena, type);
-        final LobbySign sign = this; // thank you based javac
         Bukkit.getScheduler().runTask(SteelMain.getInstance(), new Runnable() {
             @Override
             public void run() {
-                sign.update();
+                SteelLobbySign.this.update();
             }
         });
     }
 
     @Override
     public void update() {
+        checkState();
+
         switch (getType()) {
             case STATUS:
                 String[] lines = getStatusText();

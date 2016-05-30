@@ -59,7 +59,7 @@ public class LobbySignFactory implements ILobbySignFactory {
                 }
             }
         }
-        throw new IllegalArgumentException("Invalid ConfigurationSection for LobbySign");
+        throw new IllegalArgumentException("Invalid configuration for LobbySign");
     }
 
 }
