@@ -73,7 +73,7 @@ public class SteelRound extends CommonRound {
         super(arena, stages);
         schedulerHandle = Bukkit.getScheduler().scheduleSyncRepeatingTask(
                 ((SteelMinigame) getArena().getMinigame()).getBukkitPlugin(),
-                new RoundWorker(this),
+                new SteelRoundWorker(this),
                 0L,
                 20L
         );
