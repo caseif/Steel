@@ -1,4 +1,4 @@
-/*
+    /*
  * The MIT License (MIT)
  *
  * Copyright (c) 2015-2016, Max Roncace <me@caseif.net>
@@ -24,6 +24,7 @@
 package net.caseif.flint.steel.round;
 
 import net.caseif.flint.challenger.Challenger;
+import net.caseif.flint.common.challenger.CommonChallenger;
 import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.common.round.CommonRoundWorker;
 import net.caseif.flint.config.ConfigNode;
@@ -45,6 +46,10 @@ class SteelRoundWorker extends CommonRoundWorker {
     protected void checkPlayerLocations() {
         Boundary bound = getRound().getArena().getBoundary();
         for (Challenger challenger : getRound().getChallengers()) {
+            if (((CommonChallenger) challenger).isLeaving()) {
+                return;
+            }
+
             Player player = Bukkit.getPlayer(challenger.getUniqueId());
             Location3D loc = LocationHelper.convertLocation(player.getLocation());
             if (!bound.contains(loc)) {
