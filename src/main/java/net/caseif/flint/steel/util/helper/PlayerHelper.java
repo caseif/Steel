@@ -75,6 +75,7 @@ public class PlayerHelper {
      * @throws IOException If an exception occurs while saving into persistent
      *     storage
      */
+    @SuppressWarnings("deprecation")
     public static void pushInventory(Player player) throws IOException {
         PlayerInventory inv = player.getInventory();
         // the file to store the inventory in
@@ -94,6 +95,7 @@ public class PlayerHelper {
         yaml.save(storage); // save to disk
         inv.clear(); // clear the inventory to complete the push to disk
         inv.setArmorContents(new ItemStack[inv.getArmorContents().length]);
+        player.updateInventory();
     }
 
     /**
@@ -107,6 +109,7 @@ public class PlayerHelper {
      * @throws InvalidConfigurationException If the stored inventory is invalid
      */
     //TODO: generalize some of this code for use with rollback storage
+    @SuppressWarnings("deprecation")
     public static void popInventory(Player player) throws IllegalArgumentException, IOException,
             InvalidConfigurationException {
         // the file to load the inventory from
@@ -122,18 +125,15 @@ public class PlayerHelper {
                     + PLAYER_INVENTORY_PRIMARY_KEY + "\"");
         }
         player.getInventory().clear();
-        {
-            player.getInventory().setContents(
-                    InventoryHelper.deserializeInventory(yaml.getConfigurationSection(PLAYER_INVENTORY_PRIMARY_KEY))
+        player.getInventory().setContents(
+                InventoryHelper.deserializeInventory(yaml.getConfigurationSection(PLAYER_INVENTORY_PRIMARY_KEY))
+        );
+        if (yaml.contains(PLAYER_INVENTORY_ARMOR_KEY)) {
+            player.getInventory().setArmorContents(
+                    InventoryHelper.deserializeInventory(yaml.getConfigurationSection(PLAYER_INVENTORY_ARMOR_KEY))
             );
         }
-        {
-            if (yaml.contains(PLAYER_INVENTORY_ARMOR_KEY)) {
-                player.getInventory().setArmorContents(
-                        InventoryHelper.deserializeInventory(yaml.getConfigurationSection(PLAYER_INVENTORY_ARMOR_KEY))
-                );
-            }
-        }
+        player.updateInventory();
         //noinspection ResultOfMethodCallIgnored
         storage.delete();
     }
