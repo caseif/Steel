@@ -1,5 +1,5 @@
 name: Steel
 description: The implementation of the Flint minigame framework for the Bukkit Minecraft server mod.
-version: 1.2.7
+version: 1.2.8
 author: Max Roncace
 main: net.caseif.flint.steel.SteelMain
