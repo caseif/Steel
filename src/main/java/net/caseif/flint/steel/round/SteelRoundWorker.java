@@ -28,6 +28,7 @@ import net.caseif.flint.common.challenger.CommonChallenger;
 import net.caseif.flint.common.round.CommonRound;
 import net.caseif.flint.common.round.CommonRoundWorker;
 import net.caseif.flint.config.ConfigNode;
+import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
@@ -55,6 +56,11 @@ class SteelRoundWorker extends CommonRoundWorker {
             if (!bound.contains(loc)) {
                 if (getRound().getConfigValue(ConfigNode.ALLOW_EXIT_BOUNDARY)) {
                     challenger.removeFromRound();
+                } else if (loc.getY() < 0) {
+                    Location3D nextSpawn = challenger.getRound().nextSpawnPoint();
+                    player.setFallDistance(0);
+                    player.teleport(new Location(player.getWorld(), nextSpawn.getX(), nextSpawn.getY(),
+                            nextSpawn.getZ(), player.getLocation().getYaw(), player.getLocation().getPitch()));
                 } else {
                     double x = loc.getX() > bound.getUpperBound().getX() ? bound.getUpperBound().getX()
                             : loc.getX() < bound.getLowerBound().getX() ? bound.getLowerBound().getX()
