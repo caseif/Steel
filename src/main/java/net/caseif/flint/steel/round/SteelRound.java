@@ -215,18 +215,6 @@ public class SteelRound extends CommonRound {
         }
     }
 
-    @SuppressWarnings("DuplicateThrows")
-    @Override
-    public void end(boolean rollback, boolean natural) throws IllegalStateException, OrphanedComponentException {
-        checkState();
-        cancelTimerTask();
-        super.end(rollback, natural);
-        for (LobbySign ls : getArena().getLobbySigns()) {
-            ls.update();
-        }
-        this.orphan();
-    }
-
     @Override
     public void broadcast(String message) {
         checkState();
@@ -235,6 +223,7 @@ public class SteelRound extends CommonRound {
         }
     }
 
+    @Override
     public void cancelTimerTask() {
         Bukkit.getScheduler().cancelTask(schedulerHandle);
     }
