@@ -58,7 +58,7 @@ public class SteelMain extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        SteelCore.initialize();
+        SteelCore.initializeSteel();
 
         registerEvents();
 

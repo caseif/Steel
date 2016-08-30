@@ -33,6 +33,7 @@ import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.SteelUtils;
 import net.caseif.flint.steel.util.agent.chat.ChatAgent;
 import net.caseif.flint.steel.util.factory.FactoryRegistry;
+import net.caseif.flint.steel.util.unsafe.SteelUnsafeUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -52,6 +53,8 @@ public class SteelCore extends CommonCore {
     private static final FactoryRegistry FACTORY_REGISTRY = new FactoryRegistry();
 
     static {
+        INSTANCE = new SteelCore();
+
         boolean javacIsStupid = false;
         try {
             GameMode.valueOf("SPECTATOR");
@@ -61,8 +64,11 @@ public class SteelCore extends CommonCore {
         SPECTATOR_SUPPORT = javacIsStupid;
     }
 
-    static void initialize() {
-        INSTANCE = new SteelCore();
+    static void initializeSteel() {
+        CommonCore.initializeCommon();
+
+        SteelUnsafeUtil.initialize();
+
         PLATFORM_UTILS = new SteelUtils();
         VERBOSE_LOGGING = SteelMain.getInstance().getConfig().getBoolean("verbose-logging");
     }
