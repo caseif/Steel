@@ -91,7 +91,7 @@ public class SteelMinigame extends CommonMinigame {
             throw new IllegalArgumentException("Cannot create arena: arena with ID \"" + id + "\" already exists");
         }
 
-        SteelArena arena = new SteelArena(this, id, name, spawnPoint, boundary);
+        SteelArena arena = new SteelArena(this, id, name, new Location3D[] {spawnPoint}, boundary);
         try {
             arena.store();
         } catch (IOException ex) {

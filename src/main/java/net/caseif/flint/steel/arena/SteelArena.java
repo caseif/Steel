@@ -59,8 +59,8 @@ import java.sql.SQLException;
 @SuppressWarnings("DuplicateThrows")
 public class SteelArena extends CommonArena {
 
-    public SteelArena(CommonMinigame parent, String id, String name, Location3D initialSpawn, Boundary boundary) {
-        super(parent, id.toLowerCase(), name, initialSpawn, boundary);
+    public SteelArena(CommonMinigame parent, String id, String name, Location3D[] spawnPoints, Boundary boundary) {
+        super(parent, id.toLowerCase(), name, spawnPoints, boundary);
     }
 
     @Override

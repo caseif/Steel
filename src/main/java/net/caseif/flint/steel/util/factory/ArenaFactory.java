@@ -33,9 +33,9 @@ import net.caseif.flint.util.physical.Location3D;
 public class ArenaFactory implements IArenaFactory {
 
     @Override
-    public CommonArena createArena(CommonMinigame parent, String id, String name, Location3D initialSpawn,
+    public CommonArena createArena(CommonMinigame parent, String id, String name, Location3D[] spawnPoints,
                                    Boundary boundary) {
-        return new SteelArena(parent, id, name, initialSpawn, boundary);
+        return new SteelArena(parent, id, name, spawnPoints, boundary);
     }
 
 }
