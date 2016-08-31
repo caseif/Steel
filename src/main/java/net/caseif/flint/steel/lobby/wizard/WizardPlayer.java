@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package net.caseif.flint.steel.lobby.wizard;
 
 import net.caseif.flint.common.lobby.wizard.CommonWizardPlayer;

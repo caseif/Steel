@@ -1,26 +1,14 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        jcenter()
-    }
-    dependencies {
-        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
-    }
-}
-
-// apply Gradle plugins
 plugins {
     id 'java'
     id 'maven'
     id 'eclipse'
     id 'idea'
     id 'checkstyle'
-    id 'com.github.johnrengelman.shadow' version '1.2.0'
+    id 'net.minecrell.licenser' version '0.2.1'
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
 
-apply plugin: 'license'
-
-defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
+defaultTasks 'clean', 'updateLicenses', 'build', 'shadowJar'
 
 // Project information
 group = 'net.caseif.flint.steel'
@@ -114,17 +102,8 @@ processResources {
 
 // License header formatting
 license {
-    header file('LICENSE')
-    excludes([
-            '**/*.properties',
-            '**/*.yml'
-    ])
-    sourceSets = project.sourceSets
+    include '**/*.java'
     ignoreFailures false
-    strictCheck true
-    mapping {
-        java = 'SLASHSTAR_STYLE'
-    }
 }
 
 // check code style
@@ -167,5 +146,5 @@ artifacts {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.8'
+    gradleVersion = '3.0'
 }

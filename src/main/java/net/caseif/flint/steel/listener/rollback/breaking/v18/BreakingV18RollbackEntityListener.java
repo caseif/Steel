@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package net.caseif.flint.steel.listener.rollback.breaking.v18;
 
 import net.caseif.flint.steel.listener.rollback.RollbackEntityListener;

@@ -1,4 +1,4 @@
-    /*
+/*
  * The MIT License (MIT)
  *
  * Copyright (c) 2015-2016, Max Roncace <me@caseif.net>
@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package net.caseif.flint.steel.round;
 
 import net.caseif.flint.challenger.Challenger;

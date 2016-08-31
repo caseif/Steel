@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
 package net.caseif.flint.steel.util.unsafe;
 
 import net.caseif.flint.common.lobby.populator.StockChallengerListingLobbySignPopulator;
