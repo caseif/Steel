@@ -32,7 +32,6 @@ import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Location3D;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -46,9 +45,6 @@ public abstract class SteelLobbySign extends CommonLobbySign {
 
     private static final int SIGN_SIZE = 4;
 
-    private static final ChatColor[] STATUS_COLORS = new ChatColor[] {ChatColor.DARK_AQUA, ChatColor.DARK_PURPLE,
-            ChatColor.DARK_PURPLE, ChatColor.DARK_BLUE};
-
     public SteelLobbySign(Location3D location, CommonArena arena, Type type) {
         super(location, arena, type);
         Bukkit.getScheduler().runTask(SteelMain.getInstance(), new Runnable() {
@@ -57,26 +53,6 @@ public abstract class SteelLobbySign extends CommonLobbySign {
                 SteelLobbySign.this.update();
             }
         });
-    }
-
-    @Override
-    public void update() {
-        checkState();
-
-        switch (getType()) {
-            case STATUS:
-                String[] lines = getStatusText();
-                for (int i = 0; i < getSignSize(); i++) {
-                    lines[i] = STATUS_COLORS[i] + lines[i];
-                }
-                updateSign(lines);
-                break;
-            case CHALLENGER_LISTING:
-                updateSign(getChallengerListingText());
-                break;
-            default: // wtf
-                throw new AssertionError();
-        }
     }
 
     @Override
@@ -96,7 +72,7 @@ public abstract class SteelLobbySign extends CommonLobbySign {
         orphan();
     }
 
-    private void updateSign(String[] lines) {
+    protected void updatePhysicalSign(String... lines) {
         assert lines.length == getSignSize();
 
         Block block = LocationHelper.convertLocation(getLocation()).getBlock();

@@ -21,32 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package net.caseif.flint.steel.util.unsafe;
+package net.caseif.flint.steel.lobby.populator;
 
-import net.caseif.flint.common.lobby.populator.StockChallengerListingLobbySignPopulator;
-import net.caseif.flint.common.util.unsafe.CommonUnsafeUtil;
-import net.caseif.flint.lobby.populator.LobbySignPopulator;
-import net.caseif.flint.steel.lobby.populator.RichStockStatusLobbySignPopulator;
+import net.caseif.flint.common.lobby.populator.StockStatusLobbySignPopulator;
+import net.caseif.flint.lobby.LobbySign;
 
-public class SteelUnsafeUtil extends CommonUnsafeUtil {
+import org.bukkit.ChatColor;
 
-    private static final LobbySignPopulator STATUS_POPULATOR = new RichStockStatusLobbySignPopulator();
-    private static final LobbySignPopulator LISTING_POPULATOR = new StockChallengerListingLobbySignPopulator();
+public class RichStockStatusLobbySignPopulator extends StockStatusLobbySignPopulator {
 
-    public static void initialize() {
-        INSTANCE = new SteelUnsafeUtil();
+    private static final ChatColor[] STATUS_COLORS = new ChatColor[] {ChatColor.DARK_AQUA, ChatColor.DARK_PURPLE,
+            ChatColor.DARK_PURPLE, ChatColor.DARK_BLUE};
+
+    public String first(LobbySign sign) {
+        return STATUS_COLORS[0] + super.first(sign);
     }
 
-    @Override
-    public LobbySignPopulator getDefaultStatusLobbySignPopulator() {
-        testInternalUse();
-        return STATUS_POPULATOR;
+    public String second(LobbySign sign) {
+        return STATUS_COLORS[1] + super.second(sign);
     }
 
-    @Override
-    public LobbySignPopulator getDefaultChallengerListingLobbySignPopulator() {
-        testInternalUse();
-        return LISTING_POPULATOR;
+    public String third(LobbySign sign) {
+        return STATUS_COLORS[2] + super.third(sign);
+    }
+
+    public String fourth(LobbySign sign) {
+        return STATUS_COLORS[3] + super.fourth(sign);
     }
 
 }
