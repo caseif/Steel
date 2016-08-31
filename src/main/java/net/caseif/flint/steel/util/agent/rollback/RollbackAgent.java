@@ -28,6 +28,7 @@ import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.util.agent.rollback.CommonRollbackAgent;
+import net.caseif.flint.common.util.agent.rollback.RollbackRecord;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.arena.SteelArena;
@@ -85,8 +86,8 @@ public final class RollbackAgent extends CommonRollbackAgent {
     @SuppressWarnings("deprecation")
     public void logBlockChange(Location location, BlockState originalState) throws IOException, SQLException {
         String state = BlockStateSerializer.serializeState(originalState).orNull();
-        logChange(RECORD_TYPE_BLOCK_CHANGED, LocationHelper.convertLocation(location), null,
-                originalState.getType().name(), originalState.getRawData(), state);
+        logChange(RollbackRecord.createBlockRecord(-1, LocationHelper.convertLocation(location),
+                originalState.getType().name(), originalState.getRawData(), state));
     }
 
     private void logEntityCreation(Entity entity) throws IOException, SQLException {
@@ -99,9 +100,12 @@ public final class RollbackAgent extends CommonRollbackAgent {
 
     private void logEntitySomething(Entity entity, boolean newlyCreated) throws IOException, SQLException {
         String state = !newlyCreated ? EntityStateSerializer.serializeState(entity) : null;
-        logChange(newlyCreated ? RECORD_TYPE_ENTITY_CREATED : RECORD_TYPE_ENTITY_CHANGED,
-                LocationHelper.convertLocation(entity.getLocation()), entity.getUniqueId(), entity.getType().name(), -1,
-                state);
+        if (newlyCreated) {
+            logChange(RollbackRecord.createEntityCreationRecord(-1, entity.getUniqueId(), entity.getWorld().getName()));
+        } else {
+            logChange(RollbackRecord.createEntityChangeRecord(-1, entity.getUniqueId(),
+                    LocationHelper.convertLocation(entity.getLocation()), entity.getType().name(), state));
+        }
     }
 
     public static void checkBlockChange(Location location, BlockState state, Event event) {
@@ -134,14 +138,14 @@ public final class RollbackAgent extends CommonRollbackAgent {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void rollbackBlock(int id, Location3D location, String type, int data, String stateSerial)
+    public void rollbackBlock(RollbackRecord record)
             throws IOException {
-        Block b = LocationHelper.convertLocation(location).getBlock();
+        Block b = LocationHelper.convertLocation(record.getLocation()).getBlock();
         Material m;
         try {
-            m = Material.valueOf(type);
+            m = Material.valueOf(record.getTypeData());
         } catch (IllegalArgumentException ex) {
-            SteelCore.logWarning("Rollback record with ID " + id + " in arena "
+            SteelCore.logWarning("Rollback record with ID " + record.getId() + " in arena "
                     + getArena().getId() + " cannot be matched to a Material");
             return;
         }
@@ -150,10 +154,10 @@ public final class RollbackAgent extends CommonRollbackAgent {
             ((InventoryHolder) b.getState()).getInventory().clear();
         }
         b.setType(m);
-        b.setData((byte) data);
-        if (stateSerial != null) {
+        b.setData((byte) record.getData());
+        if (record.getStateSerial() != null) {
             try {
-                BlockStateSerializer.deserializeState(b, stateSerial);
+                BlockStateSerializer.deserializeState(b, record.getStateSerial());
             } catch (InvalidConfigurationException ex) {
                 throw new IOException(ex);
             }
@@ -163,26 +167,25 @@ public final class RollbackAgent extends CommonRollbackAgent {
     private HashMap<UUID, Entity> entities;
 
     @Override
-    public void rollbackEntityCreation(int id, UUID uuid) {
-        if (entities.containsKey(uuid)) {
-            entities.get(uuid).remove();
+    public void rollbackEntityCreation(RollbackRecord record) {
+        if (entities.containsKey(record.getUuid())) {
+            entities.get(record.getUuid()).remove();
         } // else: probably already removed by a player or something else
     }
 
     @Override
-    public void rollbackEntityChange(int id, UUID uuid, final Location3D location, String type,
-                                     final String stateSerial) throws IOException {
+    public void rollbackEntityChange(final RollbackRecord record) throws IOException {
         final EntityType entityType;
         try {
-            entityType = EntityType.valueOf(type);
+            entityType = EntityType.valueOf(record.getTypeData());
         } catch (IllegalArgumentException ex) {
-            CommonCore.logWarning("Invalid entity type for rollback record with ID " + id
+            CommonCore.logWarning("Invalid entity type for rollback record with ID " + record.getId()
                     + " in arena " + getArena().getId());
             return;
         }
 
-        if (entities.containsKey(uuid)) {
-            Entity e = entities.get(uuid);
+        if (entities.containsKey(record.getUuid())) {
+            Entity e = entities.get(record.getUuid());
             // teleport to bottom of map so it doesn't conflict since it isn't removed
             // until the next tick
             e.teleport(e.getLocation().subtract(0, e.getLocation().getY() + 1, 0));
@@ -192,11 +195,11 @@ public final class RollbackAgent extends CommonRollbackAgent {
         Bukkit.getScheduler().runTask(SteelMain.getInstance(), new Runnable() {
             @Override
             public void run() {
-                Location loc = LocationHelper.convertLocation(location);
+                Location loc = LocationHelper.convertLocation(record.getLocation());
                 Entity e = loc.getWorld().spawnEntity(loc, entityType);
-                if (stateSerial != null) {
+                if (record.getStateSerial() != null) {
                     try {
-                        EntityStateSerializer.deserializeState(e, stateSerial);
+                        EntityStateSerializer.deserializeState(e, record.getStateSerial());
                     } catch (InvalidConfigurationException | IOException ex) {
                         throw new RuntimeException(ex);
                     }
