@@ -135,7 +135,7 @@ public class BlockStateSerializer {
         if (yaml.getKeys(false).size() > 0) {
             return Optional.of(yaml.saveToString());
         }
-            return Optional.absent();
+        return Optional.absent();
     }
 
     @SuppressWarnings("deprecation")
@@ -167,10 +167,10 @@ public class BlockStateSerializer {
             }
         } else if (Support.BANNER && state instanceof Banner) {
             if (yaml.isSet(BANNER_BASE_COLOR_KEY)) {
-                DyeColor color = DyeColor.valueOf(yaml.getString(BANNER_BASE_COLOR_KEY));
-                if (color != null) {
+                try {
+                    DyeColor color = DyeColor.valueOf(yaml.getString(BANNER_BASE_COLOR_KEY));
                     ((Banner) state).setBaseColor(color);
-                } else {
+                } catch (IllegalArgumentException ex) {
                     malformedData = true;
                 }
             } else {
@@ -180,11 +180,11 @@ public class BlockStateSerializer {
                 ConfigurationSection patterns = yaml.getConfigurationSection(BANNER_PATTERNS_KEY);
                 for (String key : patterns.getKeys(false)) {
                     ConfigurationSection subSection = patterns.getConfigurationSection(key);
-                    DyeColor color = DyeColor.valueOf(subSection.getString(BANNER_PATTERN_COLOR_KEY));
-                    PatternType type = PatternType.valueOf(subSection.getString(BANNER_PATTERN_TYPE_KEY));
-                    if (color != null && type != null) {
+                    try {
+                        DyeColor color = DyeColor.valueOf(subSection.getString(BANNER_PATTERN_COLOR_KEY));
+                        PatternType type = PatternType.valueOf(subSection.getString(BANNER_PATTERN_TYPE_KEY));
                         ((Banner) state).addPattern(new Pattern(color, type));
-                    } else {
+                    } catch (IllegalArgumentException ex) {
                         malformedData = true;
                     }
                 }
@@ -193,10 +193,10 @@ public class BlockStateSerializer {
             }
         } else if (state instanceof CreatureSpawner) {
             if (yaml.isSet(SPAWNER_TYPE_KEY)) {
-                EntityType type = EntityType.valueOf(yaml.getString(SPAWNER_TYPE_KEY));
-                if (type != null) {
+                try {
+                    EntityType type = EntityType.valueOf(yaml.getString(SPAWNER_TYPE_KEY));
                     ((CreatureSpawner) state).setSpawnedType(type);
-                } else {
+                } catch (IllegalArgumentException ex) {
                     malformedData = true;
                 }
             } else {
@@ -204,12 +204,12 @@ public class BlockStateSerializer {
             }
         } else if (state instanceof NoteBlock) {
             if (yaml.isInt(NOTE_OCTAVE_KEY) && yaml.isSet(NOTE_TONE_KEY)) {
-                Note.Tone tone = Note.Tone.valueOf(yaml.getString(NOTE_TONE_KEY));
-                if (tone != null) {
+                try {
+                    Note.Tone tone = Note.Tone.valueOf(yaml.getString(NOTE_TONE_KEY));
                     ((NoteBlock) state).setNote(
                             new Note(yaml.getInt(NOTE_OCTAVE_KEY), tone, yaml.getBoolean(NOTE_SHARPED_KEY))
                     );
-                } else {
+                } catch (IllegalArgumentException ex) {
                     malformedData = true;
                 }
             } else {
@@ -217,10 +217,10 @@ public class BlockStateSerializer {
             }
         } else if (state instanceof Jukebox) {
             if (yaml.isSet(JUKEBOX_DISC_KEY)) {
-                Material disc = Material.valueOf(yaml.getString(JUKEBOX_DISC_KEY));
-                if (disc != null) {
+                try {
+                    Material disc = Material.valueOf(yaml.getString(JUKEBOX_DISC_KEY));
                     ((Jukebox) state).setPlaying(disc);
-                } else {
+                } catch (IllegalArgumentException ex) {
                     malformedData = true;
                 }
             } else {
@@ -231,10 +231,10 @@ public class BlockStateSerializer {
                 ((Skull) state).setOwner(yaml.getString(SKULL_OWNER_KEY));
             }
             if (yaml.isSet(SKULL_ROTATION_KEY)) {
-                BlockFace face = BlockFace.valueOf(yaml.getString(SKULL_ROTATION_KEY));
-                if (face != null) {
+                try {
+                    BlockFace face = BlockFace.valueOf(yaml.getString(SKULL_ROTATION_KEY));
                     ((Skull) state).setRotation(face);
-                } else {
+                } catch (IllegalArgumentException ex) {
                     malformedData = true;
                 }
             } else {
@@ -242,7 +242,7 @@ public class BlockStateSerializer {
             }
         } else if (state instanceof CommandBlock) {
             if (yaml.isSet(COMMAND_CMD_KEY)) {
-                        ((CommandBlock) state).setCommand(yaml.getString(COMMAND_CMD_KEY));
+                ((CommandBlock) state).setCommand(yaml.getString(COMMAND_CMD_KEY));
             } else {
                 missingData = true;
             }
@@ -253,11 +253,11 @@ public class BlockStateSerializer {
             }
         } else if (state instanceof FlowerPot) {
             if (yaml.isSet(FLOWER_TYPE_KEY)) {
-                Material type = Material.valueOf(yaml.getString(FLOWER_TYPE_KEY));
-                if (type != null) {
+                try {
                     byte data = yaml.isSet(FLOWER_DATA_KEY) ? (byte) yaml.getInt(FLOWER_DATA_KEY) : 0x0;
+                    Material type = Material.valueOf(yaml.getString(FLOWER_TYPE_KEY));
                     ((FlowerPot) state).setContents(new MaterialData(type, data));
-                } else {
+                } catch (IllegalArgumentException ex) {
                     malformedData = true;
                 }
             } else {
