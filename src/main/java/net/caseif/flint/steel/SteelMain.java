@@ -31,7 +31,6 @@ import net.caseif.flint.steel.listener.plugin.PluginListener;
 import net.caseif.flint.steel.listener.rollback.RollbackBlockListener;
 import net.caseif.flint.steel.listener.rollback.RollbackEntityListener;
 import net.caseif.flint.steel.listener.rollback.RollbackInventoryListener;
-import net.caseif.flint.steel.listener.rollback.breaking.v18.BreakingV18RollbackEntityListener;
 import net.caseif.flint.steel.util.TelemetryRunner;
 import net.caseif.flint.steel.util.compatibility.CoreDataMigrationAgent;
 import net.caseif.flint.steel.util.file.SteelDataFiles;
@@ -130,13 +129,6 @@ public class SteelMain extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new RollbackInventoryListener(), getInstance());
 
         Bukkit.getPluginManager().registerEvents(new LobbyListener(), getInstance());
-
-        // breaking event registration (for newer event types)
-        try {
-            Bukkit.getPluginManager().registerEvents(new BreakingV18RollbackEntityListener(), getInstance());
-        } catch (NoClassDefFoundError ex) {
-            SteelCore.logVerbose("Server does not support 1.8 events - not registering");
-        }
     }
 
 }
