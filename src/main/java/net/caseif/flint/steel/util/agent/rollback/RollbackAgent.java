@@ -73,6 +73,11 @@ public final class RollbackAgent extends CommonRollbackAgent {
         super(arena);
     }
 
+    @Override
+    protected void delay(Runnable runnable) {
+        Bukkit.getScheduler().runTask(SteelMain.getInstance(), runnable);
+    }
+
     /**
      * Logs a rollback change at the given location.
      *
