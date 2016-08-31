@@ -28,6 +28,7 @@ import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.arena.CommonArena;
 import net.caseif.flint.common.util.agent.rollback.CommonRollbackAgent;
 import net.caseif.flint.steel.SteelCore;
+import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.agent.rollback.serialization.BlockStateSerializer;
@@ -168,9 +169,9 @@ public final class RollbackAgent extends CommonRollbackAgent {
     }
 
     @Override
-    public void rollbackEntityChange(int id, UUID uuid, Location3D location, String type, String stateSerial)
-            throws IOException {
-        EntityType entityType;
+    public void rollbackEntityChange(int id, UUID uuid, final Location3D location, String type,
+                                     final String stateSerial) throws IOException {
+        final EntityType entityType;
         try {
             entityType = EntityType.valueOf(type);
         } catch (IllegalArgumentException ex) {
@@ -187,15 +188,20 @@ public final class RollbackAgent extends CommonRollbackAgent {
             e.remove(); // clean slate
         }
 
-        Location loc = LocationHelper.convertLocation(location);
-        Entity e = loc.getWorld().spawnEntity(loc, entityType);
-        if (stateSerial != null) {
-            try {
-                EntityStateSerializer.deserializeState(e, stateSerial);
-            } catch (InvalidConfigurationException ex) {
-                throw new IOException(ex);
+        Bukkit.getScheduler().runTask(SteelMain.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                Location loc = LocationHelper.convertLocation(location);
+                Entity e = loc.getWorld().spawnEntity(loc, entityType);
+                if (stateSerial != null) {
+                    try {
+                        EntityStateSerializer.deserializeState(e, stateSerial);
+                    } catch (InvalidConfigurationException | IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
-        }
+        });
     }
 
     @Override
