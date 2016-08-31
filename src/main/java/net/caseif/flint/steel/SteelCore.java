@@ -25,15 +25,22 @@
 package net.caseif.flint.steel;
 
 import net.caseif.flint.FlintCore;
+import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.CommonCore;
 import net.caseif.flint.common.component.CommonComponent;
 import net.caseif.flint.common.util.agent.chat.IChatAgent;
-import net.caseif.flint.common.util.factory.IFactoryRegistry;
+import net.caseif.flint.common.util.agent.rollback.IRollbackAgent;
+import net.caseif.flint.common.util.factory.FactoryRegistry;
+import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.minigame.Minigame;
-import net.caseif.flint.steel.minigame.SteelMinigame;
+import net.caseif.flint.round.Round;
 import net.caseif.flint.steel.util.SteelUtils;
 import net.caseif.flint.steel.util.agent.chat.ChatAgent;
-import net.caseif.flint.steel.util.factory.FactoryRegistry;
+import net.caseif.flint.steel.util.factory.ArenaFactory;
+import net.caseif.flint.steel.util.factory.LobbySignFactory;
+import net.caseif.flint.steel.util.factory.MinigameFactory;
+import net.caseif.flint.steel.util.factory.RollbackAgentFactory;
+import net.caseif.flint.steel.util.factory.RoundFactory;
 import net.caseif.flint.steel.util.unsafe.SteelUnsafeUtil;
 
 import org.bukkit.Bukkit;
@@ -51,7 +58,6 @@ public class SteelCore extends CommonCore {
     private static boolean VERBOSE_LOGGING;
 
     private static final ChatAgent CHAT_AGENT = new ChatAgent();
-    private static final FactoryRegistry FACTORY_REGISTRY = new FactoryRegistry();
 
     static {
         INSTANCE = new SteelCore();
@@ -67,11 +73,19 @@ public class SteelCore extends CommonCore {
 
     static void initializeSteel() {
         CommonCore.initializeCommon();
-
+        registerFactories();
         SteelUnsafeUtil.initialize();
 
         PLATFORM_UTILS = new SteelUtils();
         VERBOSE_LOGGING = SteelMain.getInstance().getConfig().getBoolean("verbose-logging");
+    }
+
+    private static void registerFactories() {
+        FactoryRegistry.registerFactory(Arena.class, new ArenaFactory());
+        FactoryRegistry.registerFactory(LobbySign.class, new LobbySignFactory());
+        FactoryRegistry.registerFactory(Minigame.class, new MinigameFactory());
+        FactoryRegistry.registerFactory(IRollbackAgent.class, new RollbackAgentFactory());
+        FactoryRegistry.registerFactory(Round.class, new RoundFactory());
     }
 
     @Override
@@ -112,10 +126,6 @@ public class SteelCore extends CommonCore {
 
     protected IChatAgent getChatAgent0() {
         return CHAT_AGENT;
-    }
-
-    protected IFactoryRegistry getFactoryRegistry0() {
-        return FACTORY_REGISTRY;
     }
 
 }
