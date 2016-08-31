@@ -35,13 +35,14 @@ import net.caseif.flint.steel.util.TelemetryRunner;
 import net.caseif.flint.steel.util.compatibility.CoreDataMigrationAgent;
 import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.steel.util.helper.ConfigHelper;
+import net.caseif.flint.steel.util.helper.UpdateHelper;
 
-import net.gravitydevelopment.updater.Updater;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mcstats.Metrics;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -50,8 +51,6 @@ import java.io.IOException;
  * @author Max Roncacé
  */
 public class SteelMain extends JavaPlugin {
-
-    private static final int CURSEFORGE_PROJECT_ID = 95203;
 
     private static SteelMain instance;
 
@@ -82,11 +81,16 @@ public class SteelMain extends JavaPlugin {
 
         initMetrics();
         initTelemetry();
-        initUpdater();
+        UpdateHelper.run();
     }
 
     @Override
     public void onDisable() {
+    }
+
+    @Override
+    public File getFile() {
+        return super.getFile();
     }
 
     public static SteelMain getInstance() {
@@ -108,12 +112,6 @@ public class SteelMain extends JavaPlugin {
     public void initTelemetry() {
         if (getConfig().getBoolean("enable-metrics")) {
             Bukkit.getScheduler().runTask(this, new TelemetryRunner());
-        }
-    }
-
-    public void initUpdater() {
-        if (getConfig().getBoolean("enable-updater")) {
-            new Updater(this, CURSEFORGE_PROJECT_ID, this.getFile(), Updater.UpdateType.DEFAULT, true);
         }
     }
 
