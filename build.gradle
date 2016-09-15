@@ -24,7 +24,7 @@ defaultTasks 'clean', 'licenseFormat', 'build', 'shadowJar'
 
 // Project information
 group = 'net.caseif.flint.steel'
-version = '1.2.10'
+version = '1.2.11'
 
 // Extended project information
 ext.projectName = 'steel'
@@ -49,7 +49,6 @@ repositories {
     maven { url 'http://repo.caseif.net/content/groups/public/' }
     maven { url 'http://repo.bukkit.org/content/groups/public/' }
     maven { url 'https://hub.spigotmc.org/nexus/content/groups/public/' }
-    maven { url 'http://repo.gravitydevelopment.net' }
     maven { url 'http://repo.mcstats.org/content/repositories/public' }
 }
 
@@ -72,7 +71,6 @@ ext {
     bukkit = 'org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT'
     common = 'net.caseif.flint.common:flintcommon:' + commonVersion
     metrics = 'org.mcstats.bukkit:metrics:R8-SNAPSHOT'
-    updater = 'net.gravitydevelopment.updater:updater:2.3'
     jtelemetry = 'net.caseif.jtelemetry:jtelemetry:1.1.0'
     gson = 'com.google.code.gson:gson:2.2.4'
 }
@@ -83,7 +81,6 @@ dependencies {
     compile bukkit
     shadow common
     shadow metrics
-    shadow updater
     shadow jtelemetry
     shadow gson
 }
@@ -149,7 +146,6 @@ shadowJar {
     }
     classifier = ''
 
-    relocate('net.gravitydevelopment.updater', 'net.caseif.flint.steel.lib.net.gravitydevelopment.updater')
     relocate('org.mcstats', 'net.caseif.flint.steel.lib.org.mcstats')
     relocate('net.caseif.jtelemetry', 'net.caseif.flint.steel.lib.net.caseif.jtelemetry')
     relocate('com.google.gson', 'net.caseif.flint.steel.lib.com.google.gson')

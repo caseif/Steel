@@ -23,6 +23,7 @@
  */
 package net.caseif.flint.steel;
 
+import net.caseif.flint.steel.lib.net.gravitydevelopment.updater.Updater;
 import net.caseif.flint.steel.listener.misc.LobbyListener;
 import net.caseif.flint.steel.listener.player.PlayerConnectionListener;
 import net.caseif.flint.steel.listener.player.PlayerWorldListener;
@@ -35,7 +36,6 @@ import net.caseif.flint.steel.util.compatibility.CoreDataMigrationAgent;
 import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.steel.util.helper.ConfigHelper;
 
-import net.gravitydevelopment.updater.Updater;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.java.JavaPlugin;
