@@ -104,4 +104,9 @@
 			<property name="checkEmptyJavadoc" value="true"/>
 		</module>
 	</module>
+
+	<module name="NewlineAtEndOfFile"/>
+	<module name="SuppressionFilter">
+		<property name="file" value="${basedir}/etc/checkstyle-suppressions.xml"/>
+	</module>
 </module>
