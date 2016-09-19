@@ -26,8 +26,7 @@ package net.caseif.flint.steel.util.helper;
 
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.SteelMain;
-
-import net.gravitydevelopment.updater.Updater;
+import net.caseif.flint.steel.lib.net.gravitydevelopment.updater.Updater;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
