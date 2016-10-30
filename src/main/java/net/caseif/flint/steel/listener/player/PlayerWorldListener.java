@@ -26,6 +26,7 @@ package net.caseif.flint.steel.listener.player;
 
 import net.caseif.flint.challenger.Challenger;
 import net.caseif.flint.common.CommonCore;
+import net.caseif.flint.common.challenger.CommonChallenger;
 import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.minigame.Minigame;
@@ -76,7 +77,7 @@ public class PlayerWorldListener implements Listener {
             // begin the hunt for the challenger
             Optional<Challenger> challenger = CommonCore.getChallenger(event.getPlayer().getUniqueId());
             // check whether the player is in a round for this minigame
-            if (challenger.isPresent()) {
+            if (challenger.isPresent() && !((CommonChallenger) challenger.get()).isLeaving()) {
                 Boundary bound = challenger.get().getRound().getArena().getBoundary();
                 // check whether the player is teleporting out of the arena boundary
                 if (!bound.contains(LocationHelper.convertLocation(event.getTo()))) {
