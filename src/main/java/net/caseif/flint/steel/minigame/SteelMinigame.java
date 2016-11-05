@@ -99,7 +99,6 @@ public class SteelMinigame extends CommonMinigame {
             ex.printStackTrace();
             SteelCore.logSevere("Failed to save arena with ID " + arena.getId() + " to persistent storage");
         }
-        getArenaMap().put(id, arena);
         return arena;
     }
 
