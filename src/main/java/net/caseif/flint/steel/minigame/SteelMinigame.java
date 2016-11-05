@@ -27,11 +27,13 @@ package net.caseif.flint.steel.minigame;
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.common.minigame.CommonMinigame;
+import net.caseif.flint.common.util.factory.FactoryRegistry;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.arena.SteelArena;
 import net.caseif.flint.steel.lobby.wizard.WizardManager;
 import net.caseif.flint.steel.util.compatibility.MinigameDataMigrationAgent;
+import net.caseif.flint.steel.util.factory.ArenaFactory;
 import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.util.physical.Boundary;
 import net.caseif.flint.util.physical.Location3D;
@@ -82,24 +84,6 @@ public class SteelMinigame extends CommonMinigame {
 
     public Plugin getBukkitPlugin() {
         return plugin;
-    }
-
-    @Override
-    public Arena createArena(String id, String name, Location3D spawnPoint, Boundary boundary)
-            throws IllegalArgumentException {
-        id = id.toLowerCase();
-        if (getArenaMap().containsKey(id)) {
-            throw new IllegalArgumentException("Cannot create arena: arena with ID \"" + id + "\" already exists");
-        }
-
-        SteelArena arena = new SteelArena(this, id, name, new Location3D[] {spawnPoint}, boundary);
-        try {
-            arena.store();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            SteelCore.logSevere("Failed to save arena with ID " + arena.getId() + " to persistent storage");
-        }
-        return arena;
     }
 
     public IWizardManager getLobbyWizardManager() {
