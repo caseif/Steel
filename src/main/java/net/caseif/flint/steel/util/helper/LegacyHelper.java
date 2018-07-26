@@ -58,6 +58,8 @@ public class LegacyHelper {
 
     public LegacyHelper() {
         Preconditions.checkState(!initialized, "Cannot initialize singleton class LegacyHelper more than once.");
+
+        initialized = true;
     }
 
     public void updateData(Block b, byte data) {
