@@ -32,10 +32,9 @@ import net.caseif.flint.common.util.agent.rollback.RollbackRecord;
 import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.arena.SteelArena;
-import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.steel.util.agent.rollback.serialization.BlockStateSerializer;
 import net.caseif.flint.steel.util.agent.rollback.serialization.EntityStateSerializer;
-import net.caseif.flint.util.physical.Location3D;
+import net.caseif.flint.steel.util.helper.LocationHelper;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -159,7 +158,11 @@ public final class RollbackAgent extends CommonRollbackAgent {
             ((InventoryHolder) b.getState()).getInventory().clear();
         }
         b.setType(m);
-        b.setData((byte) record.getData());
+
+        if (SteelCore.isLegacy()) {
+            SteelCore.getLegacyHelper().updateData(b, (byte) record.getData());
+        }
+
         if (record.getStateSerial() != null) {
             try {
                 BlockStateSerializer.deserializeState(b, record.getStateSerial());
@@ -222,4 +225,5 @@ public final class RollbackAgent extends CommonRollbackAgent {
             entities.put(entity.getUniqueId(), entity);
         }
     }
+
 }

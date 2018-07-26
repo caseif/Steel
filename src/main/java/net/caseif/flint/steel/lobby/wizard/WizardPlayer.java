@@ -27,6 +27,7 @@ package net.caseif.flint.steel.lobby.wizard;
 import net.caseif.flint.common.lobby.wizard.CommonWizardPlayer;
 import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.common.lobby.wizard.WizardMessages;
+import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.util.helper.LocationHelper;
 import net.caseif.flint.util.physical.Location3D;
@@ -35,6 +36,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -47,7 +49,8 @@ import java.util.UUID;
 class WizardPlayer extends CommonWizardPlayer {
 
     private Material origMaterial;
-    private byte origData;
+    private byte origLegacyData;
+    private Object origBlockData;
 
     /**
      * Creates a new {@link WizardPlayer} with the given {@link UUID} for the
@@ -82,7 +85,12 @@ class WizardPlayer extends CommonWizardPlayer {
     protected void recordTargetBlockState() {
         assert LocationHelper.convertLocation(location).getBlock().getState() instanceof Sign;
         this.origMaterial = LocationHelper.convertLocation(location).getBlock().getType();
-        this.origData = LocationHelper.convertLocation(location).getBlock().getState().getRawData();
+
+        if (SteelCore.isLegacy()) {
+            this.origLegacyData = LocationHelper.convertLocation(location).getBlock().getState().getRawData();
+        } else {
+            this.origBlockData = LocationHelper.convertLocation(location).getBlock().getBlockData();
+        }
     }
 
     @Override
@@ -92,7 +100,12 @@ class WizardPlayer extends CommonWizardPlayer {
             public void run() {
                 Block b = LocationHelper.convertLocation(getLocation()).getBlock();
                 b.setType(origMaterial);
-                b.setData(origData);
+
+                if (SteelCore.isLegacy()) {
+                    SteelCore.getLegacyHelper().updateData(b, origLegacyData);
+                } else {
+                    b.setBlockData((BlockData) origBlockData);
+                }
             }
         });
     }

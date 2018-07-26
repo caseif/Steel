@@ -24,6 +24,7 @@
 
 package net.caseif.flint.steel;
 
+import com.google.common.base.Preconditions;
 import net.caseif.flint.FlintCore;
 import net.caseif.flint.arena.Arena;
 import net.caseif.flint.common.CommonCore;
@@ -41,6 +42,7 @@ import net.caseif.flint.steel.util.factory.LobbySignFactory;
 import net.caseif.flint.steel.util.factory.MinigameFactory;
 import net.caseif.flint.steel.util.factory.RollbackAgentFactory;
 import net.caseif.flint.steel.util.factory.RoundFactory;
+import net.caseif.flint.steel.util.helper.LegacyHelper;
 import net.caseif.flint.steel.util.unsafe.SteelUnsafeUtil;
 
 import org.bukkit.Bukkit;
@@ -58,6 +60,11 @@ public class SteelCore extends CommonCore {
     private static boolean VERBOSE_LOGGING;
 
     private static final ChatAgent CHAT_AGENT = new ChatAgent();
+
+    private static final int MC_113_TRANSFORMED = 1_013_000;
+
+    private static boolean legacyMcVersion;
+    private static LegacyHelper legacyHelper;
 
     static {
         INSTANCE = new SteelCore();
@@ -78,6 +85,18 @@ public class SteelCore extends CommonCore {
 
         PLATFORM_UTILS = new SteelUtils();
         VERBOSE_LOGGING = SteelMain.getInstance().getConfig().getBoolean("verbose-logging");
+
+        String[] mcVersions = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
+
+        int transformedMcVersion = (Integer.parseInt(mcVersions[0]) * 1_000_000)
+                + (Integer.parseInt(mcVersions[1]) * 1_000)
+                + (mcVersions.length > 2 ? Integer.parseInt(mcVersions[2]) : 0);
+
+        legacyMcVersion = transformedMcVersion < MC_113_TRANSFORMED;
+
+        if (legacyMcVersion) {
+            legacyHelper = new LegacyHelper();
+        }
     }
 
     private static void registerFactories() {
@@ -86,6 +105,16 @@ public class SteelCore extends CommonCore {
         FactoryRegistry.registerFactory(Minigame.class, new MinigameFactory());
         FactoryRegistry.registerFactory(IRollbackAgent.class, new RollbackAgentFactory());
         FactoryRegistry.registerFactory(Round.class, new RoundFactory());
+    }
+
+    public static boolean isLegacy() {
+        return legacyMcVersion;
+    }
+
+    public static LegacyHelper getLegacyHelper() {
+        Preconditions.checkState(legacyMcVersion, "Cannot get legacy helper on non-legacy platform!");
+
+        return legacyHelper;
     }
 
     @Override
