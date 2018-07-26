@@ -90,46 +90,49 @@ public class SteelRound extends CommonRound {
     public JoinResult addChallenger(UUID uuid) throws IllegalStateException, OrphanedComponentException {
         checkState();
 
-        Player bukkitPlayer = Bukkit.getPlayer(uuid);
-        if (bukkitPlayer == null) {
-            return new CommonJoinResult(JoinResult.Status.PLAYER_OFFLINE);
-        }
-
-        if (getChallengers().size() >= getConfigValue(ConfigNode.MAX_PLAYERS)) {
-            return new CommonJoinResult(JoinResult.Status.ROUND_FULL);
-        }
-
-        if (CommonCore.getChallenger(uuid).isPresent()) {
-            return new CommonJoinResult(JoinResult.Status.ALREADY_IN_ROUND);
-        }
-
-        Location spawn = LocationHelper.convertLocation(nextSpawnPoint());
-
-        SteelChallenger challenger = new SteelChallenger(uuid, this);
-
         try {
-            PlayerHelper.storeLocation(bukkitPlayer);
-        } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
+            Player bukkitPlayer = Bukkit.getPlayer(uuid);
+            if (bukkitPlayer == null) {
+                return new CommonJoinResult(JoinResult.Status.PLAYER_OFFLINE);
+            }
+
+            if (getChallengers().size() >= getConfigValue(ConfigNode.MAX_PLAYERS)) {
+                return new CommonJoinResult(JoinResult.Status.ROUND_FULL);
+            }
+
+            if (CommonCore.getChallenger(uuid).isPresent()) {
+                return new CommonJoinResult(JoinResult.Status.ALREADY_IN_ROUND);
+            }
+
+            Location spawn = LocationHelper.convertLocation(nextSpawnPoint());
+
+            SteelChallenger challenger = new SteelChallenger(uuid, this);
+
+            try {
+                PlayerHelper.storeLocation(bukkitPlayer);
+            } catch (IllegalArgumentException | InvalidConfigurationException | IOException ex) {
+                return new CommonJoinResult(ex);
+            }
+
+            bukkitPlayer.teleport(spawn);
+
+            getChallengerMap().put(uuid, challenger);
+
+            for (LobbySign sign : getArena().getLobbySigns()) {
+                sign.update();
+            }
+
+            try {
+                PlayerHelper.pushInventory(bukkitPlayer);
+            } catch (IOException ex) {
+                return new CommonJoinResult(ex);
+            }
+
+            getArena().getMinigame().getEventBus().post(new CommonChallengerJoinRoundEvent(challenger));
+            return new CommonJoinResult(challenger);
+        } catch (Throwable ex) {
             return new CommonJoinResult(ex);
         }
-
-
-        bukkitPlayer.teleport(spawn);
-
-        getChallengerMap().put(uuid, challenger);
-
-        for (LobbySign sign : getArena().getLobbySigns()) {
-            sign.update();
-        }
-
-        try {
-            PlayerHelper.pushInventory(bukkitPlayer);
-        } catch (IOException ex) {
-            return new CommonJoinResult(ex);
-        }
-
-        getArena().getMinigame().getEventBus().post(new CommonChallengerJoinRoundEvent(challenger));
-        return new CommonJoinResult(challenger);
     }
 
     @Override // overridden from CommonRound

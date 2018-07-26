@@ -79,13 +79,18 @@ public class SteelCore extends CommonCore {
     }
 
     static void initializeSteel() {
+        checkIfLegacyMinecraftVersion();
+
+        VERBOSE_LOGGING = SteelMain.getInstance().getConfig().getBoolean("verbose-logging");
+
         CommonCore.initializeCommon();
         registerFactories();
         SteelUnsafeUtil.initialize();
 
         PLATFORM_UTILS = new SteelUtils();
-        VERBOSE_LOGGING = SteelMain.getInstance().getConfig().getBoolean("verbose-logging");
+    }
 
+    private static void checkIfLegacyMinecraftVersion() {
         String[] mcVersions = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
 
         int transformedMcVersion = (Integer.parseInt(mcVersions[0]) * 1_000_000)

@@ -46,7 +46,7 @@ public class LegacyHelper {
 
         try {
             //noinspection JavaReflectionMemberAccess
-            method_Block_setData = Block.class.getMethod("setData", short.class);
+            method_Block_setData = Block.class.getMethod("setData", byte.class);
         } catch (NoSuchMethodException e) {
             working = false;
 
