@@ -1,3 +1,5 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
 plugins {
     id 'java'
     id 'maven'
@@ -5,7 +7,7 @@ plugins {
     id 'idea'
     id 'checkstyle'
     id 'net.minecrell.licenser' version '0.2.1'
-    id 'com.github.johnrengelman.shadow' version '1.2.3'
+    id 'com.github.johnrengelman.shadow' version '2.0.4'
 }
 
 defaultTasks 'clean', 'updateLicenses', 'build', 'shadowJar'
@@ -95,6 +97,10 @@ jar.manifest.mainAttributes(
 processResources {
     from 'LICENSE'
     filter { String line -> line.replace('SNAPSHOT', 'SNAPSHOT' + versionSuffix) }
+    filter ReplaceTokens, tokens: [
+            "name": project.name,
+            "version": project.version
+    ]
 }
 
 // License header formatting
@@ -142,5 +148,5 @@ artifacts {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.0'
+    gradleVersion = '4.9'
 }

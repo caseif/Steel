@@ -52,68 +52,68 @@ public class RollbackBlockListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
-        RollbackAgent.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
+        RollbackAgent.checkBlockChange(event.getBlock(), event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
-        RollbackAgent.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
+        RollbackAgent.checkBlockChange(event.getBlock(), event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBurn(BlockBurnEvent event) {
-        RollbackAgent.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
+        RollbackAgent.checkBlockChange(event.getBlock(), event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockFade(BlockFadeEvent event) {
-        RollbackAgent.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
+        RollbackAgent.checkBlockChange(event.getBlock(), event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockFromTo(BlockFromToEvent event) {
-        RollbackAgent.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
+        RollbackAgent.checkBlockChange(event.getBlock(), event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockSpread(BlockSpreadEvent event) {
-        RollbackAgent.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
+        RollbackAgent.checkBlockChange(event.getBlock(), event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPistonExtend(BlockPistonExtendEvent event) {
-        RollbackAgent.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
+        RollbackAgent.checkBlockChange(event.getBlock(), event);
         for (Block b : event.getBlocks()) {
-            RollbackAgent.checkBlockChange(b.getLocation(), b.getState(), event);
+            RollbackAgent.checkBlockChange(b, event);
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPistonRetract(BlockPistonRetractEvent event) {
-        RollbackAgent.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
+        RollbackAgent.checkBlockChange(event.getBlock(), event);
         for (Block b : event.getBlocks()) {
-            RollbackAgent.checkBlockChange(b.getLocation(), b.getState(), event);
+            RollbackAgent.checkBlockChange(b, event);
         }
         //TODO: some blocks probably won't be rolled back properly
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockForm(BlockFormEvent event) {
-        RollbackAgent.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
+        RollbackAgent.checkBlockChange(event.getBlock(), event);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockGrow(BlockGrowEvent event) {
-        RollbackAgent.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
+        RollbackAgent.checkBlockChange(event.getBlock(), event);
     }
 
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockMultiPlace(BlockMultiPlaceEvent event) {
         for (BlockState state : event.getReplacedBlockStates()) {
-            RollbackAgent.checkBlockChange(state.getLocation(), state.getLocation().getBlock().getState(), event);
+            RollbackAgent.checkBlockChange(state.getBlock(), event);
         }
-        RollbackAgent.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
+        RollbackAgent.checkBlockChange(event.getBlock(), event);
     }
 
 }

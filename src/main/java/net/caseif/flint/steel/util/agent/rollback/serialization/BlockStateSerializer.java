@@ -25,10 +25,10 @@
 package net.caseif.flint.steel.util.agent.rollback.serialization;
 
 import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.steel.util.Support;
 import net.caseif.flint.steel.util.helper.InventoryHelper;
 
 import com.google.common.base.Optional;
+import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.Note;
@@ -52,7 +52,6 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.material.FlowerPot;
 import org.bukkit.material.MaterialData;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -67,6 +66,7 @@ public class BlockStateSerializer {
 
     private static final String SIGN_LINES_KEY = "lines";
 
+    @Deprecated
     private static final String BANNER_BASE_COLOR_KEY = "base-color";
     private static final String BANNER_PATTERNS_KEY = "patterns";
     private static final String BANNER_PATTERN_COLOR_KEY = "color";
@@ -75,26 +75,35 @@ public class BlockStateSerializer {
     private static final String SPAWNER_TYPE_KEY = "spawner-type";
     private static final String SPAWNER_DELAY_KEY = "spawner-delay";
 
+    @Deprecated
     private static final String NOTE_OCTAVE_KEY = "octave";
+    @Deprecated
     private static final String NOTE_TONE_KEY = "tone";
+    @Deprecated
     private static final String NOTE_SHARPED_KEY = "sharped";
 
     private static final String JUKEBOX_DISC_KEY = "disc";
 
     private static final String SKULL_OWNER_KEY = "owner";
+    @Deprecated
     private static final String SKULL_ROTATION_KEY = "rotation";
 
     private static final String COMMAND_NAME_KEY = "cmd-name";
     private static final String COMMAND_CMD_KEY = "command";
 
+    @Deprecated
     private static final String FLOWER_TYPE_KEY = "flower-type";
+    @Deprecated
     private static final String FLOWER_DATA_KEY = "flower-data";
 
-    @SuppressWarnings("deprecation")
-    public static Optional<String> serializeState(BlockState state) {
+    private static final String BLOCK_DATA_KEY = "block-data";
+
+    public static Optional<String> serializeState(Block block) {
         YamlConfiguration yaml = new YamlConfiguration();
 
         // http://minecraft.gamepedia.com/Block_entity was used as a reference for this method
+
+        BlockState state = block.getState();
 
         if (state instanceof InventoryHolder) {
             yaml.set(INVENTORY_KEY, InventoryHelper.serializeInventory(((InventoryHolder) state).getInventory()));
@@ -102,8 +111,11 @@ public class BlockStateSerializer {
 
         if (state instanceof Sign) {
             yaml.set(SIGN_LINES_KEY, Arrays.asList(((Sign) state).getLines()));
-        } else if (Support.BANNER && state instanceof Banner) {
-            yaml.set(BANNER_BASE_COLOR_KEY, ((Banner) state).getBaseColor().name());
+        } else if (state instanceof Banner) {
+            if (SteelCore.isLegacy()) {
+                yaml.set(BANNER_BASE_COLOR_KEY, ((Banner) state).getBaseColor().name());
+            }
+
             ConfigurationSection patternSection = yaml.createSection(BANNER_PATTERNS_KEY);
             List<Pattern> patterns = ((Banner) state).getPatterns();
             for (int i = 0; i < patterns.size(); i++) {
@@ -115,21 +127,32 @@ public class BlockStateSerializer {
             yaml.set(SPAWNER_TYPE_KEY, ((CreatureSpawner) state).getSpawnedType().name());
             yaml.set(SPAWNER_DELAY_KEY, ((CreatureSpawner) state).getDelay());
         } else if (state instanceof NoteBlock) {
-            yaml.set(NOTE_OCTAVE_KEY, ((NoteBlock) state).getNote().getOctave());
-            yaml.set(NOTE_TONE_KEY, ((NoteBlock) state).getNote().getTone().name());
+            if (SteelCore.isLegacy()) {
+                yaml.set(NOTE_OCTAVE_KEY, ((NoteBlock) state).getNote().getOctave());
+                yaml.set(NOTE_TONE_KEY, ((NoteBlock) state).getNote().getTone().name());
+                yaml.set(NOTE_SHARPED_KEY, ((NoteBlock) state).getNote().isSharped());
+            }
         } else if (state instanceof Jukebox) {
             if (((Jukebox) state).isPlaying()) {
                 yaml.set(JUKEBOX_DISC_KEY, ((Jukebox) state).getPlaying());
             }
         } else if (state instanceof Skull) {
             yaml.set(SKULL_OWNER_KEY, ((Skull) state).getOwner());
-            yaml.set(SKULL_ROTATION_KEY, ((Skull) state).getRotation().name());
+            if (SteelCore.isLegacy()) {
+                yaml.set(SKULL_ROTATION_KEY, ((Skull) state).getRotation().name());
+            }
         } else if (state instanceof CommandBlock) {
             yaml.set(COMMAND_NAME_KEY, ((CommandBlock) state).getName());
             yaml.set(COMMAND_CMD_KEY, ((CommandBlock) state).getCommand());
         } else if (state instanceof FlowerPot) {
-            yaml.set(FLOWER_TYPE_KEY, ((FlowerPot) state).getContents().getItemType().name());
-            yaml.set(FLOWER_DATA_KEY, ((FlowerPot) state).getContents().getData());
+            if (SteelCore.isLegacy()) {
+                yaml.set(FLOWER_TYPE_KEY, ((FlowerPot) state).getContents().getItemType().name());
+                yaml.set(FLOWER_DATA_KEY, ((FlowerPot) state).getContents().getData());
+            }
+        }
+
+        if (!SteelCore.isLegacy()) {
+            yaml.set(BLOCK_DATA_KEY, block.getBlockData().getAsString());
         }
 
         if (yaml.getKeys(false).size() > 0) {
@@ -139,9 +162,19 @@ public class BlockStateSerializer {
     }
 
     @SuppressWarnings("deprecation")
-    public static void deserializeState(Block block, String serial) throws InvalidConfigurationException, IOException {
+    public static void deserializeState(Block block, String serial) throws InvalidConfigurationException {
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.loadFromString(serial);
+
+        boolean hasBlockData = false;
+
+        if (!SteelCore.isLegacy()) {
+            if (yaml.isString(BLOCK_DATA_KEY)) {
+                hasBlockData = true;
+
+                block.setBlockData(Bukkit.createBlockData(yaml.getString(BLOCK_DATA_KEY)));
+            }
+        }
 
         BlockState state = block.getState();
         boolean missingData = false;
@@ -165,7 +198,7 @@ public class BlockStateSerializer {
             } else {
                 missingData = true;
             }
-        } else if (Support.BANNER && state instanceof Banner) {
+        } else if (state instanceof Banner) {
             if (yaml.isSet(BANNER_BASE_COLOR_KEY)) {
                 try {
                     DyeColor color = DyeColor.valueOf(yaml.getString(BANNER_BASE_COLOR_KEY));
@@ -264,9 +297,12 @@ public class BlockStateSerializer {
                 missingData = true;
             }
         } else if (!(state instanceof InventoryHolder)) {
-            SteelCore.logWarning("Failed to deserialize state data for rollback record for block at {"
-                    + block.getX() + ", " + block.getY() + ", " + block.getZ() + "}");
             recognizedState = false;
+
+            if (!hasBlockData) {
+                SteelCore.logWarning("Failed to deserialize state data for rollback record for block at {"
+                        + block.getX() + ", " + block.getY() + ", " + block.getZ() + "}");
+            }
         }
 
         if (recognizedState) {

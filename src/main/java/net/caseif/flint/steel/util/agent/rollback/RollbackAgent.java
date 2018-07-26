@@ -80,18 +80,17 @@ public final class RollbackAgent extends CommonRollbackAgent {
     /**
      * Logs a rollback change at the given location.
      *
-     * @param location The location of the change
-     * @param originalState The state of the rollback before the change
+     * @param block The block which was changed
      * @throws IOException If an exception occurs while reading to or from the
      *     rollback database
      * @throws SQLException If an exception occurs while manipulating the
      *     rollback database
      */
     @SuppressWarnings("deprecation")
-    public void logBlockChange(Location location, BlockState originalState) throws IOException, SQLException {
-        String state = BlockStateSerializer.serializeState(originalState).orNull();
-        logChange(RollbackRecord.createBlockRecord(-1, LocationHelper.convertLocation(location),
-                originalState.getType().name(), originalState.getRawData(), state));
+    public void logBlockChange(Block block) throws IOException, SQLException {
+        String state = BlockStateSerializer.serializeState(block).orNull();
+        logChange(RollbackRecord.createBlockRecord(-1, LocationHelper.convertLocation(block.getLocation()),
+                block.getState().getType().name(), block.getState().getRawData(), state));
     }
 
     private void logEntityCreation(Entity entity) throws IOException, SQLException {
@@ -112,11 +111,11 @@ public final class RollbackAgent extends CommonRollbackAgent {
         }
     }
 
-    public static void checkBlockChange(Location location, BlockState state, Event event) {
-        List<Arena> arenas = checkChangeAtLocation(LocationHelper.convertLocation(location));
+    public static void checkBlockChange(Block block, Event event) {
+        List<Arena> arenas = checkChangeAtLocation(LocationHelper.convertLocation(block.getLocation()));
         for (Arena arena : arenas) {
             try {
-                ((SteelArena) arena).getRollbackAgent().logBlockChange(location, state);
+                ((SteelArena) arena).getRollbackAgent().logBlockChange(block);
             } catch (IOException | SQLException ex) {
                 throw new RuntimeException("Failed to log " + event.getEventName() + " for rollback in arena "
                         + arena.getDisplayName(), ex);
@@ -208,7 +207,7 @@ public final class RollbackAgent extends CommonRollbackAgent {
                 if (record.getStateSerial() != null) {
                     try {
                         EntityStateSerializer.deserializeState(e, record.getStateSerial());
-                    } catch (InvalidConfigurationException | IOException ex) {
+                    } catch (InvalidConfigurationException ex) {
                         throw new RuntimeException(ex);
                     }
                 }

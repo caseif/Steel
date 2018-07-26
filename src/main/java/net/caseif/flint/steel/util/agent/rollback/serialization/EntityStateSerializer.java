@@ -25,7 +25,6 @@
 package net.caseif.flint.steel.util.agent.rollback.serialization;
 
 import net.caseif.flint.steel.SteelCore;
-import net.caseif.flint.steel.util.Support;
 
 import org.bukkit.Art;
 import org.bukkit.Rotation;
@@ -37,8 +36,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Hanging;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Painting;
-
-import java.io.IOException;
 
 /**
  * Static utility class for serialization of entity state.
@@ -76,7 +73,7 @@ public class EntityStateSerializer {
 
     public static String serializeState(Entity entity) {
         YamlConfiguration yaml = new YamlConfiguration();
-        if (Support.ARMOR_STAND && entity instanceof ArmorStand) {
+        if (entity instanceof ArmorStand) {
             EulerAngleSerializer eas = EulerAngleSerializer.getInstance();
             ArmorStand stand = (ArmorStand) entity;
             yaml.set(PITCH, stand.getLocation().getPitch());
@@ -110,12 +107,11 @@ public class EntityStateSerializer {
         return yaml.saveToString();
     }
 
-    public static void deserializeState(Entity entity, String serial)
-            throws InvalidConfigurationException, IOException {
+    public static void deserializeState(Entity entity, String serial) throws InvalidConfigurationException {
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.loadFromString(serial);
 
-        if (Support.ARMOR_STAND && entity instanceof ArmorStand) {
+        if (entity instanceof ArmorStand) {
             EulerAngleSerializer eas = EulerAngleSerializer.getInstance();
             ArmorStand stand = (ArmorStand) entity;
             stand.setHelmet(yaml.getItemStack(ARMOR_STAND_HELMET));
@@ -135,30 +131,30 @@ public class EntityStateSerializer {
             stand.setSmall(yaml.getBoolean(ARMOR_STAND_SMALL));
             stand.setVisible(yaml.getBoolean(ARMOR_STAND_VISIBLE));
         } else if (entity instanceof Hanging) {
-            BlockFace facing = BlockFace.valueOf(yaml.getString(HANGING_FACING));
-            if (facing != null) {
+            try {
+                BlockFace facing = BlockFace.valueOf(yaml.getString(HANGING_FACING));
                 ((Hanging) entity).setFacingDirection(facing, true);
-            } else {
+            } catch (IllegalArgumentException ex) {
                 SteelCore.logVerbose("Invalid serialized BlockFace value for hanging entity with UUID "
                         + entity.getUniqueId().toString());
             }
 
             if (entity instanceof ItemFrame) {
                 ((ItemFrame) entity).setItem(yaml.getItemStack(ITEM_FRAME_ITEM));
-                Rotation rotation = Rotation.valueOf(yaml.getString(ITEM_FRAME_ROTATION));
-                if (rotation != null) {
+                try {
+                    Rotation rotation = Rotation.valueOf(yaml.getString(ITEM_FRAME_ROTATION));
                     ((ItemFrame) entity).setRotation(rotation);
                     // rotation doesn't sound like a word anymore
-                } else {
+                } catch (IllegalArgumentException ex) {
                     SteelCore.logVerbose("Invalid serialized Rotation value for item frame with UUID "
                             + entity.getUniqueId().toString());
                 }
             } else if (entity instanceof Painting) {
-                Art art = Art.valueOf(yaml.getString("art"));
-                if (art != null) {
+                try {
+                    Art art = Art.valueOf(yaml.getString("art"));
                     ((Painting) entity).setArt(art, true);
                     // neither does art
-                } else {
+                } catch (IllegalArgumentException ex) {
                     SteelCore.logVerbose("Invalid serialized Art value for item frame with UUID "
                             + entity.getUniqueId().toString());
                 }

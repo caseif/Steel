@@ -70,14 +70,14 @@ public class RollbackEntityListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event) {
         for (Block b : event.blockList()) {
-            RollbackAgent.checkBlockChange(b.getLocation(), b.getState(), event);
+            RollbackAgent.checkBlockChange(b, event);
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     // covers enderman, falling blocks, and probably other stuff I'm forgetting
     public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-        RollbackAgent.checkBlockChange(event.getBlock().getLocation(), event.getBlock().getState(), event);
+        RollbackAgent.checkBlockChange(event.getBlock(), event);
     }
 
     // ENTITY ROLLBACKS

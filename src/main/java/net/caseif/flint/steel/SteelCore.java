@@ -101,6 +101,11 @@ public class SteelCore extends CommonCore {
 
         if (legacyMcVersion) {
             legacyHelper = new LegacyHelper();
+        } else {
+            //TODO: remove when safe
+            logWarning("This server is running Minecraft version 1.13 or later.");
+            logWarning("Steel's support for this version may be incomplete or unstable.");
+            logWarning("Please report any issues at https://github.com/caseif/Steel/issues");
         }
     }
 
