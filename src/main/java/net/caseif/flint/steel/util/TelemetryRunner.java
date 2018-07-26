@@ -49,7 +49,7 @@ public class TelemetryRunner implements Runnable {
     private static final String KEY_MINIGAME_COUNT = "mgCount";
     private static final String KEY_MINIGAMES = "minigames";
 
-    private static final String TELEMETRY_SERVER = "http://telemetry.caseif.net/steel.php";
+    private static final String TELEMETRY_SERVER = "https://telemetry.caseif.net/steel.php";
 
     private final JTelemetry jt = new JTelemetry(TELEMETRY_SERVER);
 

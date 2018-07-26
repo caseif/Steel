@@ -60,7 +60,7 @@ ext {
     guava = 'com.google.guava:guava:17.0'
     bukkit = 'org.bukkit:bukkit:1.13-R0.1-SNAPSHOT'
     common = 'net.caseif.flint.common:flintcommon:' + commonVersion
-    metrics = 'org.mcstats.bukkit:metrics:R8-SNAPSHOT'
+    bstats = 'org.bstats:bstats-bukkit:1.2'
     jtelemetry = 'net.caseif.jtelemetry:jtelemetry:1.1.0'
     gson = 'com.google.code.gson:gson:2.2.4'
 }
@@ -70,7 +70,7 @@ dependencies {
     compile guava
     compile bukkit
     shadow common
-    shadow metrics
+    shadow bstats
     shadow jtelemetry
     shadow gson
 }
@@ -125,13 +125,15 @@ tasks.withType(Checkstyle){
 
 shadowJar {
     configurations = [project.configurations.shadow]
+
     dependencies {
         exclude dependency('com.google.guava:guava')
         exclude dependency('org.bukkit:bukkit')
     }
+
     classifier = ''
 
-    relocate('org.mcstats', 'net.caseif.flint.steel.lib.org.mcstats')
+    relocate('org.bstats', 'net.caseif.flint.steel.lib.org.bstats')
     relocate('net.caseif.jtelemetry', 'net.caseif.flint.steel.lib.net.caseif.jtelemetry')
     relocate('com.google.gson', 'net.caseif.flint.steel.lib.com.google.gson')
 }

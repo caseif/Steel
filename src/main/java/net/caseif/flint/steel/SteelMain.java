@@ -24,7 +24,7 @@
 
 package net.caseif.flint.steel;
 
-import net.caseif.flint.steel.lib.net.gravitydevelopment.updater.Updater;
+import net.caseif.flint.FlintCore;
 import net.caseif.flint.steel.listener.misc.LobbyListener;
 import net.caseif.flint.steel.listener.player.PlayerConnectionListener;
 import net.caseif.flint.steel.listener.player.PlayerWorldListener;
@@ -38,13 +38,14 @@ import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.steel.util.helper.ConfigHelper;
 import net.caseif.flint.steel.util.helper.UpdateHelper;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.mcstats.Metrics;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 /**
  * The main plugin class.
@@ -100,13 +101,14 @@ public class SteelMain extends JavaPlugin {
 
     public void initMetrics() {
         if (getConfig().getBoolean("enable-metrics")) {
-            try {
-                Metrics metrics = new Metrics(this);
-                metrics.start();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                getLogger().severe("Failed to enable Plugin Metrics!");
-            }
+            Metrics metrics = new Metrics(this);
+
+            metrics.addCustomChart(new Metrics.SimplePie("flint_api_level", new Callable<String>() {
+                @Override
+                public String call() {
+                    return Integer.toString(FlintCore.getApiRevision());
+                }
+            }));
         }
     }
 
