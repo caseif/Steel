@@ -161,7 +161,6 @@ public class BlockStateSerializer {
         return Optional.absent();
     }
 
-    @SuppressWarnings("deprecation")
     public static void deserializeState(Block block, String serial) throws InvalidConfigurationException {
         YamlConfiguration yaml = new YamlConfiguration();
         yaml.loadFromString(serial);

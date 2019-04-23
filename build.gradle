@@ -12,11 +12,9 @@ plugins {
 
 defaultTasks 'clean', 'updateLicenses', 'build', 'shadowJar'
 
-// Project information
 group = 'net.caseif.flint.steel'
 version = '1.3.7-SNAPSHOT'
 
-// Extended project information
 ext.projectName = 'steel'
 ext.description = 'The implementation of Flint minigame framework for the Bukkit Minecraft server mod.'
 ext.inceptionYear = '2015'
@@ -32,7 +30,6 @@ configurations {
     }
 }
 
-// Project repositories
 repositories {
     mavenLocal()
     mavenCentral()
@@ -74,7 +71,6 @@ ext {
     json_simple = 'com.googlecode.json-simple:json-simple:1.1.1'
 }
 
-// Project dependencies
 dependencies {
     compile guava
     compile bukkit
@@ -85,9 +81,9 @@ dependencies {
     shadow json_simple
 }
 
-// Read source files using UTF-8
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+    options.compilerArgs += '-Xlint:all'
 }
 
 jar {
@@ -113,13 +109,11 @@ processResources {
     ]
 }
 
-// License header formatting
 license {
     include '**/*.java'
     ignoreFailures false
 }
 
-// check code style
 checkstyle {
     configProperties = [
             'name'        : project.name,
@@ -160,6 +154,6 @@ artifacts {
     archives sourceJar
 }
 
-task wrapper(type: Wrapper) {
+wrapper {
     gradleVersion = '4.9'
 }
