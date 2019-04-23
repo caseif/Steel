@@ -108,7 +108,7 @@ public class SteelArena extends CommonArena {
         Block block = LocationHelper.convertLocation(location).getBlock();
         if (!getLobbySignMap().containsKey(location)) {
             if (!(block.getState() instanceof Sign)) {
-                block.setType(Material.SIGN);
+                block.setType(Material.OAK_SIGN);
             }
             return true;
         }
