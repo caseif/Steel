@@ -133,6 +133,7 @@ shadowJar {
     dependencies {
         exclude dependency('com.google.guava:guava')
         exclude dependency('org.bukkit:bukkit')
+        exclude dependency('junit:junit')
     }
 
     classifier = ''
