@@ -33,6 +33,7 @@ import net.caseif.flint.exception.rollback.RollbackException;
 import net.caseif.flint.lobby.LobbySign;
 import net.caseif.flint.lobby.type.ChallengerListingLobbySign;
 import net.caseif.flint.lobby.type.StatusLobbySign;
+import net.caseif.flint.steel.SteelCore;
 import net.caseif.flint.steel.lobby.SteelLobbySign;
 import net.caseif.flint.steel.lobby.type.SteelChallengerListingLobbySign;
 import net.caseif.flint.steel.lobby.type.SteelStatusLobbySign;
@@ -108,7 +109,11 @@ public class SteelArena extends CommonArena {
         Block block = LocationHelper.convertLocation(location).getBlock();
         if (!getLobbySignMap().containsKey(location)) {
             if (!(block.getState() instanceof Sign)) {
-                block.setType(Material.OAK_SIGN);
+                if (SteelCore.getMcVersion() >= SteelCore.MC_114_TRANSFORMED) {
+                    block.setType(Material.OAK_SIGN);
+                } else {
+                    block.setType(Material.valueOf("SIGN"));
+                }
             }
             return true;
         }

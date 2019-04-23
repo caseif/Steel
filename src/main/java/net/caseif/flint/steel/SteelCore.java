@@ -61,8 +61,10 @@ public class SteelCore extends CommonCore {
 
     private static final ChatAgent CHAT_AGENT = new ChatAgent();
 
-    private static final int MC_113_TRANSFORMED = 1_013_000;
+    public static final int MC_113_TRANSFORMED = 1_013_000;
+    public static final int MC_114_TRANSFORMED = 1_014_000;
 
+    private static int mcVersion;
     private static boolean legacyMcVersion;
     private static LegacyHelper legacyHelper;
 
@@ -93,11 +95,11 @@ public class SteelCore extends CommonCore {
     private static void checkIfLegacyMinecraftVersion() {
         String[] mcVersions = Bukkit.getBukkitVersion().split("-")[0].split("\\.");
 
-        int transformedMcVersion = (Integer.parseInt(mcVersions[0]) * 1_000_000)
+        mcVersion = (Integer.parseInt(mcVersions[0]) * 1_000_000)
                 + (Integer.parseInt(mcVersions[1]) * 1_000)
                 + (mcVersions.length > 2 ? Integer.parseInt(mcVersions[2]) : 0);
 
-        legacyMcVersion = transformedMcVersion < MC_113_TRANSFORMED;
+        legacyMcVersion = mcVersion < MC_113_TRANSFORMED;
 
         if (legacyMcVersion) {
             legacyHelper = new LegacyHelper();
@@ -119,6 +121,10 @@ public class SteelCore extends CommonCore {
 
     public static boolean isLegacy() {
         return legacyMcVersion;
+    }
+
+    public static int getMcVersion() {
+        return mcVersion;
     }
 
     public static LegacyHelper getLegacyHelper() {
