@@ -13,7 +13,7 @@ plugins {
 defaultTasks 'clean', 'updateLicenses', 'build', 'shadowJar'
 
 group = 'net.caseif.flint.steel'
-version = '1.3.7-SNAPSHOT'
+version = '1.3.7'
 
 ext.projectName = 'steel'
 ext.description = 'The implementation of Flint minigame framework for the Bukkit Minecraft server mod.'
