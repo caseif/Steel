@@ -36,10 +36,18 @@ configurations {
 repositories {
     mavenLocal()
     mavenCentral()
-    maven { url 'http://repo.caseif.net/content/groups/public/' }
-    maven { url 'http://repo.bukkit.org/content/groups/public/' }
-    maven { url 'https://hub.spigotmc.org/nexus/content/groups/public/' }
-    maven { url 'http://repo.mcstats.org/content/repositories/public' }
+    maven {
+        name = 'caseif'
+        url 'http://repo.caseif.net/content/groups/public/'
+    }
+    maven {
+        name = 'spigot'
+        url 'https://hub.spigotmc.org/nexus/content/groups/public/'
+    }
+    maven {
+        name = 'bstats'
+        url 'http://repo.bstats.org/content/repositories/releases/'
+    }
 }
 
 ext {
