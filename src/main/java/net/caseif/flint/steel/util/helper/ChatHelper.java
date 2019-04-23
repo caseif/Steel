@@ -64,14 +64,10 @@ public class ChatHelper {
         Optional<Challenger> senderCh = SteelCore.getChallenger(sender.getUniqueId());
         Optional<Challenger> recipCh = SteelCore.getChallenger(recipient.getUniqueId());
 
-        if (senderCh.isPresent() && recipCh.isPresent()) {
-            if (senderCh.get().getRound() == recipCh.get().getRound()) {
-                if (senderCh.get().getRound().getConfigValue(ConfigNode.SEPARATE_TEAM_CHATS)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return senderCh.isPresent() && recipCh.isPresent()
+            && senderCh.get().getRound() == recipCh.get().getRound()
+            && senderCh.get().getRound().getConfigValue(ConfigNode.SEPARATE_TEAM_CHATS)
+            && !senderCh.get().getTeam().equals(recipCh.get().getTeam());
     }
 
     public static boolean isSpectatorBarrierPresent(Player sender, Player recipient) {
