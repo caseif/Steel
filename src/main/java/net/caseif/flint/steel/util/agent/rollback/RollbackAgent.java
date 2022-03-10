@@ -218,6 +218,11 @@ public final class RollbackAgent extends CommonRollbackAgent {
     @Override
     public void cacheEntities() {
         World w = Bukkit.getWorld(getArena().getWorld());
+
+        if (w == null) {
+            return;
+        }
+
         // hash entities by UUID before iterating records for faster lookup
         entities = new HashMap<>();
         for (Entity entity : w.getEntities()) {
