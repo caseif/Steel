@@ -2,18 +2,18 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins {
     id 'java'
-    id 'maven'
+    id 'maven-publish'
     id 'eclipse'
     id 'idea'
     id 'checkstyle'
-    id 'net.minecrell.licenser' version '0.2.1'
-    id 'com.github.johnrengelman.shadow' version '2.0.4'
+    id 'org.cadixdev.licenser' version '0.6.1'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 defaultTasks 'clean', 'updateLicenses', 'build', 'shadowJar'
 
 group = 'net.caseif.flint.steel'
-version = '1.3.7'
+version = '1.3.8-SNAPSHOT'
 
 ext.projectName = 'steel'
 ext.description = 'The implementation of Flint minigame framework for the Bukkit Minecraft server mod.'
@@ -35,15 +35,15 @@ repositories {
     mavenCentral()
     maven {
         name = 'caseif'
-        url 'http://repo.caseif.net/content/groups/public/'
+        url 'https://repo.caseif.net/'
     }
     maven {
         name = 'spigot'
         url 'https://hub.spigotmc.org/nexus/content/groups/public/'
     }
     maven {
-        name = 'bstats'
-        url 'http://repo.bstats.org/content/repositories/releases/'
+        name = 'sponge'
+        url = 'https://repo.spongepowered.org/maven'
     }
 }
 
@@ -60,10 +60,10 @@ ext {
                     + (System.getenv('BUILD_NUMBER') ? '-jnks' + System.getenv('BUILD_NUMBER') : '')
     ) : ''
 
-    commonVersion = '1.3.5'
+    commonVersion = '1.3.6'
 
     guava = 'com.google.guava:guava:17.0'
-    bukkit = 'org.bukkit:bukkit:1.14-pre5-SNAPSHOT'
+    bukkit = 'org.spigotmc:spigot-api:1.14-pre5-SNAPSHOT'
     common = 'net.caseif.flint.common:flintcommon:' + commonVersion
     bstats = 'org.bstats:bstats-bukkit:1.2'
     jtelemetry = 'net.caseif.jtelemetry:jtelemetry:1.1.0'
@@ -72,13 +72,15 @@ ext {
 }
 
 dependencies {
-    compile guava
-    compile bukkit
+    implementation guava
+    implementation bukkit
     shadow common
     shadow bstats
     shadow jtelemetry
     shadow gson
     shadow json_simple
+
+    checkstyle 'org.spongepowered:checkstyle:6.1.1-sponge1'
 }
 
 tasks.withType(JavaCompile) {
@@ -116,13 +118,15 @@ license {
 
 checkstyle {
     configProperties = [
-            'name'        : project.name,
-            'year'        : project.inceptionYear
+            'name': project.name,
+            'year': project.inceptionYear,
+            'basedir': project.projectDir,
+            'severity': 'warning'
     ]
     configFile = file('etc/checkstyle.xml')
 }
 
-tasks.withType(Checkstyle){
+tasks.withType(Checkstyle) {
     exclude '**/*.properties'
     exclude '**/*.yml'
 }
@@ -156,5 +160,5 @@ artifacts {
 }
 
 wrapper {
-    gradleVersion = '4.9'
+    gradleVersion = '7.4'
 }
