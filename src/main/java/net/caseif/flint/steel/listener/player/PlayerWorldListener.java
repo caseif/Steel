@@ -31,6 +31,7 @@ import net.caseif.flint.common.lobby.wizard.IWizardManager;
 import net.caseif.flint.config.ConfigNode;
 import net.caseif.flint.minigame.Minigame;
 import net.caseif.flint.steel.SteelCore;
+import net.caseif.flint.steel.SteelMain;
 import net.caseif.flint.steel.minigame.SteelMinigame;
 import net.caseif.flint.steel.util.helper.ChatHelper;
 import net.caseif.flint.steel.util.helper.LocationHelper;
@@ -92,7 +93,16 @@ public class PlayerWorldListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.LOW)
-    public void onPlayerChat(AsyncPlayerChatEvent event) {
+    public void onPlayerChatAsync(final AsyncPlayerChatEvent event) {
+        Bukkit.getScheduler().runTask(SteelMain.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                handlePlayerChat(event);
+            }
+        });
+    }
+
+    public void handlePlayerChat(AsyncPlayerChatEvent event) {
         // iterate minigames
         for (Minigame mg : SteelCore.getMinigames().values()) {
             // get the wizard manager for the minigame
@@ -100,8 +110,6 @@ public class PlayerWorldListener implements Listener {
             // check if the player is in a wizard
             if (wm.hasPlayer(event.getPlayer().getUniqueId())) {
                 event.setCancelled(true); // cancel the event
-                // send the original message for reference
-                event.getPlayer().sendMessage("<" + event.getPlayer().getDisplayName() + "> " + event.getMessage());
                 // feed the message to the wizard manager and get the response
                 String[] response = wm.accept(event.getPlayer().getUniqueId(), event.getMessage());
                 event.getPlayer().sendMessage(response); // pass the response on to the player
