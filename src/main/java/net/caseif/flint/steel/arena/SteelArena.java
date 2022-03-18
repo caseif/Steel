@@ -90,7 +90,7 @@ public class SteelArena extends CommonArena {
         try {
             Location loc = LocationHelper.convertLocation(location);
             getRollbackAgent().logBlockChange(loc.getBlock());
-        } catch (Throwable ex) {
+        } catch (IOException | SQLException ex) {
             throw new RollbackException(ex);
         }
     }
