@@ -1,0 +1,3 @@
+[submodule "FlintCommon"]
+	path = FlintCommon
+	url = git@github.com:caseif/FlintCommon.git

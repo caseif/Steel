@@ -12,6 +12,8 @@ plugins {
 
 defaultTasks("clean", "updateLicenses", "build", "shadowJar")
 
+evaluationDependsOnChildren()
+
 group = "net.caseif.flint.steel"
 version = "1.3.8-SNAPSHOT"
 
@@ -21,15 +23,12 @@ val inceptionYear by extra { "2015" }
 val packaging by extra {"jar" }
 val author by extra { "Max Roncace" }
 
-val commonVersion by extra { "1.3.6" }
-
 java {
     sourceCompatibility = JavaVersion.VERSION_1_7
     targetCompatibility = JavaVersion.VERSION_1_7
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven("https://repo.caseif.net/")
     maven("https://hub.spigotmc.org/nexus/content/groups/public/")
@@ -39,7 +38,7 @@ repositories {
 dependencies {
     shadow("com.google.guava:guava:17.0")
     shadow("org.spigotmc:spigot-api:1.14-pre5-SNAPSHOT")
-    implementation("net.caseif.flint.common:flintcommon:" + commonVersion)
+    implementation(project("FlintCommon"))
     implementation("org.bstats:bstats-bukkit:1.2")
     implementation("net.caseif.jtelemetry:jtelemetry:1.1.0")
     implementation("com.google.code.gson:gson:2.2.4")
@@ -58,9 +57,9 @@ tasks.withType<Jar> {
     
     manifest {
         attributes["Created-By"] = System.getProperty("java.vm.version") + " (" + System.getProperty("java.vm.vendor") + ")"
-        attributes["Specification-Title"] = "Flint"
-        attributes["Specification-Version"] = "1.3.1"
-        attributes["Specification-Vendor"] = "Max Roncace"
+        attributes["Specification-Title"] = project("FlintCommon:Flint").name
+        attributes["Specification-Version"] = project("FlintCommon:Flint").version
+        attributes["Specification-Vendor"] = project("FlintCommon:Flint").extra["author"]
         attributes["Implementation-Title"] = name
         attributes["Implementation-Version"] = version
         attributes["Implementation-Vendor"] = author
@@ -84,6 +83,10 @@ tasks.withType<Checkstyle> {
 
     exclude("**/*.properties")
     exclude("**/*.yml")
+}
+
+tasks.withType<Javadoc> {
+    enabled = false
 }
 
 tasks.withType<ShadowJar> {
