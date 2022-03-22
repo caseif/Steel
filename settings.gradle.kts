@@ -5,7 +5,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "Steel"
+rootProject.name = "steel"
 
-include("FlintCommon")
-include("FlintCommon:Flint")
+include("flintcommon")
+include("flintcommon:flint")

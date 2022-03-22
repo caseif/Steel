@@ -38,7 +38,7 @@ repositories {
 dependencies {
     shadow("com.google.guava:guava:17.0")
     shadow("org.spigotmc:spigot-api:1.14-pre5-SNAPSHOT")
-    implementation(project("FlintCommon"))
+    implementation(project("flintcommon"))
     implementation("org.bstats:bstats-bukkit:1.2")
     implementation("net.caseif.jtelemetry:jtelemetry:1.1.0")
     implementation("com.google.code.gson:gson:2.2.4")
@@ -57,9 +57,9 @@ tasks.withType<Jar> {
     
     manifest {
         attributes["Created-By"] = System.getProperty("java.vm.version") + " (" + System.getProperty("java.vm.vendor") + ")"
-        attributes["Specification-Title"] = project("FlintCommon:Flint").name
-        attributes["Specification-Version"] = project("FlintCommon:Flint").version
-        attributes["Specification-Vendor"] = project("FlintCommon:Flint").extra["author"]
+        attributes["Specification-Title"] = project("flintcommon:flint").name
+        attributes["Specification-Version"] = project("flintcommon:flint").version
+        attributes["Specification-Vendor"] = project("flintcommon:flint").extra["author"]
         attributes["Implementation-Title"] = project.name
         attributes["Implementation-Version"] = project.version
         attributes["Implementation-Vendor"] = project.extra["author"]
