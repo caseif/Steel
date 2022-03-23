@@ -40,7 +40,6 @@ dependencies {
     shadow("org.spigotmc:spigot-api:1.14-pre5-SNAPSHOT")
     implementation(project("flintcommon"))
     implementation("org.bstats:bstats-bukkit:1.2")
-    implementation("net.caseif.jtelemetry:jtelemetry:1.1.0")
     implementation("com.google.code.gson:gson:2.2.4")
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
 
@@ -94,7 +93,6 @@ tasks.withType<ShadowJar> {
         include(project("flintcommon:flint"))
         include(project("flintcommon"))
         include(dependency("org.bstats:bstats-bukkit"))
-        include(dependency("net.caseif.jtelemetry:jtelemetry"))
         include(dependency("com.google.code.gson:gson"))
         include(dependency("com.googlecode.json-simple:json-simple"))
     }
@@ -102,7 +100,6 @@ tasks.withType<ShadowJar> {
     archiveClassifier.set("")
 
     relocate("org.bstats", "net.caseif.flint.steel.lib.org.bstats")
-    relocate("net.caseif.jtelemetry", "net.caseif.flint.steel.lib.net.caseif.jtelemetry")
     relocate("com.google.gson", "net.caseif.flint.steel.lib.com.google.gson")
     relocate("org.json.simple", "net.caseif.flint.steel.lib.org.json.simple")
 }

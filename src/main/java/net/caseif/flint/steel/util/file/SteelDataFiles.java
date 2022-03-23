@@ -33,8 +33,6 @@ import net.caseif.flint.common.util.file.MinigameDataFile;
  */
 public class SteelDataFiles extends CommonDataFiles {
 
-    public static final CoreDataFile TELEMETRY_UUID_STORE = new CoreDataFile("uuid.txt");
-
     // for old file formats
     public static final CoreDataFile CORE_OLD_DATA_DIR = new CoreDataFile("old", true, false);
     public static final CoreDataFile OLD_OFFLINE_PLAYER_STORE = new CoreDataFile("offline_players.yml", false, false);

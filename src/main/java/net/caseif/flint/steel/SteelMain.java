@@ -32,7 +32,6 @@ import net.caseif.flint.steel.listener.plugin.PluginListener;
 import net.caseif.flint.steel.listener.rollback.RollbackBlockListener;
 import net.caseif.flint.steel.listener.rollback.RollbackEntityListener;
 import net.caseif.flint.steel.listener.rollback.RollbackInventoryListener;
-import net.caseif.flint.steel.util.TelemetryRunner;
 import net.caseif.flint.steel.util.compatibility.CoreDataMigrationAgent;
 import net.caseif.flint.steel.util.file.SteelDataFiles;
 import net.caseif.flint.steel.util.helper.ConfigHelper;
@@ -82,7 +81,6 @@ public class SteelMain extends JavaPlugin {
         new CoreDataMigrationAgent().migrateData();
 
         initMetrics();
-        initTelemetry();
         UpdateHelper.run();
     }
 
@@ -109,12 +107,6 @@ public class SteelMain extends JavaPlugin {
                     return Integer.toString(FlintCore.getApiRevision());
                 }
             }));
-        }
-    }
-
-    public void initTelemetry() {
-        if (getConfig().getBoolean("enable-metrics")) {
-            Bukkit.getScheduler().runTask(this, new TelemetryRunner());
         }
     }
 
