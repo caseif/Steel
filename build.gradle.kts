@@ -68,8 +68,8 @@ tasks.withType<Jar> {
 
 tasks.named<Copy>("processResources") {
     from("LICENSE")
-    expand("name" to project.name)
-    expand("version" to project.version)
+    expand("version" to project.version,
+           "author" to author)
 }
 
 license {
