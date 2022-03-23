@@ -119,7 +119,7 @@ public class SteelCore extends CommonCore {
         FactoryRegistry.registerFactory(Round.class, new RoundFactory());
     }
 
-    public static boolean isLegacy() {
+    public static boolean isLegacyMinecraftVersion() {
         return legacyMcVersion;
     }
 

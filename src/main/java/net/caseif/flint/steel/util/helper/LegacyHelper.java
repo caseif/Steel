@@ -25,7 +25,6 @@
 package net.caseif.flint.steel.util.helper;
 
 import com.google.common.base.Preconditions;
-import net.caseif.flint.common.util.agent.rollback.RollbackRecord;
 import net.caseif.flint.steel.SteelCore;
 import org.bukkit.block.Block;
 
@@ -41,7 +40,7 @@ public class LegacyHelper {
     private static final Method method_Block_setData;
 
     static {
-        Preconditions.checkState(SteelCore.isLegacy(),
+        Preconditions.checkState(SteelCore.isLegacyMinecraftVersion(),
                 "Cannot use legacy helper class on non-legacy platform!");
 
         try {
@@ -63,7 +62,7 @@ public class LegacyHelper {
     }
 
     public void updateData(Block b, byte data) {
-        Preconditions.checkState(SteelCore.isLegacy(),
+        Preconditions.checkState(SteelCore.isLegacyMinecraftVersion(),
                 "Cannot use legacy helper class on non-legacy platform!");
 
         if (!working) {

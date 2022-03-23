@@ -41,7 +41,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -158,7 +157,7 @@ public final class RollbackAgent extends CommonRollbackAgent {
         }
         b.setType(m);
 
-        if (SteelCore.isLegacy()) {
+        if (SteelCore.isLegacyMinecraftVersion()) {
             SteelCore.getLegacyHelper().updateData(b, (byte) record.getData());
         }
 

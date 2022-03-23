@@ -86,7 +86,7 @@ class WizardPlayer extends CommonWizardPlayer {
         assert LocationHelper.convertLocation(location).getBlock().getState() instanceof Sign;
         this.origMaterial = LocationHelper.convertLocation(location).getBlock().getType();
 
-        if (SteelCore.isLegacy()) {
+        if (SteelCore.isLegacyMinecraftVersion()) {
             this.origLegacyData = LocationHelper.convertLocation(location).getBlock().getState().getRawData();
         } else {
             this.origBlockData = LocationHelper.convertLocation(location).getBlock().getBlockData();
@@ -101,7 +101,7 @@ class WizardPlayer extends CommonWizardPlayer {
                 Block b = LocationHelper.convertLocation(getLocation()).getBlock();
                 b.setType(origMaterial);
 
-                if (SteelCore.isLegacy()) {
+                if (SteelCore.isLegacyMinecraftVersion()) {
                     SteelCore.getLegacyHelper().updateData(b, origLegacyData);
                 } else {
                     b.setBlockData((BlockData) origBlockData);

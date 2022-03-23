@@ -60,7 +60,7 @@ import java.util.List;
  *
  * @author Max Roncacé
  */
-public class BlockStateSerializer {
+public abstract class BlockStateSerializer {
 
     private static final String INVENTORY_KEY = "inventory";
 
@@ -112,10 +112,6 @@ public class BlockStateSerializer {
         if (state instanceof Sign) {
             yaml.set(SIGN_LINES_KEY, Arrays.asList(((Sign) state).getLines()));
         } else if (state instanceof Banner) {
-            if (SteelCore.isLegacy()) {
-                yaml.set(BANNER_BASE_COLOR_KEY, ((Banner) state).getBaseColor().name());
-            }
-
             ConfigurationSection patternSection = yaml.createSection(BANNER_PATTERNS_KEY);
             List<Pattern> patterns = ((Banner) state).getPatterns();
             for (int i = 0; i < patterns.size(); i++) {
@@ -126,32 +122,31 @@ public class BlockStateSerializer {
         } else if (state instanceof CreatureSpawner) {
             yaml.set(SPAWNER_TYPE_KEY, ((CreatureSpawner) state).getSpawnedType().name());
             yaml.set(SPAWNER_DELAY_KEY, ((CreatureSpawner) state).getDelay());
-        } else if (state instanceof NoteBlock) {
-            if (SteelCore.isLegacy()) {
-                yaml.set(NOTE_OCTAVE_KEY, ((NoteBlock) state).getNote().getOctave());
-                yaml.set(NOTE_TONE_KEY, ((NoteBlock) state).getNote().getTone().name());
-                yaml.set(NOTE_SHARPED_KEY, ((NoteBlock) state).getNote().isSharped());
-            }
         } else if (state instanceof Jukebox) {
             if (((Jukebox) state).isPlaying()) {
                 yaml.set(JUKEBOX_DISC_KEY, ((Jukebox) state).getPlaying());
             }
         } else if (state instanceof Skull) {
             yaml.set(SKULL_OWNER_KEY, ((Skull) state).getOwner());
-            if (SteelCore.isLegacy()) {
-                yaml.set(SKULL_ROTATION_KEY, ((Skull) state).getRotation().name());
-            }
         } else if (state instanceof CommandBlock) {
             yaml.set(COMMAND_NAME_KEY, ((CommandBlock) state).getName());
             yaml.set(COMMAND_CMD_KEY, ((CommandBlock) state).getCommand());
-        } else if (state instanceof FlowerPot) {
-            if (SteelCore.isLegacy()) {
+        }
+
+        if (SteelCore.isLegacyMinecraftVersion()) {
+            if (state instanceof Banner) {
+                yaml.set(BANNER_BASE_COLOR_KEY, ((Banner) state).getBaseColor().name());
+            } else if (state instanceof NoteBlock) {
+                yaml.set(NOTE_OCTAVE_KEY, ((NoteBlock) state).getNote().getOctave());
+                yaml.set(NOTE_TONE_KEY, ((NoteBlock) state).getNote().getTone().name());
+                yaml.set(NOTE_SHARPED_KEY, ((NoteBlock) state).getNote().isSharped());
+            } else if (state instanceof Skull) {
+                yaml.set(SKULL_ROTATION_KEY, ((Skull) state).getRotation().name());
+            } else if (state instanceof FlowerPot) {
                 yaml.set(FLOWER_TYPE_KEY, ((FlowerPot) state).getContents().getItemType().name());
                 yaml.set(FLOWER_DATA_KEY, ((FlowerPot) state).getContents().getData());
             }
-        }
-
-        if (!SteelCore.isLegacy()) {
+        } else {
             yaml.set(BLOCK_DATA_KEY, block.getBlockData().getAsString());
         }
 
@@ -167,7 +162,7 @@ public class BlockStateSerializer {
 
         boolean hasBlockData = false;
 
-        if (!SteelCore.isLegacy()) {
+        if (!SteelCore.isLegacyMinecraftVersion()) {
             if (yaml.isString(BLOCK_DATA_KEY)) {
                 hasBlockData = true;
 
@@ -198,16 +193,6 @@ public class BlockStateSerializer {
                 missingData = true;
             }
         } else if (state instanceof Banner) {
-            if (yaml.isSet(BANNER_BASE_COLOR_KEY)) {
-                try {
-                    DyeColor color = DyeColor.valueOf(yaml.getString(BANNER_BASE_COLOR_KEY));
-                    ((Banner) state).setBaseColor(color);
-                } catch (IllegalArgumentException ex) {
-                    malformedData = true;
-                }
-            } else {
-                missingData = true;
-            }
             if (yaml.isConfigurationSection(BANNER_PATTERNS_KEY)) {
                 ConfigurationSection patterns = yaml.getConfigurationSection(BANNER_PATTERNS_KEY);
                 for (String key : patterns.getKeys(false)) {
@@ -234,19 +219,6 @@ public class BlockStateSerializer {
             } else {
                 missingData = true;
             }
-        } else if (state instanceof NoteBlock) {
-            if (yaml.isInt(NOTE_OCTAVE_KEY) && yaml.isSet(NOTE_TONE_KEY)) {
-                try {
-                    Note.Tone tone = Note.Tone.valueOf(yaml.getString(NOTE_TONE_KEY));
-                    ((NoteBlock) state).setNote(
-                            new Note(yaml.getInt(NOTE_OCTAVE_KEY), tone, yaml.getBoolean(NOTE_SHARPED_KEY))
-                    );
-                } catch (IllegalArgumentException ex) {
-                    malformedData = true;
-                }
-            } else {
-                missingData = true;
-            }
         } else if (state instanceof Jukebox) {
             if (yaml.isSet(JUKEBOX_DISC_KEY)) {
                 try {
@@ -262,16 +234,6 @@ public class BlockStateSerializer {
             if (yaml.isSet(SKULL_OWNER_KEY)) {
                 ((Skull) state).setOwner(yaml.getString(SKULL_OWNER_KEY));
             }
-            if (yaml.isSet(SKULL_ROTATION_KEY)) {
-                try {
-                    BlockFace face = BlockFace.valueOf(yaml.getString(SKULL_ROTATION_KEY));
-                    ((Skull) state).setRotation(face);
-                } catch (IllegalArgumentException ex) {
-                    malformedData = true;
-                }
-            } else {
-                missingData = true;
-            }
         } else if (state instanceof CommandBlock) {
             if (yaml.isSet(COMMAND_CMD_KEY)) {
                 ((CommandBlock) state).setCommand(yaml.getString(COMMAND_CMD_KEY));
@@ -283,24 +245,63 @@ public class BlockStateSerializer {
             } else {
                 missingData = true;
             }
-        } else if (state instanceof FlowerPot) {
-            if (yaml.isSet(FLOWER_TYPE_KEY)) {
-                try {
-                    byte data = yaml.isSet(FLOWER_DATA_KEY) ? (byte) yaml.getInt(FLOWER_DATA_KEY) : 0x0;
-                    Material type = Material.valueOf(yaml.getString(FLOWER_TYPE_KEY));
-                    ((FlowerPot) state).setContents(new MaterialData(type, data));
-                } catch (IllegalArgumentException ex) {
-                    malformedData = true;
-                }
-            } else {
-                missingData = true;
-            }
         } else if (!(state instanceof InventoryHolder)) {
             recognizedState = false;
 
             if (!hasBlockData) {
                 SteelCore.logWarning("Failed to deserialize state data for rollback record for block at {"
                         + block.getX() + ", " + block.getY() + ", " + block.getZ() + "}");
+            }
+        }
+
+        if (SteelCore.isLegacyMinecraftVersion()) {
+            if (state instanceof Banner) {
+                if (yaml.isSet(BANNER_BASE_COLOR_KEY)) {
+                    try {
+                        DyeColor color = DyeColor.valueOf(yaml.getString(BANNER_BASE_COLOR_KEY));
+                        ((Banner) state).setBaseColor(color);
+                    } catch (IllegalArgumentException ex) {
+                        malformedData = true;
+                    }
+                } else {
+                    missingData = true;
+                }
+            } else if (state instanceof NoteBlock) {
+                if (yaml.isInt(NOTE_OCTAVE_KEY) && yaml.isSet(NOTE_TONE_KEY)) {
+                    try {
+                        Note.Tone tone = Note.Tone.valueOf(yaml.getString(NOTE_TONE_KEY));
+                        ((NoteBlock) state).setNote(
+                                new Note(yaml.getInt(NOTE_OCTAVE_KEY), tone, yaml.getBoolean(NOTE_SHARPED_KEY))
+                        );
+                    } catch (IllegalArgumentException ex) {
+                        malformedData = true;
+                    }
+                } else {
+                    missingData = true;
+                }
+            } else if (state instanceof Skull) {
+                if (yaml.isSet(SKULL_ROTATION_KEY)) {
+                    try {
+                        BlockFace face = BlockFace.valueOf(yaml.getString(SKULL_ROTATION_KEY));
+                        ((Skull) state).setRotation(face);
+                    } catch (IllegalArgumentException ex) {
+                        malformedData = true;
+                    }
+                } else {
+                    missingData = true;
+                }
+            } else if (state instanceof FlowerPot) {
+                if (yaml.isSet(FLOWER_TYPE_KEY)) {
+                    try {
+                        byte data = yaml.isSet(FLOWER_DATA_KEY) ? (byte) yaml.getInt(FLOWER_DATA_KEY) : 0x0;
+                        Material type = Material.valueOf(yaml.getString(FLOWER_TYPE_KEY));
+                        ((FlowerPot) state).setContents(new MaterialData(type, data));
+                    } catch (IllegalArgumentException ex) {
+                        malformedData = true;
+                    }
+                } else {
+                    missingData = true;
+                }
             }
         }
 

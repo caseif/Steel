@@ -53,7 +53,7 @@ tasks.withType<JavaCompile> {
 }
 
 tasks.withType<Jar> {
-    classifier = "base"
+    archiveClassifier.set("base")
     
     manifest {
         attributes["Created-By"] = System.getProperty("java.vm.version") + " (" + System.getProperty("java.vm.vendor") + ")"
@@ -91,13 +91,15 @@ tasks.withType<Javadoc> {
 
 tasks.withType<ShadowJar> {
     dependencies {
-        exclude(dependency("com.google.guava:guava"))
-        exclude(dependency("org.bukkit:bukkit"))
-        exclude(dependency("junit:junit"))
-        exclude(dependency("org.hamcrest:hamcrest-core"))
+        include(project("flintcommon:flint"))
+        include(project("flintcommon"))
+        include(dependency("org.bstats:bstats-bukkit"))
+        include(dependency("net.caseif.jtelemetry:jtelemetry"))
+        include(dependency("com.google.code.gson:gson"))
+        include(dependency("com.googlecode.json-simple:json-simple"))
     }
 
-    classifier = ""
+    archiveClassifier.set("")
 
     relocate("org.bstats", "net.caseif.flint.steel.lib.org.bstats")
     relocate("net.caseif.jtelemetry", "net.caseif.flint.steel.lib.net.caseif.jtelemetry")
@@ -108,7 +110,7 @@ tasks.withType<ShadowJar> {
 tasks.create<Jar>("sourceJar") {
     from(sourceSets["main"].java)
     from(sourceSets["main"].resources)
-    classifier = "sources"
+    archiveClassifier.set("sources")
 }
 
 artifacts {
